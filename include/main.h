@@ -21,10 +21,9 @@
 #include "server.h"
 #include "telegram.h"
 #include "programm.h"
-// #include "procedure.h"
-// #include "display_led.h"
+#include "procedure.h"
 #include "keypad.h"
-// #include "sensors.h"
+#include "sensors.h"
 
 #define DEBUG
 
@@ -166,7 +165,7 @@ extern union Byte portFlag;
   #define MINWAIT         100
   #define WAITCHECKKEYPAD 1000	// mSec. максимальная пауза перед реакцией на кнопку
   extern TM1638 module;
-  extern uint8_t data[8];
+  // extern uint8_t data[8];
 #else
 
 #endif
@@ -205,19 +204,21 @@ extern union Byte portFlag;
 
 extern char botToken[50];
 extern char chatID [15];
-// extern MyTelegramBot bot;
+extern MyTelegramBot bot;
 extern bool shouldSaveConfig;
 //-------------
 extern uint8_t earlyMode, mode, tmrResetMode, quarter, errors, seconds;
 extern int tableData[32][4], tmrTelegramOff;
 extern uint16_t begHeapSize, previousHeapSize;
 extern long lastSendTime, allTime; 
-// extern Interval interval;
+extern Interval interval;
 //-------------
 
-// extern RTC_DS3231 rtc;
+extern RTC_DS3231 rtc;
 extern SpUnion settings;
-// extern DallasTemperature sensors;
+extern DallasTemperature sensors;
+extern LiquidCrystal_I2C lcd;
+extern char displStr[16];
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;

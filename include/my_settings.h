@@ -2,6 +2,7 @@
 
 char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
+char displStr[16];
 uint8_t dataLed[6];
 
 #ifndef LED_DISPLAY
@@ -53,7 +54,7 @@ uint8_t earlyMode = 0, mode = READEEPROM, tmrResetMode = 0, quarter = GET_PROG1,
 int tableData[32][4] = {0}, tmrTelegramOff = 30;
 uint16_t begHeapSize, previousHeapSize;
 long lastSendTime = 0, allTime = 0; 
-// Interval interval = INTERVAL_1000;
+Interval interval = INTERVAL_1000;
 //---------------------------------
 Ds ds[2] = {{150,0,0,0,0},{100,0,0,0,0}};
 float dpv0, dpv1;
