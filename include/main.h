@@ -4,24 +4,23 @@
 #define LED_DISPLAY
 
 #include <Arduino.h>
-// #include <MyTelegramBot.h>  // Universal Telegram Bot Library written by Brian Lough: 
-// #include <WiFiManager.h>    //https://github.com/tzapu/WiFiManager
-// #include <ArduinoJson.h>
-// #include <FS.h>
-// #include <LittleFS.h>
-// #define FlashFS LittleFS
+#include <MyTelegramBot.h>  // Universal Telegram Bot Library written by Brian Lough: 
+#include <WiFiManager.h>    //https://github.com/tzapu/WiFiManager
+#include <ArduinoJson.h>
+#include <FS.h>
+#include <LittleFS.h>
+#define FlashFS LittleFS
 #include <SPI.h>
 #include <Wire.h>     // Библиотека для I2C связи
 #include <LiquidCrystal_I2C.h>
 #include "TM1638.h"
-// #include <RTClib.h>   // Библиотека для работы с RTC DS3231
-// #include <OneWire.h>
-// #include <DallasTemperature.h>
-// #include "SoftwarePWMBit.h" // Подключаем наш новый класс
-// #include "AT24C32.h"
-// #include "server.h"
-// #include "telegram.h"
-// #include "programm.h"
+#include <RTClib.h>   // Библиотека для работы с RTC DS3231
+#include <OneWire.h>
+#include <DallasTemperature.h>
+#include "AT24C32.h"
+#include "server.h"
+#include "telegram.h"
+#include "programm.h"
 // #include "procedure.h"
 // #include "display_led.h"
 #include "keypad.h"

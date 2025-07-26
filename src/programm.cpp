@@ -60,14 +60,14 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
 void prepareTable(uint8_t prg, uint8_t day, uint8_t amountday, int16_t t0, int16_t t1, 
   int16_t rh, int16_t timer, int16_t aer0, int16_t aer1, int16_t fl){
     
-    unBuf.spDay.spT0 = t0;
-    unBuf.spDay.spT1 = t1;
-    unBuf.spDay.spRH = rh;
-    unBuf.spDay.timer0 = timer;
-    unBuf.spDay.timer1 = 0;
-    unBuf.spDay.aeration0 = aer0;
-    unBuf.spDay.aeration1 = aer1;
-    unBuf.spDay.flap = fl;
+    unBuf.spHour.spT0on = t0;
+    unBuf.spHour.spT0off = t0;
+    unBuf.spHour.spT1on = t1;
+    unBuf.spHour.spT1off = t1;
+    unBuf.spHour.watering0 = timer;
+    unBuf.spHour.watering1 = 0;
+    unBuf.spHour.watering2 = aer0;
+    unBuf.spHour.timerFlap = fl;
     
     for (size_t i = 0; i < amountday; i++){
         uint8_t curday = day + i;
@@ -123,28 +123,28 @@ void testProgs(){
   DEBUG_PRINTLN("AT24C32 EEPROM Test.");
   uint16_t memoryAddress = eepromMemoryAddressForDay(1, 1);
   eepromRdBuff(memoryAddress, unBuf.buffer, sizeof(unBuf));
-  if(unBuf.spDay.spT0 == -1){
+  if(unBuf.spHour.spT0on == -1){
     prepareProg1();
     DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N1");
   } else DEBUG_PRINTLN("PROGRAMM N1 Ok");
 
   memoryAddress = eepromMemoryAddressForDay(2, 1);
   eepromRdBuff(memoryAddress, unBuf.buffer, sizeof(unBuf));
-  if(unBuf.spDay.spT0 == -1){
+  if(unBuf.spHour.spT0on == -1){
     prepareProg2();
     DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N2");
   } else DEBUG_PRINTLN("PROGRAMM N2 Ok");
 
   memoryAddress = eepromMemoryAddressForDay(3, 1);
   eepromRdBuff(memoryAddress, unBuf.buffer, sizeof(unBuf));
-  if(unBuf.spDay.spT0 == -1){
+  if(unBuf.spHour.spT0on == -1){
     prepareProg3();
     DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N3");
   } else DEBUG_PRINTLN("PROGRAMM N3 Ok");
 
   memoryAddress = eepromMemoryAddressForDay(4, 1);
   eepromRdBuff(memoryAddress, unBuf.buffer, sizeof(unBuf));
-  if(unBuf.spDay.spT0 == -1){
+  if(unBuf.spHour.spT0on == -1){
     prepareProg4();
     DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N4");
   } else DEBUG_PRINTLN("PROGRAMM N4 Ok");
