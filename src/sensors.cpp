@@ -48,7 +48,7 @@ int16_t valDcToRH(uint16_t Vadc){
   else tmpK=1;      
   tmpRH /= tmpK;
   tmpRH *= 10;
-  tmpRH += settings.sp_structs[0].spRH;             //sp[0].spRH->ПОДСТРОЙКА HIH-5030!!
+  // tmpRH += settings.sp_structs[0].spRH;             //sp[0].spRH->ПОДСТРОЙКА HIH-5030!!
   if (tmpRH>1000) tmpRH=1000; else if (tmpRH<0) tmpRH=0;
   return tmpRH;
 }

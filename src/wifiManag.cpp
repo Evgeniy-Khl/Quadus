@@ -18,8 +18,8 @@ void initWiFiManag(void){
     wifiManager.addParameter(&custom_chatID);
 
     //------------------ reset settings ------------------------
-    if(settings.sp_structs[1].extendMode & 0x10){
-      settings.sp_structs[1].extendMode &= 0xEF;
+    if(unTable.spHour.special & 0x10){
+      unTable.spHour.special &= 0xEF;
       saveConfig();
       wifiManager.resetSettings();
     } 
@@ -28,16 +28,18 @@ void initWiFiManag(void){
     //defaults to 8%
     //wifiManager.setMinimumSignalQuality();
     //----------------------------------------------------------
-    if(settings.sp_structs[0].special < 60) settings.sp_structs[0].special = 60;
+    if(unTable.spHour.special & 0x80){
+      unTable.spHour.special &= 0x7F;
     
-    DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации: "); DEBUG_PRINTLN(settings.sp_structs[0].special);
-    // Устанавливаем таймаут для портала конфигурации в 60 секунд (1 минута)
-    lcd.clear();
-    lcd.setCursor(0,0);
-    lcd.print("Setting timeout");
-    lcd.setCursor(0,1);
-    lcd.print("for the portal");
-    wifiManager.setConfigPortalTimeout(settings.sp_structs[0].special);    
+      DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации: 60 сек.");
+      // Устанавливаем таймаут для портала конфигурации в 60 секунд (1 минута)
+      lcd.clear();
+      lcd.setCursor(0,0);
+      lcd.print("Setting timeout");
+      lcd.setCursor(0,1);
+      lcd.print("for the portal");
+      wifiManager.setConfigPortalTimeout(60);  
+    } 
     //----------------------------------------------------------
     // Пытаемся подключиться
     if (!wifiManager.autoConnect("AutoConnectAP")) {
@@ -156,7 +158,7 @@ void initWiFiManag(void){
         server.begin();   // Start server
         DEBUG_PRINTLN("HTTP server started");
         
-        begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
+        uint16_t begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
         DEBUG_PRINTF("Free heap size: %d\n", begHeapSize);
     }
 }

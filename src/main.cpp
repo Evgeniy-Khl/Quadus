@@ -48,7 +48,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("ERROR");
+      lcd.print("ERROR N"); lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("setpoint.json");
       delay(3000);
@@ -57,7 +57,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("ERROR");
+      lcd.print("ERROR N"); lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("config.json");
       delay(3000);
@@ -80,24 +80,17 @@ void setup(){
     DEBUG_PRINTF("Free space: %u bytes\n", fs_info.totalBytes - fs_info.usedBytes);
   #endif
   //---------------------------- инициализация WiFiManager -----------------------------------
-  if(settings.sp_structs[0].special) initWiFiManag();
+  if(unTable.spHour.special) initWiFiManag();
   else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
   initEnvironment();
   //------------------------------------------------------------------------------------------
-  #ifdef LED_DISPLAY
-    // if(RTCENABLE) data[1] = NUMBER_FONT[1]; //"o1o ooo oo"
-    digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
-    pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
-    // displ_IP();
-  #else
-
-  #endif
-  pvTimer = settings.sp_structs[0].timer;                  // инициализация времени выключенного состояния таймера
-  pvAeration = settings.sp_structs[0].aeration;            // инициализация ПАУЗы ПРОВЕТРИВАНИЯ (минут)
- 
+  // if(RTCENABLE) data[1] = NUMBER_FONT[1]; //"o1o ooo oo"
+  digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
+  pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
+  
   portOut.value = 0xFF;
   delay(3000);
-
+  lcd.clear();
 }
 
 void loop(){
@@ -149,6 +142,10 @@ void loop(){
       sprintf(displStr,"%2ud.%2u:%2u:%2u",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
       lcd.print(displStr);
       //***************************************************** */
+    } else {
+      lcd.setCursor(0,1);
+      sprintf(displStr,"sec:%3u; k=%3u",halfSecond,keys);
+      lcd.print(displStr);
     }
   }
 }

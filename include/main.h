@@ -77,33 +77,29 @@ extern Ds ds[];
 // Для предотвращения выравнивания полей компилятором, что может нарушить карту памяти.
 // В данном случае все поля одного типа, и проблема маловероятна, но это хорошая практика.
 #pragma pack(push, 1)
-struct Sp{
-    int16_t spT; 	      // Уставка температуры
-    int16_t spRH;	      // Уставка относительной влажности (sp[0].spRH->ПОДСТРОЙКА HIH)
-    int16_t alarm;      // дельта 5 = 0.5 гр.C
-    int16_t coolOn;     // включение охлаждения
-    int16_t coolOff;    // выключение охлаждения
-    int16_t timer;      // длительность [0]-отключ.состояниe [1]-включ.состояниe
-    int16_t aeration;   // [0]-ПАУЗА ПРОВЕТРИВАНИЯ (минут); [1]-ДЛИТЕЛЬНОСТЬ ПРОВЕТРИВАНИЯ (секунд)
-    int16_t auxiliary;  // [0]-включение форсированного; [1]-выключение форсированного
-    int16_t state;      // [0]-заслонка текущее; [1]-программа текущая
-    int16_t flapLimit;  // [0]-закрыта; [1]-открыта
-    int16_t pulse;      // [0]-MIN; [1]-Период импульсов Sec.
-    int16_t mode;       // [0]-релейный 0-НЕТ; 1->по кан.0 2->по кан.1 3->по кан.0&1; 4-импульсное по кан.1; [1]-задержка регулировки по влажному
-    int16_t extendMode; // [0]-0-СИРЕНА; 1-АВАРИЙНОЕ ОТКЛЮЧЕНИЕ; [1]-1-ОХЛАЖДЕНИЕ; 2-ОСУШЕНИЕ; 3-ОХЛАЖДЕНИЕ + ОСУШЕНИЕ
-    int16_t Kp;         // Пропорциональный
-    int16_t Ki;         // Интегральный
-    int16_t special;    // [0]- таймаут для портала конфигурации WiFi; [1]- резерв
-};                      //---- 32 уставок ----
-#pragma pack(pop)
-
-// Определяем union
-union SpUnion {
-    // Представление 1: Как массив из двух структур
-    Sp sp_structs[2];
-    // Представление 2: Как линейный массив из 32-х 16-битных значений
-    int16_t flat_array[32]; // 16 полей * 2 структуры = 32
+struct TableForOneHour{
+    uint8_t spT0on; 	  // 0-120 Уставка температуры T0 ON
+    uint8_t spT0off; 	  // 0-120 Уставка температуры T0 OFF
+    uint8_t spT1on; 	  // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+    uint8_t spT1off; 	  // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+    uint8_t watering0;  // 0-60 Длительность включ.состояниe полива № 1
+    uint8_t watering1;  // 0-60 Длительность включ.состояниe полива № 2
+    uint8_t watering2;  // 0-60 Длительность включ.состояниe полива № 3
+    uint8_t timerFlap;  // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
+    uint8_t alarm0;      // отклонение t0
+    uint8_t alarm1;      // отклонение t1
+    uint8_t special;    // сервисные функции
 };
+#pragma pack(pop)
+//Programm 1: 0-3 -> p0;  4-7 -> p1;  8-11 -> p2;  12-15 -> p3;  16-19 -> p4;  20-23 -> p5;
+//Programm 2: 0-3 -> p6;  4-7 -> p7;  8-11 -> p8;  12-15 -> p9;  16-19 -> p10; 20-23 -> p11;
+//Programm 3: 0-3 -> p12; 4-7 -> p13; 8-11 -> p14; 12-15 -> p15; 16-19 -> p16; 20-23 -> p17;
+union TableBuff {
+    uint8_t buffer[8];
+    struct TableForOneHour spHour;
+};
+
+extern TableBuff unTable;
 
 struct Bitfield {
     unsigned a0: 1;
@@ -144,8 +140,8 @@ extern union Byte portFlag;
 #define REACHED0    portFlag.bitfield.a0  // pvT[0]-ДОСТИГ spT[0]
 #define REACHED1    portFlag.bitfield.a1  // pvT[1]-ДОСТИГ spT[1]
 #define TURNSECOND  portFlag.bitfield.a2  // устанавливается в 1 если отсчет в секундах
-#define WIFIENABLE  portFlag.bitfield.a3  // разрешен WiFi
-#define HIH5030	    portFlag.bitfield.a4  // exist HIH5030 flag
+#define RTCENABLE   portFlag.bitfield.a3  // разрешены часы реальеного времени
+#define WIFIENABLE	portFlag.bitfield.a4  // разрешен WiFi
 #define AM2301	    portFlag.bitfield.a5  // exist AM2301 flag
 #define COOLING     portFlag.bitfield.a6  // охлаждение
 #define AERATION    portFlag.bitfield.a7  // проветривание
@@ -170,37 +166,18 @@ extern union Byte portFlag;
 
 #endif
 //******************************************************** */
-#define SPT_0       350 // завдання №1 35,0 °C
-#define SPRH_0      0   // завдання (ПОДСТРОЙКА HIH) = 0
-#define ALARM_0     5   // аварійне відхилення нагрів №1 0,5 °C
-#define COOLON_0    3   // охолоджувач увімкнути №1 0,3 °C
-#define COOLOFF_0   1   // охолоджувач вимкнути №1 0,1 °C
-#define TIMER_0     60  // лотки увім. = 60 хв.
-#define AERATION_0  10  // провітр.пауза ПАУЗА ПРОВЕТРИВАНИЯ (минут)
-#define AUXILIARY_0 5   // допоміж. увім. = 5 (0,5 °C)
-#define STATE_0     0   // заслінка полож. = 0 - закрита; 100 - відкрита
-#define FLPCLOSE    0   // заслінка закр.
-#define PULSE_0     100 // імпульс мінім. = 100 (1,0 сек.); 1 = 0,01 sec. 10 = 0,1 sec.; 1000 = 10,0sec.
-#define MODE_0      0   // затрим. зволож. -> 1
-#define EXTMODE_0   0   // аварійн. режим = 0-СИРЕНА; 1-АВАРИЙНОЕ ОТКЛЮЧЕНИЕ;
-#define KP_0_1      80  // пропорц. 2 (Kp/4) = 80       [20*4]
-#define KI_0_1      400 // ітеграл. 2 (Ki/10000) = 400  [20/500*10000]
-#define SPECIAL0    0   // таймаут для портала конфигурации WiFi
+#define T0ON  18 	    // 0-120 Уставка температуры T0 ON
+#define T0OFF 25 	    // 0-120 Уставка температуры T0 OFF
+#define T1ON  16 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+#define T1OFF 20 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+#define WT0   100     // 0-60 Длительность включ.состояниe полива № 1
+#define WT1   101     // 0-60 Длительность включ.состояниe полива № 2
+#define WT2   102     // 0-60 Длительность включ.состояниe полива № 3
+#define TF    0x80    // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
+#define ALARM0  5 	  // 0-120 отклонение температуры T0
+#define ALARM1  5 	  // 0-120 отклонение температуры T1
 
-#define SPT_1       300 // завдання у грд.Цесія №2 30,0 °C
-#define SPRH_1      670 // завдання у відсотках №2 65%
-#define ALARM_1     15  // аварійне відхилення №2 1,5 °C
-#define COOLON_1    10  // осушувач увімкнути №2 = 10 (1,0 °C)
-#define COOLOFF_1   5   // осушувач вимкнути №2 = 5 (0,5 °C)
-#define TIMER_1     0   // лотки вимкн. = 0
-#define AERATION_1  0   // провітр. робота ДЛИТЕЛЬНОСТЬ ПРОВЕТРИВАНИЯ (секунд) = 0
-#define AUXILIARY_1 2   // допоміж. вимкн. = 2 (0,2 °C)
-#define STATE_1     0   // задана програма = 0
-#define FLPOPEN     100 // заслінка закр.
-#define PULSE_1     15  // імпульс період = 15 (sec.) MAX = 60 sec.
-#define MODE_1      0   // режим реле = 0-НЕТ; 1->по кан.[0] 2->по кан.[1] 3->по кан.[0]&[1]; 4-импульс
-#define EXTMODE_1   1   // 1-ОХЛАЖДЕНИЕ; 2-ОСУШЕНИЕ; 3-ОХЛАЖДЕНИЕ + ОСУШЕНИЕ
-#define SPECIAL1    0   // таймаут для портала конфигурации WiFi
+
 
 extern char botToken[50];
 extern char chatID [15];
@@ -209,28 +186,24 @@ extern MyTelegramBot bot;
 extern bool shouldSaveConfig;
 //-------------
 extern uint8_t earlyMode, mode, tmrResetMode, quarter, errors, seconds;
-extern int tableData[32][4], tmrTelegramOff;
-extern uint16_t begHeapSize, previousHeapSize;
+extern int tmrTelegramOff;
 extern long lastSendTime, allTime; 
 extern Interval interval;
 //-------------
 
 extern RTC_DS3231 rtc;
-extern SpUnion settings;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern char displStr[16];
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
-extern uint8_t 
-        numberOfDevices,    // число найденых датчиков
+extern 
+uint8_t numberOfDevices,    // число найденых датчиков
         displNum,           // вариант дисплея
         resetDispl,         // время ожидания до возврата главного диплея
         numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд
-        pctHeater,          // значение мощности нагревателя
-        pctHimidifier,      // значение мощности увлажнителя
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера
         disableBeep,        // время запрета включения аварийной сигнализации
@@ -238,21 +211,14 @@ extern uint8_t
         keys,               // текущая кнопка
         keyCount,           // время удержания последней кнопки
         countSeconds;       // счетчик секунд
-
-extern int16_t 
-        pvAeration,         // текущее время проветривания
+extern
+int16_t pvAeration,         // текущее время проветривания
         pvVenting,          // ? текущее время проветривания
         editBuff;           // временное хранилище редактируемой установки
-
-extern uint16_t 
-          pvVadcRH,         // значение АЦП
-          pvRH,             // текущая относительная влажность
-          heaterValue,      // расчетное значение ШИМ сигнала нагревателя
-          humidiValue,      // расчетное значение ШИМ сигнала увлажнителя
-          pvTimer,          // текущее значение таймера
-          pvPulse,          // расчетное значение длетельности работы помпы
-          pvPeriod,         // расчетное значение периода работы помпы
-          waitCheckKeyPad;
+extern
+uint16_t    pvRH,           // текущая относительная влажность
+            pvTimer,        // текущее значение таймера
+            waitCheckKeyPad;
 
 extern const uint8_t tabRH[];
 extern uint8_t dataLed[6];

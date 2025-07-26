@@ -3,13 +3,9 @@
 char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
 char displStr[16];
-uint8_t dataLed[6];
+uint8_t dataLed[6]; 
+int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
 
-#ifndef LED_DISPLAY
-    bool newDispl = true, newTxt = true;
-    const char* keyLabel[15];
-    uint16_t keyColor[15], xpos, ypos, txt_height, t_x = 0, t_y = 0;
-#endif
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;
 
@@ -18,8 +14,6 @@ uint8_t numberOfDevices,    // число найденых датчиков
         resetDispl,         // время ожидания до возврата главного диплея
         numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд
-        pctHeater,          // значение мощности нагревателя
-        pctHimidifier,      // значение мощности увлажнителя
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера
         disableBeep,        // время запрета включения аварийной сигнализации
@@ -32,13 +26,8 @@ int16_t pvAeration,         // текущее время проветриван�
         pvVenting,          // ? текущее время проветривания
         editBuff;           // временное хранилище редактируемой установки
 
-uint16_t pvVadcRH,          // значение АЦП
-            pvRH,           // текущая относительная влажность
-            heaterValue,    // расчетное значение ШИМ сигнала нагревателя
-            humidiValue,    // расчетное значение ШИМ сигнала увлажнителя
-            pvTimer,            // текущее значение таймера
-            pvPulse,        // расчетное значение длетельности работы помпы
-            pvPeriod,       // расчетное значение периода работы помпы
+uint16_t    pvRH,           // текущая относительная влажность
+            pvTimer,        // текущее значение таймера
             waitCheckKeyPad = WAITCHECKKEYPAD;
 
 long counterWait,           // опорный интервал опроса кнопок
@@ -51,8 +40,7 @@ long counterWait,           // опорный интервал опроса кн
 #define PCF8574_ADDRESS 0x27 // Замените на ваш адрес, если необходимо
 //---------------------------------
 uint8_t earlyMode = 0, mode = READEEPROM, tmrResetMode = 0, quarter = GET_PROG1, errors, seconds = 0;
-int tableData[32][4] = {0}, tmrTelegramOff = 30;
-uint16_t begHeapSize, previousHeapSize;
+int tmrTelegramOff = 30;
 long lastSendTime = 0, allTime = 0; 
 Interval interval = INTERVAL_1000;
 //---------------------------------
@@ -64,42 +52,19 @@ union Byte portOut;
 union Byte errorsFlag;
 union Byte portFlag;
 
-SpUnion settings = {
-    .sp_structs = { // Явно говорим, что инициализируем поле sp_structs
-        { // Элемент sp_structs[0]
-            .spT = 350,             // завдання у грд.Цесія #1 = 350 (35,0 °C)
-            .spRH = 1,              // завдання у відсотках (ПОДСТРОЙКА HIH) = 0
-            .alarm = 2,             // аварійне відхилення нагрів №1 = 5 (0,5 °C)
-            .coolOn = 3,            // охолоджувач увімкнути №1 = 3 (0,3 °C)
-            .coolOff = 4,           // охолоджувач вимкнути №1 = 1 (0,1 °C)
-            .timer = 5,             // лотки увім. = 60 хв.
-            .aeration = 6,          // провітр.пауза ПАУЗА ПРОВЕТРИВАНИЯ (минут) = 10
-            .auxiliary = 7,         // допоміж. увім. = 5 (0,5 °C)
-            .state = 8,             // заслінка полож. = 0 - закрита; 100 - відкрита
-            .flapLimit = FLPCLOSE,  // заслінка закр.
-            .pulse = 10,            // імпульс мінім. = 100 (0,5 сек.)
-            .mode = 11,             // затрим. зволож. -> 1
-            .extendMode = 12,       // аварійн. режим = 0-СИРЕНА; 1-АВАРИЙНОЕ ОТКЛЮЧЕНИЕ;
-            .Kp = 13,               // пропорц. 1 (Kp/4) = 80       [20*4]
-            .Ki = 14,               // ітеграл. 1 (Ki/10000) = 400  [20/500*10000]
-        },
-        { // Элемент sp_structs[1] (можно оставить пустым для инициализации нулями)
-            .spT = 300,             // завдання у грд.Цесія №2 = 300 (30,0 °C)
-            .spRH = 16,             // завдання у відсотках №2 = 650 (65%)
-            .alarm = 17,            // аварійне відхилення №2 = 15 (1,5 °C)
-            .coolOn = 18,           // осушувач увімкнути №2 = 10 (1,0 °C)
-            .coolOff = 19,          // осушувач вимкнути №2 = 5 (0,5 °C)
-            .timer = 20,            // лотки вимкн. = 0
-            .aeration = 21,         // провітр. робота ДЛИТЕЛЬНОСТЬ ПРОВЕТРИВАНИЯ (секунд) = 0
-            .auxiliary = 22,        // допоміж. вимкн. = 2 (0,2 °C)
-            .state = 23,            // задана програма = 0
-            .flapLimit = FLPOPEN,   // заслінка відкр.
-            .pulse = 25,            // імпульс період = 999 (16 хв.)
-            .mode = 26,             // режим реле = 0-НЕТ; 1->по кан.[0] 2->по кан.[1] 3->по кан.[0]&[1]; 4-импульс
-            .extendMode = 27,       // 1-ОХЛАЖДЕНИЕ; 2-ОСУШЕНИЕ; 3-ОХЛАЖДЕНИЕ + ОСУШЕНИЕ
-            .Kp = 28,               // пропорц. 2 (Kp/4) = 80       [20*4]
-            .Ki = 29,               // ітеграл. 2 (Ki/10000) = 400  [20/500*10000]
-        }
+TableBuff unTable = {
+    .spHour = {
+    .spT0on = T0ON, 	    // 0-120 Уставка температуры T0 ON
+    .spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
+    .spT1on = T1ON, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+    .spT1off = T1OFF, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+    .watering0 = WT0,       // 0-60 Длительность включ.состояниe полива № 1
+    .watering1 = WT1,       // 0-60 Длительность включ.состояниe полива № 2
+    .watering2 = WT2,       // 0-60 Длительность включ.состояниe полива № 3
+    .timerFlap = TF,        // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
+    .alarm0 = ALARM0,       // 0-120 отклонение температуры T0
+    .alarm1 = ALARM1,       // 0-120 отклонение температуры T1
+    .special = 0,
     }
 };
 

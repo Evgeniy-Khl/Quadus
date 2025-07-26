@@ -55,7 +55,7 @@ void sendStatus(){
   welcome += WORD_AIR + getFloat((float)ds[0].pvT/10,0) + NEW_STR;
   welcome += WORD_PRODUCT + getFloat((float)ds[1].pvT/10,0) + NEW_STR;
   welcome += WORD_HUMIDITY + String(pvRH) + "%" + NEW_STR;
-  welcome += WORD_HEATING + String(pctHeater) + "%" + NEW_STR;
+  // welcome += WORD_HEATING + String(pctHeater) + "%" + NEW_STR;
   welcome += WORD_DAMPER + String(pvFlap) + "%" + NEW_STR;
   // welcome += WORD_TOTAL + String(upv.pv.currDay) + WORD_DAYS + NEW_STR;
   welcome += WORD_MISTAKES + String(errorsFlag.value) + NEW_STR;
