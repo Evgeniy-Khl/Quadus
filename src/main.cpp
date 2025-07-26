@@ -11,10 +11,6 @@ RTC_DS3231 rtc;                     // Создаем объект RTC для DS
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
 
-#ifdef ESP8266
-  X509List cert(TELEGRAM_CERTIFICATE_ROOT);
-#endif
-
 byte writePCF8574(byte data);
 
 TM1638 module(13, 14, 12);    // Создаем объект module для TM1638
@@ -42,11 +38,7 @@ void setup(){
     lcd.print("ERROR PCF8574");
     delay(3000);
   }
-
-  #ifdef ESP8266
-    configTime(0, 0, "pool.ntp.org");   // get UTC time via NTP
-    client.setTrustAnchors(&cert);      // Add root certificate for api.telegram.org
-  #endif
+  delay(3000);
   //----------------------------------- MOUNTING FS ----------------------------------------
   DEBUG_PRINTLN("mounting FS...");
   bool lFS = LittleFS.begin();
@@ -135,16 +127,29 @@ void loop(){
     }
 
   //============================= НОВАЯ ПОЛ-СЕКУНДА =================================
-  if(now - counter1s > 1000){
+  if(now - counter1s > 500){
     counter1s = now; 
     if(++halfSecond > 119) halfSecond = 0;
     // uint8_t temp = writePCF8574(halfSecond & 1);
     // DEBUG_PRINT("temp="); DEBUG_PRINTLN(temp);
-    lcd.setCursor(0,1);
-    // lcd.print("seconds:"); lcd.print(halfSecond);
-    sprintf(displStr,"sec:%3u; k=%3u",halfSecond,keys);
-    lcd.print(displStr);
+    if(halfSecond == 0){
+      //**************** Получаем текущее время ************** */
+      time_t now = time(nullptr);
+      // Преобразуем его в структуру с локальным временем
+      struct tm* timeinfo = localtime(&now);
+      // Буфер для форматированной строки времени
+      char buffer[80];
+      // Форматируем строку: "Понедельник, Июль 26 2024 15:02:15"
+      strftime(buffer, sizeof(buffer), "%A, %B %d %Y %H:%M:%S", timeinfo);
+      // Выводим время в Монитор порта
+      DEBUG_PRINT("Current time: ");
+      DEBUG_PRINTLN(buffer);
 
+      lcd.setCursor(0,1);
+      sprintf(displStr,"%2ud.%2u:%2u:%2u",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
+      lcd.print(displStr);
+      //***************************************************** */
+    }
   }
 }
 
