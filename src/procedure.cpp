@@ -80,7 +80,7 @@ uint8_t checkSetpoint(void){
   }
   DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
-    // printConfig();
+    printConfig();
   #endif
   return err;
 }
@@ -120,29 +120,24 @@ uint8_t checkConfig(void){
 
 //-------- Функция для печати текущих значений структуры в Serial порт --------
 #ifdef DEBUG
-// void printConfig() {
-//     DEBUG_PRINTLN("--------------------");
-//     for (int i = 0; i < 2; i++) {
-//         DEBUG_PRINTF("Элемент settings.sp_structs[%d]:\n", i);
-//         DEBUG_PRINTF("  spT: %d\n", unTable.spHour.spT);
-//         DEBUG_PRINTF("  spRH: %d\n", unTable.spHour.spRH);
-//         DEBUG_PRINTF("  alarm: %d\n", unTable.spHour.alarm);
-//         DEBUG_PRINTF("  coolOn: %d\n", unTable.spHour.coolOn);
-//         DEBUG_PRINTF("  coolOff: %d\n", unTable.spHour.coolOff);
-//         DEBUG_PRINTF("  timer: %d\n", unTable.spHour.timer);
-//         DEBUG_PRINTF("  aeration: %d\n", unTable.spHour.aeration);
-//         DEBUG_PRINTF("  auxiliary: %d\n", unTable.spHour.auxiliary);
-//         DEBUG_PRINTF("  flapLimit: %d\n", unTable.spHour.flapLimit);
-//         DEBUG_PRINTF("  state: %d\n", unTable.spHour.state);
-//         DEBUG_PRINTF("  pulse: %d\n", unTable.spHour.pulse);
-//         DEBUG_PRINTF("  mode: %d\n", unTable.spHour.mode);
-//         DEBUG_PRINTF("  extendMode: %d\n", unTable.spHour.extendMode);
-//         DEBUG_PRINTF("  Kp: %d\n", unTable.spHour.Kp);
-//         DEBUG_PRINTF("  Ki: %d\n", unTable.spHour.Ki);
-//         DEBUG_PRINTF("  special: %d\n", unTable.spHour.special);
-//     }
-//     DEBUG_PRINTLN("--------------------");
-// }
+void printConfig() {
+    DEBUG_PRINTLN("--------------------");
+    for (int i = 0; i < 2; i++) {
+        DEBUG_PRINTF("Элемент settings.sp_structs[%d]:\n", i);
+        DEBUG_PRINTF("  spT0on: %d\n", unTable.spHour.spT0on);
+        DEBUG_PRINTF("  spT0off: %d\n", unTable.spHour.spT0off);
+        DEBUG_PRINTF("  spT1on: %d\n", unTable.spHour.spT1on);
+        DEBUG_PRINTF("  spT1off: %d\n", unTable.spHour.spT1off);
+        DEBUG_PRINTF("  watering0: %d\n", unTable.spHour.watering0);
+        DEBUG_PRINTF("  watering1: %d\n", unTable.spHour.watering1);
+        DEBUG_PRINTF("  watering2: %d\n", unTable.spHour.watering2);
+        DEBUG_PRINTF("  timerFlap: %d\n", unTable.spHour.timerFlap);
+        DEBUG_PRINTF("  alarm0: %d\n", unTable.spHour.alarm0);
+        DEBUG_PRINTF("  alarm1: %d\n", unTable.spHour.alarm1);
+        DEBUG_PRINTF("  special: %d\n", unTable.spHour.special);
+    }
+    DEBUG_PRINTLN("--------------------");
+}
 #endif
 
 //----------- Функция сохранения конфигурации в JSON файл ----------------
@@ -311,55 +306,28 @@ errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 //   }
 // }
 
-// void reset(void){
-//   unTable.spHour.spT = SPT_0;
-//   unTable.spHour.spRH = SPRH_0;
-//   unTable.spHour.alarm = ALARM_0;
-//   unTable.spHour.coolOn = COOLON_0;
-//   unTable.spHour.coolOff = COOLOFF_0;
-//   unTable.spHour.timer = TIMER_0;
-//   unTable.spHour.aeration = AERATION_0;
-//   unTable.spHour.auxiliary = AUXILIARY_0;
-//   unTable.spHour.flapLimit = FLPCLOSE;
-//   unTable.spHour.state = STATE_0;
-//   unTable.spHour.pulse = PULSE_0;
-//   unTable.spHour.mode = MODE_0;
-//   unTable.spHour.extendMode = EXTMODE_0;
-//   unTable.spHour.Kp = KP_0_1;
-//   unTable.spHour.Ki = KI_0_1;
-//   unTable.spHour.special = SPECIAL0;
+void reset(void){
 
-//   unTable.spHour.spT = SPT_1;
-//   unTable.spHour.spRH = SPRH_1;
-//   unTable.spHour.alarm = ALARM_1;
-//   unTable.spHour.coolOn = COOLON_1;
-//   unTable.spHour.coolOff = COOLOFF_1;
-//   unTable.spHour.timer = TIMER_1;
-//   unTable.spHour.aeration = AERATION_1;
-//   unTable.spHour.auxiliary = AUXILIARY_1;
-//   unTable.spHour.flapLimit = FLPOPEN;
-//   unTable.spHour.state = STATE_1;
-//   unTable.spHour.pulse = PULSE_1;
-//   unTable.spHour.mode = MODE_1;
-//   unTable.spHour.extendMode = EXTMODE_1;
-//   unTable.spHour.Kp = KP_0_1;
-//   unTable.spHour.Ki = KI_0_1;
-//   unTable.spHour.special = SPECIAL1;
+    unTable.spHour.spT0on = T0ON, 	    // 0-120 Уставка температуры T0 ON
+    unTable.spHour.spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
+    unTable.spHour.spT1on = T1ON, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+    unTable.spHour.spT1off = T1OFF, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+    unTable.spHour.watering0 = WT0,       // 0-60 Длительность включ.состояниe полива № 1
+    unTable.spHour.watering1 = WT1,       // 0-60 Длительность включ.состояниe полива № 2
+    unTable.spHour.watering2 = WT2,       // 0-60 Длительность включ.состояниe полива № 3
+    unTable.spHour.timerFlap = TF,        // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
+    unTable.spHour.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
+    unTable.spHour.alarm1 = ALARM1,       // 0-120 отклонение температуры T1
+    unTable.spHour.special = 0,
 
-//   // for (uint8_t i = 0; i < 8; i++) { data[i] = TOP;}
-//   // module.setDisplay(data, 8); // Вывод на дисплей "--- --- --"
-//   beeperOn(50);
-//   delay(500);
-//   // for (uint8_t i = 0; i < 8; i++) { data[i] = DEF;}
-//   // module.setDisplay(data, 8); // Вывод на дисплей "--- --- --"
-//   beeperOn(50);
-//   delay(500);
-//   // for (uint8_t i = 0; i < 8; i++) { data[i] = BOT;}
-//   // module.setDisplay(data, 8); // Вывод на дисплей "--- --- --"
-//   saveConfig();
-//   beeperOn(100);
-//   delay(3000);
-// }
+  beeperOn(50);
+  delay(500);
+  beeperOn(50);
+  delay(500);
+  saveConfig();
+  beeperOn(100);
+  delay(3000);
+}
 
 //============================== Config ========================================
 void initEnvironment(void){
