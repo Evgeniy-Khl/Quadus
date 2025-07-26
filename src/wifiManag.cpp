@@ -50,6 +50,7 @@ void initWiFiManag(void){
         //------- if you get here you have connected to the WiFi -----------
         DEBUG_PRINT("Wi-Fi успешно подключен! Local ip:");
         DEBUG_PRINTLN(WiFi.localIP());	// Print ESP32 Local IP Address
+        WIFIENABLE = 1;
         // IPAddress myIP = WiFi.localIP();
         lcd.clear();
         lcd.setCursor(0,0);

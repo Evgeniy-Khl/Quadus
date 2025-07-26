@@ -132,7 +132,7 @@ void loop(){
     if(++halfSecond > 119) halfSecond = 0;
     // uint8_t temp = writePCF8574(halfSecond & 1);
     // DEBUG_PRINT("temp="); DEBUG_PRINTLN(temp);
-    if(halfSecond == 0){
+    if(WIFIENABLE && halfSecond == 0){
       //**************** Получаем текущее время ************** */
       time_t now = time(nullptr);
       // Преобразуем его в структуру с локальным временем
