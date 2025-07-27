@@ -64,9 +64,12 @@ void prepareTable(uint8_t prg, uint8_t day, uint8_t amountday, int16_t t0, int16
     unBuf.spHour.spT0off = t0;
     unBuf.spHour.spT1on = t1;
     unBuf.spHour.spT1off = t1;
-    unBuf.spHour.watering0 = timer;
-    unBuf.spHour.watering1 = 0;
-    unBuf.spHour.watering2 = aer0;
+    unBuf.spHour.water0on = timer;
+    unBuf.spHour.water0off = timer;
+    unBuf.spHour.water1on = 0;
+    unBuf.spHour.water1off = 0;
+    unBuf.spHour.water2on = aer0;
+    unBuf.spHour.water2off = aer0;
     unBuf.spHour.timerFlap = fl;
     
     for (size_t i = 0; i < amountday; i++){

@@ -91,9 +91,12 @@ void respondsEeprom(){
         doc["spT0off"] = unTable.spHour.spT0off;
         doc["spT1on"] = unTable.spHour.spT1on;
         doc["spT1off"] = unTable.spHour.spT1off;
-        doc["watering0"] = unTable.spHour.watering0;
-        doc["watering1"] = unTable.spHour.watering1;
-        doc["watering2"] = unTable.spHour.watering2;
+        doc["water0on"] = unTable.spHour.water0on;
+        doc["water0off"] = unTable.spHour.water0off;
+        doc["water1on"] = unTable.spHour.water1on;
+        doc["water1off"] = unTable.spHour.water1off;
+        doc["water2on"] = unTable.spHour.water2on;
+        doc["water2off"] = unTable.spHour.water2off;
         doc["timerFlap"] = unTable.spHour.timerFlap;
         doc["alarm0"] = unTable.spHour.alarm0;
         doc["alarm1"] = unTable.spHour.alarm1;
@@ -123,9 +126,12 @@ void acceptEeprom() {
       else if (paramName == "spT0off") unTable.spHour.spT0off = paramValue.toInt();
       else if (paramName == "spT1on") unTable.spHour.spT1on = paramValue.toInt();
       else if (paramName == "spT1off") unTable.spHour.spT1off = paramValue.toInt();
-      else if (paramName == "watering0") unTable.spHour.watering0 = paramValue.toInt();
-      else if (paramName == "watering1") unTable.spHour.watering1 = paramValue.toInt();
-      else if (paramName == "watering2") unTable.spHour.watering2 = paramValue.toInt();
+      else if (paramName == "water0on") unTable.spHour.water0on = paramValue.toInt();
+      else if (paramName == "water0off") unTable.spHour.water0off = paramValue.toInt();
+      else if (paramName == "water1on") unTable.spHour.water1on = paramValue.toInt();
+      else if (paramName == "water1off") unTable.spHour.water1off = paramValue.toInt();
+      else if (paramName == "water2on") unTable.spHour.water2on = paramValue.toInt();
+      else if (paramName == "water2off") unTable.spHour.water2off = paramValue.toInt();
       else if (paramName == "alarm0") unTable.spHour.alarm0 = paramValue.toInt();
       else if (paramName == "alarm1") unTable.spHour.alarm1 = paramValue.toInt();
       else if (paramName == "identif") unTable.spHour.special = paramValue.toInt();
@@ -151,9 +157,12 @@ void acceptEeprom() {
           row.add(unTable.spHour.spT1on);
           row.add(unTable.spHour.spT1off);
           row.add(unTable.spHour.timerFlap);
-          row.add(unTable.spHour.watering0);
-          row.add(unTable.spHour.watering1);
-          row.add(unTable.spHour.watering2);
+          row.add(unTable.spHour.water0on);
+          row.add(unTable.spHour.water0off);
+          row.add(unTable.spHour.water1on);
+          row.add(unTable.spHour.water1off);
+          row.add(unTable.spHour.water2on);
+          row.add(unTable.spHour.water2off);
       }
       serializeJson(doc, jsonResponse);
       DEBUG_PRINTF("SERVER responds to the client PROGRAM DATA #: %d,%ld\n",seconds,millis()-lastSendTime);
@@ -185,9 +194,12 @@ void acceptEeprom() {
       unTable.spHour.spT1on = data_i[1]; //
       unTable.spHour.spT1off = data_i[1]; //
       unTable.spHour.timerFlap = data_i[3]; //
-      unTable.spHour.watering0 = data_i[4]; //
-      unTable.spHour.watering1 = data_i[5]; //
-      unTable.spHour.watering2 = data_i[6]; //
+      unTable.spHour.water0on = data_i[4]; //
+      unTable.spHour.water0off = data_i[4]; //
+      unTable.spHour.water1on = data_i[5]; //
+      unTable.spHour.water1off = data_i[5]; //
+      unTable.spHour.water2on = data_i[6]; //
+      unTable.spHour.water2off = data_i[6]; //
       
       // DEBUG_PRINT("spT0="); DEBUG_PRINT(unTable.spHour.spT0); DEBUG_PRINT("; ");
       // DEBUG_PRINT("spT1="); DEBUG_PRINT(unTable.spHour.spT1); DEBUG_PRINT("; ");

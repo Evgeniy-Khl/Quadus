@@ -128,9 +128,12 @@ void printConfig() {
         DEBUG_PRINTF("  spT0off: %d\n", unTable.spHour.spT0off);
         DEBUG_PRINTF("  spT1on: %d\n", unTable.spHour.spT1on);
         DEBUG_PRINTF("  spT1off: %d\n", unTable.spHour.spT1off);
-        DEBUG_PRINTF("  watering0: %d\n", unTable.spHour.watering0);
-        DEBUG_PRINTF("  watering1: %d\n", unTable.spHour.watering1);
-        DEBUG_PRINTF("  watering2: %d\n", unTable.spHour.watering2);
+        DEBUG_PRINTF("  water0on: %d\n", unTable.spHour.water0on);
+        DEBUG_PRINTF("  water0off: %d\n", unTable.spHour.water0off);
+        DEBUG_PRINTF("  water1on: %d\n", unTable.spHour.water1on);
+        DEBUG_PRINTF("  water1off: %d\n", unTable.spHour.water1off);
+        DEBUG_PRINTF("  water2on: %d\n", unTable.spHour.water2on);
+        DEBUG_PRINTF("  water2off: %d\n", unTable.spHour.water2off);
         DEBUG_PRINTF("  timerFlap: %d\n", unTable.spHour.timerFlap);
         DEBUG_PRINTF("  alarm0: %d\n", unTable.spHour.alarm0);
         DEBUG_PRINTF("  alarm1: %d\n", unTable.spHour.alarm1);
@@ -157,9 +160,12 @@ void saveConfig() {
         obj["spT0off"] = unTable.spHour.spT0off;
         obj["spT1on"] = unTable.spHour.spT1on;
         obj["spT1off"] = unTable.spHour.spT1off;
-        obj["watering0"] = unTable.spHour.watering0;
-        obj["watering1"] = unTable.spHour.watering1;
-        obj["watering2"] = unTable.spHour.watering2;
+        obj["water0on"] = unTable.spHour.water0on;
+        obj["water0off"] = unTable.spHour.water0off;
+        obj["water1on"] = unTable.spHour.water1on;
+        obj["water1off"] = unTable.spHour.water1off;
+        obj["water2on"] = unTable.spHour.water2on;
+        obj["water2off"] = unTable.spHour.water2off;
         obj["timerFlap"] = unTable.spHour.timerFlap;
         obj["alarm0"] = unTable.spHour.alarm0;
         obj["alarm1"] = unTable.spHour.alarm1;
@@ -220,9 +226,12 @@ bool loadConfig() {
             unTable.spHour.spT0off = obj["spT0off"];
             unTable.spHour.spT1on = obj["spT1on"];
             unTable.spHour.spT1off = obj["spT1off"];
-            unTable.spHour.watering0 = obj["watering0"];
-            unTable.spHour.watering1 = obj["watering1"];
-            unTable.spHour.watering2 = obj["watering2"];
+            unTable.spHour.water0on = obj["water0on"];
+            unTable.spHour.water0off = obj["water0off"];
+            unTable.spHour.water1on = obj["water1on"];
+            unTable.spHour.water1off = obj["water1off"];
+            unTable.spHour.water2on = obj["water2on"];
+            unTable.spHour.water2off = obj["water2off"];
             unTable.spHour.timerFlap = obj["timerFlap"];
             unTable.spHour.alarm0 = obj["alarm0"];
             unTable.spHour.alarm1 = obj["alarm1"];
@@ -308,13 +317,16 @@ errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 
 void reset(void){
 
-    unTable.spHour.spT0on = T0ON, 	    // 0-120 Уставка температуры T0 ON
+    unTable.spHour.spT0on = T0ON, 	      // 0-120 Уставка температуры T0 ON
     unTable.spHour.spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
-    unTable.spHour.spT1on = T1ON, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
-    unTable.spHour.spT1off = T1OFF, 	    // 100-999 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
-    unTable.spHour.watering0 = WT0,       // 0-60 Длительность включ.состояниe полива № 1
-    unTable.spHour.watering1 = WT1,       // 0-60 Длительность включ.состояниe полива № 2
-    unTable.spHour.watering2 = WT2,       // 0-60 Длительность включ.состояниe полива № 3
+    unTable.spHour.spT1on = T1ON, 	      // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+    unTable.spHour.spT1off = T1OFF, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+    unTable.spHour.water0on = WT0ON,      // 0-120 Длительность включ.состояниe полива № 1
+    unTable.spHour.water0off = WT0OFF,    // 0-60 Длительность отключ.состояниe полива № 1
+    unTable.spHour.water1on = WT1ON,      // 0-120 Длительность включ.состояниe полива № 2
+    unTable.spHour.water1off = WT1OFF,    // 0-60 Длительность отключ.состояниe полива № 2
+    unTable.spHour.water2on = WT2ON,      // 0-120 Длительность включ.состояниe полива № 3
+    unTable.spHour.water2off = WT2OFF,    // 0-60 Длительность отключ.состояниe полива № 3
     unTable.spHour.timerFlap = TF,        // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
     unTable.spHour.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
     unTable.spHour.alarm1 = ALARM1,       // 0-120 отклонение температуры T1

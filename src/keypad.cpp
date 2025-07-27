@@ -144,15 +144,15 @@ void checkkey(uint8_t key){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     switch (key) {
         case KEY_1: numSetup = 1; editBuff = unTable.spHour.spT0on; resetDispl = RESETDISPLAY; break;
-        case KEY_2: if(unTable.spHour.watering0) {pvTimer=unTable.spHour.watering1;} 
-                    else {pvTimer=unTable.spHour.watering2;} 
+        case KEY_2: if(unTable.spHour.water0on) {pvTimer=unTable.spHour.water1on;} 
+                    else {pvTimer=unTable.spHour.water2on;} 
                     TURN = PCF_ON;
                     writePCF8574(portOut.value);
             break;
         case KEY_3: if(++displNum > 4) displNum = 0;
                     resetDispl = RESETDISPLAY;
             break;
-        case KEY_4: pvTimer=unTable.spHour.watering2; 
+        case KEY_4: pvTimer=unTable.spHour.water2on; 
                     TURN = PCF_OFF;
                     writePCF8574(portOut.value);
             break;
