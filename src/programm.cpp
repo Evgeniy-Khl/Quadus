@@ -70,7 +70,9 @@ void prepareTable(uint8_t prg, uint8_t day, uint8_t amountday, int16_t t0, int16
     unBuf.spHour.water1off = 0;
     unBuf.spHour.water2on = aer0;
     unBuf.spHour.water2off = aer0;
-    unBuf.spHour.timerFlap = fl;
+    unBuf.spHour.flap = fl;
+    unBuf.spHour.timerOn = fl;
+    unBuf.spHour.timerOff = fl;
     
     for (size_t i = 0; i < amountday; i++){
         uint8_t curday = day + i;

@@ -44,6 +44,17 @@ void setup(){
   bool lFS = LittleFS.begin();
   if(lFS) {
     DEBUG_PRINTLN("mounted file system");
+    //--------------------------------- clean LittleFS, for testing -----------------------
+    // **Здесь вы можете разместить LittleFS.format();  но ОЧЕНЬ ВАЖНО ПОНИМАТЬ КОГДА ЭТО ДЕЛАТЬ!**
+    // Например, вы можете отформатировать файловую систему только при первом запуске или при определенном условии.
+    // **ВНИМАНИЕ: Раскомментирование следующей строки приведет к форматированию LittleFS при каждом запуске!**
+    // Проверка и форматирование, если необходимо
+    if (LittleFS.format()) {
+      Serial.println("LittleFS formatted successfully");
+    } else {
+      Serial.println("Failed to format LittleFS");
+    }
+    //-------------------------------------------------------
     temp = checkSetpoint();
     if(temp){
       lcd.clear();

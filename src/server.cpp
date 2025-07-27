@@ -97,7 +97,9 @@ void respondsEeprom(){
         doc["water1off"] = unTable.spHour.water1off;
         doc["water2on"] = unTable.spHour.water2on;
         doc["water2off"] = unTable.spHour.water2off;
-        doc["timerFlap"] = unTable.spHour.timerFlap;
+        doc["flap"] = unTable.spHour.flap;
+        doc["timerOn"] = unTable.spHour.timerOn;
+        doc["timerOff"] = unTable.spHour.timerOff;
         doc["alarm0"] = unTable.spHour.alarm0;
         doc["alarm1"] = unTable.spHour.alarm1;
         doc["identif"] = unTable.spHour.special;
@@ -156,7 +158,9 @@ void acceptEeprom() {
           row.add(unTable.spHour.spT0off);
           row.add(unTable.spHour.spT1on);
           row.add(unTable.spHour.spT1off);
-          row.add(unTable.spHour.timerFlap);
+          row.add(unTable.spHour.flap);
+          row.add(unTable.spHour.timerOn);
+          row.add(unTable.spHour.timerOff);
           row.add(unTable.spHour.water0on);
           row.add(unTable.spHour.water0off);
           row.add(unTable.spHour.water1on);
@@ -193,7 +197,9 @@ void acceptEeprom() {
       unTable.spHour.spT0off = data_i[0]; //
       unTable.spHour.spT1on = data_i[1]; //
       unTable.spHour.spT1off = data_i[1]; //
-      unTable.spHour.timerFlap = data_i[3]; //
+      unTable.spHour.flap = data_i[3]; //
+      unTable.spHour.timerOn = data_i[3]; //
+      unTable.spHour.timerOff = data_i[3]; //
       unTable.spHour.water0on = data_i[4]; //
       unTable.spHour.water0off = data_i[4]; //
       unTable.spHour.water1on = data_i[5]; //

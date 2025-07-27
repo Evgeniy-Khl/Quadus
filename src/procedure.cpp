@@ -110,9 +110,11 @@ uint8_t checkConfig(void){
       }
       configFile.close();
     } else {
+      DEBUG_PRINTLN("failed to open configuration file");
       err = 2;
     }
   } else {
+    DEBUG_PRINTLN("does not exist config.json");
     err = 1;
   }
   return err;
@@ -134,7 +136,9 @@ void printConfig() {
         DEBUG_PRINTF("  water1off: %d\n", unTable.spHour.water1off);
         DEBUG_PRINTF("  water2on: %d\n", unTable.spHour.water2on);
         DEBUG_PRINTF("  water2off: %d\n", unTable.spHour.water2off);
-        DEBUG_PRINTF("  timerFlap: %d\n", unTable.spHour.timerFlap);
+        DEBUG_PRINTF("  flap: %d\n", unTable.spHour.flap);
+        DEBUG_PRINTF("  timerOn: %d\n", unTable.spHour.timerOn);
+        DEBUG_PRINTF("  timerOff: %d\n", unTable.spHour.timerOff);
         DEBUG_PRINTF("  alarm0: %d\n", unTable.spHour.alarm0);
         DEBUG_PRINTF("  alarm1: %d\n", unTable.spHour.alarm1);
         DEBUG_PRINTF("  special: %d\n", unTable.spHour.special);
@@ -166,7 +170,9 @@ void saveConfig() {
         obj["water1off"] = unTable.spHour.water1off;
         obj["water2on"] = unTable.spHour.water2on;
         obj["water2off"] = unTable.spHour.water2off;
-        obj["timerFlap"] = unTable.spHour.timerFlap;
+        obj["flap"] = unTable.spHour.flap;
+        obj["timerOn"] = unTable.spHour.timerOn;
+        obj["timerOff"] = unTable.spHour.timerOff;
         obj["alarm0"] = unTable.spHour.alarm0;
         obj["alarm1"] = unTable.spHour.alarm1;
         obj["special"] = unTable.spHour.special;
@@ -232,7 +238,9 @@ bool loadConfig() {
             unTable.spHour.water1off = obj["water1off"];
             unTable.spHour.water2on = obj["water2on"];
             unTable.spHour.water2off = obj["water2off"];
-            unTable.spHour.timerFlap = obj["timerFlap"];
+            unTable.spHour.flap = obj["flap"];
+            unTable.spHour.timerOn = obj["timerOn"];
+            unTable.spHour.timerOff = obj["timerOff"];
             unTable.spHour.alarm0 = obj["alarm0"];
             unTable.spHour.alarm1 = obj["alarm1"];
             unTable.spHour.special = obj["special"];
@@ -327,7 +335,9 @@ void reset(void){
     unTable.spHour.water1off = WT1OFF,    // 0-60 Длительность отключ.состояниe полива № 2
     unTable.spHour.water2on = WT2ON,      // 0-120 Длительность включ.состояниe полива № 3
     unTable.spHour.water2off = WT2OFF,    // 0-60 Длительность отключ.состояниe полива № 3
-    unTable.spHour.timerFlap = TF,        // 0-100 Заслонка текущее положение маска 0x7F; ВКЛ./ОТКЛ. маска 0x80
+    unTable.spHour.flap = 0,              // 0-100 Заслонка текущее положение
+    unTable.spHour.timerOn = TIMERON,     // 0-24
+    unTable.spHour.timerOff = TIMEROFF,   // 0-24
     unTable.spHour.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
     unTable.spHour.alarm1 = ALARM1,       // 0-120 отклонение температуры T1
     unTable.spHour.special = 0,
