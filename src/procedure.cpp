@@ -11,14 +11,14 @@ void beeperOn(uint8_t val){
 // void rotate_trays(void){
 //   if(!TURN){
 //     if(--pvTimer == 0){
-//       pvTimer = unTable.spHour.timer; 
+//       pvTimer = settings.timer; 
 //       TURN = PCF_OFF;
 //       DEBUG_PRINTLN("TURN = PCF_OFF");
 //     }
 //   } else {
 //     if(--pvTimer == 0){
-//       if(unTable.spHour.timer) pvTimer = unTable.spHour.timer;
-//       else pvTimer = unTable.spHour.timer;
+//       if(settings.timer) pvTimer = settings.timer;
+//       else pvTimer = settings.timer;
 //       TURN = PCF_ON;
 //       DEBUG_PRINTLN("TURN = PCF_ON");
 //     }
@@ -36,7 +36,7 @@ bool check_freeze(uint8_t i){
 int16_t checkPV(uint8_t cn){
   int16_t err;
   if(ds[cn].pvT >= 850) {errorsFlag.value |= (cn+1); err = 0;}
-  else err = unTable.spHour.spT0on - ds[cn].pvT;
+  else err = settings.spT0on - ds[cn].pvT;
   ds[cn].pvErr = err;        // err > 0 -> холодно
   return err;
 }
@@ -126,22 +126,22 @@ void printConfig() {
     DEBUG_PRINTLN("--------------------");
     for (int i = 0; i < 2; i++) {
         DEBUG_PRINTF("Элемент settings.sp_structs[%d]:\n", i);
-        DEBUG_PRINTF("  spT0on: %d\n", unTable.spHour.spT0on);
-        DEBUG_PRINTF("  spT0off: %d\n", unTable.spHour.spT0off);
-        DEBUG_PRINTF("  spT1on: %d\n", unTable.spHour.spT1on);
-        DEBUG_PRINTF("  spT1off: %d\n", unTable.spHour.spT1off);
-        DEBUG_PRINTF("  water0on: %d\n", unTable.spHour.water0on);
-        DEBUG_PRINTF("  water0off: %d\n", unTable.spHour.water0off);
-        DEBUG_PRINTF("  water1on: %d\n", unTable.spHour.water1on);
-        DEBUG_PRINTF("  water1off: %d\n", unTable.spHour.water1off);
-        DEBUG_PRINTF("  water2on: %d\n", unTable.spHour.water2on);
-        DEBUG_PRINTF("  water2off: %d\n", unTable.spHour.water2off);
-        DEBUG_PRINTF("  flap: %d\n", unTable.spHour.flap);
-        DEBUG_PRINTF("  timerOn: %d\n", unTable.spHour.timerOn);
-        DEBUG_PRINTF("  timerOff: %d\n", unTable.spHour.timerOff);
-        DEBUG_PRINTF("  alarm0: %d\n", unTable.spHour.alarm0);
-        DEBUG_PRINTF("  alarm1: %d\n", unTable.spHour.alarm1);
-        DEBUG_PRINTF("  special: %d\n", unTable.spHour.special);
+        DEBUG_PRINTF("  spT0on: %d\n", settings.spT0on);
+        DEBUG_PRINTF("  spT0off: %d\n", settings.spT0off);
+        DEBUG_PRINTF("  spT1on: %d\n", settings.spT1on);
+        DEBUG_PRINTF("  spT1off: %d\n", settings.spT1off);
+        DEBUG_PRINTF("  water0on: %d\n", settings.water0on);
+        DEBUG_PRINTF("  water0off: %d\n", settings.water0off);
+        DEBUG_PRINTF("  water1on: %d\n", settings.water1on);
+        DEBUG_PRINTF("  water1off: %d\n", settings.water1off);
+        DEBUG_PRINTF("  water2on: %d\n", settings.water2on);
+        DEBUG_PRINTF("  water2off: %d\n", settings.water2off);
+        DEBUG_PRINTF("  flap: %d\n", settings.flap);
+        DEBUG_PRINTF("  timerOn: %d\n", settings.timerOn);
+        DEBUG_PRINTF("  timerOff: %d\n", settings.timerOff);
+        DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
+        DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
+        DEBUG_PRINTF("  special: %d\n", settings.special);
     }
     DEBUG_PRINTLN("--------------------");
 }
@@ -160,22 +160,22 @@ void saveConfig() {
     // Проходим по массиву структур и добавляем данные в JSON
     for (int i = 0; i < 2; i++) {
         JsonObject obj = jsonArray.add<JsonObject>();
-        obj["spT0on"] = unTable.spHour.spT0on;
-        obj["spT0off"] = unTable.spHour.spT0off;
-        obj["spT1on"] = unTable.spHour.spT1on;
-        obj["spT1off"] = unTable.spHour.spT1off;
-        obj["water0on"] = unTable.spHour.water0on;
-        obj["water0off"] = unTable.spHour.water0off;
-        obj["water1on"] = unTable.spHour.water1on;
-        obj["water1off"] = unTable.spHour.water1off;
-        obj["water2on"] = unTable.spHour.water2on;
-        obj["water2off"] = unTable.spHour.water2off;
-        obj["flap"] = unTable.spHour.flap;
-        obj["timerOn"] = unTable.spHour.timerOn;
-        obj["timerOff"] = unTable.spHour.timerOff;
-        obj["alarm0"] = unTable.spHour.alarm0;
-        obj["alarm1"] = unTable.spHour.alarm1;
-        obj["special"] = unTable.spHour.special;
+        obj["spT0on"] = settings.spT0on;
+        obj["spT0off"] = settings.spT0off;
+        obj["spT1on"] = settings.spT1on;
+        obj["spT1off"] = settings.spT1off;
+        obj["water0on"] = settings.water0on;
+        obj["water0off"] = settings.water0off;
+        obj["water1on"] = settings.water1on;
+        obj["water1off"] = settings.water1off;
+        obj["water2on"] = settings.water2on;
+        obj["water2off"] = settings.water2off;
+        obj["flap"] = settings.flap;
+        obj["timerOn"] = settings.timerOn;
+        obj["timerOff"] = settings.timerOff;
+        obj["alarm0"] = settings.alarm0;
+        obj["alarm1"] = settings.alarm1;
+        obj["special"] = settings.special;
     }
 
     // Открываем файл для записи
@@ -228,22 +228,22 @@ bool loadConfig() {
     int i = 0;
     for (JsonObject obj : jsonArray) {
         if (i < 2) {
-            unTable.spHour.spT0on = obj["spT0on"];
-            unTable.spHour.spT0off = obj["spT0off"];
-            unTable.spHour.spT1on = obj["spT1on"];
-            unTable.spHour.spT1off = obj["spT1off"];
-            unTable.spHour.water0on = obj["water0on"];
-            unTable.spHour.water0off = obj["water0off"];
-            unTable.spHour.water1on = obj["water1on"];
-            unTable.spHour.water1off = obj["water1off"];
-            unTable.spHour.water2on = obj["water2on"];
-            unTable.spHour.water2off = obj["water2off"];
-            unTable.spHour.flap = obj["flap"];
-            unTable.spHour.timerOn = obj["timerOn"];
-            unTable.spHour.timerOff = obj["timerOff"];
-            unTable.spHour.alarm0 = obj["alarm0"];
-            unTable.spHour.alarm1 = obj["alarm1"];
-            unTable.spHour.special = obj["special"];
+            settings.spT0on = obj["spT0on"];
+            settings.spT0off = obj["spT0off"];
+            settings.spT1on = obj["spT1on"];
+            settings.spT1off = obj["spT1off"];
+            settings.water0on = obj["water0on"];
+            settings.water0off = obj["water0off"];
+            settings.water1on = obj["water1on"];
+            settings.water1off = obj["water1off"];
+            settings.water2on = obj["water2on"];
+            settings.water2off = obj["water2off"];
+            settings.flap = obj["flap"];
+            settings.timerOn = obj["timerOn"];
+            settings.timerOff = obj["timerOff"];
+            settings.alarm0 = obj["alarm0"];
+            settings.alarm1 = obj["alarm1"];
+            settings.special = obj["special"];
             i++;
         }
     }
@@ -325,22 +325,22 @@ errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 
 void reset(void){
 
-    unTable.spHour.spT0on = T0ON, 	      // 0-120 Уставка температуры T0 ON
-    unTable.spHour.spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
-    unTable.spHour.spT1on = T1ON, 	      // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
-    unTable.spHour.spT1off = T1OFF, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
-    unTable.spHour.water0on = WT0ON,      // 0-120 Длительность включ.состояниe полива № 1
-    unTable.spHour.water0off = WT0OFF,    // 0-60 Длительность отключ.состояниe полива № 1
-    unTable.spHour.water1on = WT1ON,      // 0-120 Длительность включ.состояниe полива № 2
-    unTable.spHour.water1off = WT1OFF,    // 0-60 Длительность отключ.состояниe полива № 2
-    unTable.spHour.water2on = WT2ON,      // 0-120 Длительность включ.состояниe полива № 3
-    unTable.spHour.water2off = WT2OFF,    // 0-60 Длительность отключ.состояниe полива № 3
-    unTable.spHour.flap = 0,              // 0-100 Заслонка текущее положение
-    unTable.spHour.timerOn = TIMERON,     // 0-24
-    unTable.spHour.timerOff = TIMEROFF,   // 0-24
-    unTable.spHour.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
-    unTable.spHour.alarm1 = ALARM1,       // 0-120 отклонение температуры T1
-    unTable.spHour.special = 0,
+    settings.spT0on = T0ON, 	      // 0-120 Уставка температуры T0 ON
+    settings.spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
+    settings.spT1on = T1ON, 	      // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
+    settings.spT1off = T1OFF, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
+    settings.water0on = WT0ON,      // 0-120 Длительность включ.состояниe полива № 1
+    settings.water0off = WT0OFF,    // 0-60 Длительность отключ.состояниe полива № 1
+    settings.water1on = WT1ON,      // 0-120 Длительность включ.состояниe полива № 2
+    settings.water1off = WT1OFF,    // 0-60 Длительность отключ.состояниe полива № 2
+    settings.water2on = WT2ON,      // 0-120 Длительность включ.состояниe полива № 3
+    settings.water2off = WT2OFF,    // 0-60 Длительность отключ.состояниe полива № 3
+    settings.flap = 0,              // 0-100 Заслонка текущее положение
+    settings.timerOn = TIMERON,     // 0-24
+    settings.timerOff = TIMEROFF,   // 0-24
+    settings.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
+    settings.alarm1 = ALARM1,       // 0-120 отклонение температуры T1
+    settings.special = 0,
 
   beeperOn(50);
   delay(500);

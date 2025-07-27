@@ -18,8 +18,8 @@ void initWiFiManag(void){
     wifiManager.addParameter(&custom_chatID);
 
     //------------------ reset settings ------------------------
-    if(unTable.spHour.special & 0x10){
-      unTable.spHour.special &= 0xEF;
+    if(settings.special & 0x04){
+      settings.special &= 0xFB;
       saveConfig();
       wifiManager.resetSettings();
     } 
@@ -28,18 +28,18 @@ void initWiFiManag(void){
     //defaults to 8%
     //wifiManager.setMinimumSignalQuality();
     //----------------------------------------------------------
-    if(unTable.spHour.special & 0x80){
-      unTable.spHour.special &= 0x7F;
+    uint8_t tt =  (settings.special & 0x03) * 60;
     
-      DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации: 60 сек.");
+      DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
+      DEBUG_PRINTLN(tt);
       // Устанавливаем таймаут для портала конфигурации в 60 секунд (1 минута)
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Setting timeout");
       lcd.setCursor(0,1);
-      lcd.print("for the portal");
-      wifiManager.setConfigPortalTimeout(60);  
-    } 
+      lcd.print(tt);
+      lcd.print(" seconds");
+      wifiManager.setConfigPortalTimeout(tt);  
     //----------------------------------------------------------
     // Пытаемся подключиться
     if (!wifiManager.autoConnect("AutoConnectAP")) {

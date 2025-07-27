@@ -10,15 +10,12 @@ RTC_DS3231 rtc;                     // Создаем объект RTC для DS
 
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
+LiquidCrystal_I2C lcd(0x20, 16, 2);// Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte writePCF8574(byte data);
 
 TM1638 module(13, 14, 12);    // Создаем объект module для TM1638
-  // void ledDisplKeypad(long now);
-  void ledSet(void);
-
-// Set the LCD address to 0x27 for a 16 chars and 2 line display
-LiquidCrystal_I2C lcd(0x20, 16, 2);
+void ledSet(void);
 
 void setup(){
   #ifdef DEBUG
@@ -91,7 +88,7 @@ void setup(){
     DEBUG_PRINTF("Free space: %u bytes\n", fs_info.totalBytes - fs_info.usedBytes);
   #endif
   //---------------------------- инициализация WiFiManager -----------------------------------
-  if(unTable.spHour.special) initWiFiManag();
+  if(settings.special & 0x03) initWiFiManag();
   else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
   initEnvironment();
   //------------------------------------------------------------------------------------------

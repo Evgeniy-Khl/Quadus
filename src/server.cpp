@@ -25,19 +25,20 @@ String getFloat(float val, uint8_t brackets) {
 
 void respondsValues() {
     String string, jsonResponse;
+    uint8_t num = settings.deviceNum & 0x0F;
     tmrTelegramOff = 300;
     JsonDocument data;
-    data["model"] = "Клімат-5.25&nbsp;&nbsp;&nbsp;&nbsp;№:" + String(unTable.spHour.special);
+    data["model"] = "Квадус&nbsp;&nbsp;&nbsp;&nbsp;№:" + String(num);
     data["temperature0"] = getFloat((float)ds[0].pvT/10,0);
     data["temperature1"] = getFloat((float)ds[1].pvT/10,0);
-    data["settemp0"] = getFloat(unTable.spHour.spT0on,1);
-    data["settemp1"] = getFloat(unTable.spHour.spT1on,1);
+    data["settemp0"] = getFloat(settings.spT0on,1);
+    data["settemp1"] = getFloat(settings.spT1on,1);
     if(pvRH == 255) data["humidity"] = "***";
     else data["humidity"] = String(pvRH);
-    if(AM2301) data["sethum"] = "[" + String(unTable.spHour.spT1on) + "]";
+    if(AM2301) data["sethum"] = "[" + String(settings.spT1on) + "]";
     else  data["sethum"] = "[--]";
     
-    // switch (unTable.spHour.extendMode){
+    // switch (settings.extendMode){
     //   case 1: string = "охолодження"; break;
     //   case 2: string = "осущення"; break;
     //   case 3: string = "охол. и осуш."; break;
@@ -45,14 +46,14 @@ void respondsValues() {
     //   }
     // data["ventmode"] = string;
 
-    // switch (unTable.spHour.extendMode){
+    // switch (settings.extendMode){
     //   case 0: string = "сирена"; break;
     //   case 1: string = "відключення"; break;
     //   default: string = ""; break;
     // }
     // data["extmode"] = string;
     
-    // switch (unTable.spHour.mode){
+    // switch (settings.mode){
     //   case 0: string = "немає"; break;
     //   case 1: string = "канал №1"; break;
     //   case 2: string = "канал №2"; break;
@@ -61,13 +62,13 @@ void respondsValues() {
     //   default: string = ""; break;
     // }
     // data["relaymode"] = string;
-    // data["checkDry"] = (unTable.spHour.mode) ? "встановлене" : "немає";
+    // data["checkDry"] = (settings.mode) ? "встановлене" : "немає";
     // data["rotation"] = String(pvTimer) + (TURNSECOND ? " сек." : " хвл.");
 
     // data["power"] = String(pctHeater) + "%";
     // data["flap"] = String(pvFlap) + "%";
-    if((unTable.spHour.special & 0xF) == 0) string = "немає";
-    else string = "№" + String(unTable.spHour.special & 0xF);
+    if((settings.program & 0xF) == 0) string = "немає";
+    else string = "№" + String(settings.program & 0xF);
     data["program"] = string;
     data["currDay"] = "0 діб.";//String(upv.pv.currDay) + "діб.";
     data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // НАГРЕВАТЕЛЬ
@@ -87,22 +88,22 @@ void respondsValues() {
 void respondsEeprom(){
     String jsonResponse;
     JsonDocument doc;
-        doc["spT0on"] = unTable.spHour.spT0on;
-        doc["spT0off"] = unTable.spHour.spT0off;
-        doc["spT1on"] = unTable.spHour.spT1on;
-        doc["spT1off"] = unTable.spHour.spT1off;
-        doc["water0on"] = unTable.spHour.water0on;
-        doc["water0off"] = unTable.spHour.water0off;
-        doc["water1on"] = unTable.spHour.water1on;
-        doc["water1off"] = unTable.spHour.water1off;
-        doc["water2on"] = unTable.spHour.water2on;
-        doc["water2off"] = unTable.spHour.water2off;
-        doc["flap"] = unTable.spHour.flap;
-        doc["timerOn"] = unTable.spHour.timerOn;
-        doc["timerOff"] = unTable.spHour.timerOff;
-        doc["alarm0"] = unTable.spHour.alarm0;
-        doc["alarm1"] = unTable.spHour.alarm1;
-        doc["identif"] = unTable.spHour.special;
+        doc["spT0on"] = settings.spT0on;
+        doc["spT0off"] = settings.spT0off;
+        doc["spT1on"] = settings.spT1on;
+        doc["spT1off"] = settings.spT1off;
+        doc["water0on"] = settings.water0on;
+        doc["water0off"] = settings.water0off;
+        doc["water1on"] = settings.water1on;
+        doc["water1off"] = settings.water1off;
+        doc["water2on"] = settings.water2on;
+        doc["water2off"] = settings.water2off;
+        doc["flap"] = settings.flap;
+        doc["timerOn"] = settings.timerOn;
+        doc["timerOff"] = settings.timerOff;
+        doc["alarm0"] = settings.alarm0;
+        doc["alarm1"] = settings.alarm1;
+        doc["identif"] = settings.deviceNum & 0x0F;
         doc["status"] = 1;
 
         serializeJson(doc, jsonResponse); // Сериализуем JSON
@@ -124,19 +125,19 @@ void acceptEeprom() {
       // Логирование параметров (раскомментируйте, если нужно)
       // DEBUG_PRINTF("Parameter: %s, Value: %s\n", paramName.c_str(), paramValue.c_str());
       
-      if (paramName == "spT0on") unTable.spHour.spT0on = paramValue.toInt();
-      else if (paramName == "spT0off") unTable.spHour.spT0off = paramValue.toInt();
-      else if (paramName == "spT1on") unTable.spHour.spT1on = paramValue.toInt();
-      else if (paramName == "spT1off") unTable.spHour.spT1off = paramValue.toInt();
-      else if (paramName == "water0on") unTable.spHour.water0on = paramValue.toInt();
-      else if (paramName == "water0off") unTable.spHour.water0off = paramValue.toInt();
-      else if (paramName == "water1on") unTable.spHour.water1on = paramValue.toInt();
-      else if (paramName == "water1off") unTable.spHour.water1off = paramValue.toInt();
-      else if (paramName == "water2on") unTable.spHour.water2on = paramValue.toInt();
-      else if (paramName == "water2off") unTable.spHour.water2off = paramValue.toInt();
-      else if (paramName == "alarm0") unTable.spHour.alarm0 = paramValue.toInt();
-      else if (paramName == "alarm1") unTable.spHour.alarm1 = paramValue.toInt();
-      else if (paramName == "identif") unTable.spHour.special = paramValue.toInt();
+      if (paramName == "spT0on") settings.spT0on = paramValue.toInt();
+      else if (paramName == "spT0off") settings.spT0off = paramValue.toInt();
+      else if (paramName == "spT1on") settings.spT1on = paramValue.toInt();
+      else if (paramName == "spT1off") settings.spT1off = paramValue.toInt();
+      else if (paramName == "water0on") settings.water0on = paramValue.toInt();
+      else if (paramName == "water0off") settings.water0off = paramValue.toInt();
+      else if (paramName == "water1on") settings.water1on = paramValue.toInt();
+      else if (paramName == "water1off") settings.water1off = paramValue.toInt();
+      else if (paramName == "water2on") settings.water2on = paramValue.toInt();
+      else if (paramName == "water2off") settings.water2off = paramValue.toInt();
+      else if (paramName == "alarm0") settings.alarm0 = paramValue.toInt();
+      else if (paramName == "alarm1") settings.alarm1 = paramValue.toInt();
+      else if (paramName == "identif") settings.deviceNum  = paramValue.toInt();
   }
 
   server.send(200); // Отправляем только статус 200
@@ -148,25 +149,25 @@ void acceptEeprom() {
     String jsonResponse;
     JsonDocument doc;
     mode = SAVEPROG; interval = INTERVAL_1000; quarter = SET_PROG4+1;
-    uint8_t prg = unTable.spHour.special & 0xF;
+    uint8_t prg = settings.program;
     if(prg){
       for (int i = 1; i < 31; i++) {
           JsonArray row = doc.add<JsonArray>();
-          uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
-          eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-          row.add(unTable.spHour.spT0on);
-          row.add(unTable.spHour.spT0off);
-          row.add(unTable.spHour.spT1on);
-          row.add(unTable.spHour.spT1off);
-          row.add(unTable.spHour.flap);
-          row.add(unTable.spHour.timerOn);
-          row.add(unTable.spHour.timerOff);
-          row.add(unTable.spHour.water0on);
-          row.add(unTable.spHour.water0off);
-          row.add(unTable.spHour.water1on);
-          row.add(unTable.spHour.water1off);
-          row.add(unTable.spHour.water2on);
-          row.add(unTable.spHour.water2off);
+          // uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
+          // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+          row.add(settings.spT0on);
+          row.add(settings.spT0off);
+          row.add(settings.spT1on);
+          row.add(settings.spT1off);
+          row.add(settings.flap);
+          row.add(settings.timerOn);
+          row.add(settings.timerOff);
+          row.add(settings.water0on);
+          row.add(settings.water0off);
+          row.add(settings.water1on);
+          row.add(settings.water1off);
+          row.add(settings.water2on);
+          row.add(settings.water2off);
       }
       serializeJson(doc, jsonResponse);
       DEBUG_PRINTF("SERVER responds to the client PROGRAM DATA #: %d,%ld\n",seconds,millis()-lastSendTime);
@@ -177,7 +178,7 @@ void acceptEeprom() {
 
   //https://arduinojson.org/v7/assistant/#/step1
   void programDeser(String input){
-    uint8_t prg = unTable.spHour.special & 0xF;
+    uint8_t prg = settings.program;
     JsonDocument doc;
 
     DeserializationError error = deserializeJson(doc, input);
@@ -193,35 +194,35 @@ void acceptEeprom() {
 
     for (int i = 1; i < 31; i++) {
       JsonArray data_i = data[i];
-      unTable.spHour.spT0on = data_i[0]; //
-      unTable.spHour.spT0off = data_i[0]; //
-      unTable.spHour.spT1on = data_i[1]; //
-      unTable.spHour.spT1off = data_i[1]; //
-      unTable.spHour.flap = data_i[3]; //
-      unTable.spHour.timerOn = data_i[3]; //
-      unTable.spHour.timerOff = data_i[3]; //
-      unTable.spHour.water0on = data_i[4]; //
-      unTable.spHour.water0off = data_i[4]; //
-      unTable.spHour.water1on = data_i[5]; //
-      unTable.spHour.water1off = data_i[5]; //
-      unTable.spHour.water2on = data_i[6]; //
-      unTable.spHour.water2off = data_i[6]; //
+      settings.spT0on = data_i[0]; //
+      settings.spT0off = data_i[0]; //
+      settings.spT1on = data_i[1]; //
+      settings.spT1off = data_i[1]; //
+      settings.flap = data_i[3]; //
+      settings.timerOn = data_i[3]; //
+      settings.timerOff = data_i[3]; //
+      settings.water0on = data_i[4]; //
+      settings.water0off = data_i[4]; //
+      settings.water1on = data_i[5]; //
+      settings.water1off = data_i[5]; //
+      settings.water2on = data_i[6]; //
+      settings.water2off = data_i[6]; //
       
-      // DEBUG_PRINT("spT0="); DEBUG_PRINT(unTable.spHour.spT0); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("spT1="); DEBUG_PRINT(unTable.spHour.spT1); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("spRH="); DEBUG_PRINT(unTable.spHour.spRH); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("flap="); DEBUG_PRINT(unTable.spHour.flap); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("timer0="); DEBUG_PRINT(unTable.spHour.timer0); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("timer1="); DEBUG_PRINT(unTable.spHour.timer1); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("aeration0="); DEBUG_PRINT(unTable.spHour.aeration0); DEBUG_PRINT("; ");
-      // DEBUG_PRINT("aeration1="); DEBUG_PRINT(unTable.spHour.aeration1); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("spT0="); DEBUG_PRINT(settings.spT0); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("spT1="); DEBUG_PRINT(settings.spT1); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("spRH="); DEBUG_PRINT(settings.spRH); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("flap="); DEBUG_PRINT(settings.flap); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("timer0="); DEBUG_PRINT(settings.timer0); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("timer1="); DEBUG_PRINT(settings.timer1); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("aeration0="); DEBUG_PRINT(settings.aeration0); DEBUG_PRINT("; ");
+      // DEBUG_PRINT("aeration1="); DEBUG_PRINT(settings.aeration1); DEBUG_PRINT("; ");
       // DEBUG_PRINTLN();
-      uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
-      byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+      // uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
+      // byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
 
       DEBUG_PRINT("DAY:"); DEBUG_PRINT(i); 
-      DEBUG_PRINT("; ADD:"); DEBUG_PRINT(memoryAddress);
-      DEBUG_PRINT("; RES:"); DEBUG_PRINTLN(res);
+      // DEBUG_PRINT("; ADD:"); DEBUG_PRINT(memoryAddress);
+      // DEBUG_PRINT("; RES:"); DEBUG_PRINTLN(res);
     }
   }
 

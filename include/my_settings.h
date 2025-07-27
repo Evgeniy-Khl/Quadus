@@ -52,8 +52,7 @@ union Byte portOut;
 union Byte errorsFlag;
 union Byte portFlag;
 
-TableBuff unTable = {
-    .spHour = {
+Settings settings = {
     .spT0on = T0ON, 	    // 0-120 Уставка температуры T0 ON
     .spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
     .spT1on = T1ON, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
@@ -70,7 +69,7 @@ TableBuff unTable = {
     .alarm0 = ALARM0,       // 0-120 отклонение температуры T0
     .alarm1 = ALARM1,       // 0-120 отклонение температуры T1
     .special = 0,
-    }
+    .deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
 };
 
 const uint8_t tabRH[420]={
