@@ -21,13 +21,17 @@ void displ0(){
       lcd.setCursor(0,0);
       lcd.print(version);
       lcd.setCursor(0,1);
-      sprintf(displStr,"sec:%3u; k=%3u",halfSecond,keys);
+      sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
       lcd.print(displStr);
     }
 }
 
 void displ1(){
-    int position = 0; // Текущая позиция для записи в строку
+    int position = 3; // Текущая позиция для записи в строку
+    displStr[0] = ' ';
+    displStr[2] = ' ';
+    displStr[3] = ' ';
+
     // 2. Проходим по массиву и собираем строку с разделителями
     for (int i = 0; i < 6; ++i) {
         char symbol;
@@ -46,26 +50,26 @@ void displ1(){
     }
     displStr[position] = '\0';          // 3. Завершаем строку нулевым символом
     lcd.setCursor(0,0);
-    lcd.print("Manual control");
+    lcd.print(" Manual control ");
     lcd.setCursor(0,1);
     lcd.print(displStr);
 }
 
 void displ2(){
     lcd.setCursor(0,0);
-    sprintf(displStr,"t0on=%3u",settings.spT0on);
+    sprintf(displStr,"t0on =%3u C",settings.spT0on);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t0off=%3u",settings.spT0off);
+    sprintf(displStr,"t0off=%3u C",settings.spT0off);
     lcd.print(displStr);
 }
 
 void displ3(){
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1on=%3u",settings.spT1on);
+    sprintf(displStr,"t1on =%3u C",settings.spT1on);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t1off=%3u",settings.spT1off);
+    sprintf(displStr,"t1off=%3u C",settings.spT1off);
     lcd.print(displStr);
     
 }

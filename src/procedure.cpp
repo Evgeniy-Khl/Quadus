@@ -124,25 +124,22 @@ uint8_t checkConfig(void){
 #ifdef DEBUG
 void printConfig() {
     DEBUG_PRINTLN("--------------------");
-    for (int i = 0; i < 2; i++) {
-        DEBUG_PRINTF("Элемент settings.sp_structs[%d]:\n", i);
-        DEBUG_PRINTF("  spT0on: %d\n", settings.spT0on);
-        DEBUG_PRINTF("  spT0off: %d\n", settings.spT0off);
-        DEBUG_PRINTF("  spT1on: %d\n", settings.spT1on);
-        DEBUG_PRINTF("  spT1off: %d\n", settings.spT1off);
-        DEBUG_PRINTF("  water0on: %d\n", settings.water0on);
-        DEBUG_PRINTF("  water0off: %d\n", settings.water0off);
-        DEBUG_PRINTF("  water1on: %d\n", settings.water1on);
-        DEBUG_PRINTF("  water1off: %d\n", settings.water1off);
-        DEBUG_PRINTF("  water2on: %d\n", settings.water2on);
-        DEBUG_PRINTF("  water2off: %d\n", settings.water2off);
-        DEBUG_PRINTF("  flap: %d\n", settings.flap);
-        DEBUG_PRINTF("  timerOn: %d\n", settings.timerOn);
-        DEBUG_PRINTF("  timerOff: %d\n", settings.timerOff);
-        DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
-        DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
-        DEBUG_PRINTF("  special: %d\n", settings.special);
-    }
+    DEBUG_PRINTF("  spT0on: %d\n", settings.spT0on);
+    DEBUG_PRINTF("  spT0off: %d\n", settings.spT0off);
+    DEBUG_PRINTF("  spT1on: %d\n", settings.spT1on);
+    DEBUG_PRINTF("  spT1off: %d\n", settings.spT1off);
+    DEBUG_PRINTF("  water0on: %d\n", settings.water0on);
+    DEBUG_PRINTF("  water0off: %d\n", settings.water0off);
+    DEBUG_PRINTF("  water1on: %d\n", settings.water1on);
+    DEBUG_PRINTF("  water1off: %d\n", settings.water1off);
+    DEBUG_PRINTF("  water2on: %d\n", settings.water2on);
+    DEBUG_PRINTF("  water2off: %d\n", settings.water2off);
+    DEBUG_PRINTF("  flap: %d\n", settings.flap);
+    DEBUG_PRINTF("  timerOn: %d\n", settings.timerOn);
+    DEBUG_PRINTF("  timerOff: %d\n", settings.timerOff);
+    DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
+    DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
+    DEBUG_PRINTF("  special: %d\n", settings.special);
     DEBUG_PRINTLN("--------------------");
 }
 #endif

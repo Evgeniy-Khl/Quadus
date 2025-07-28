@@ -99,6 +99,7 @@ void setup(){
   portOut.value = 0xFF;
   delay(3000);
   lcd.clear();
+  displSwitch();
 }
 
 void loop(){
@@ -120,8 +121,7 @@ void loop(){
       if(lastKey == keys && keys > 0){
         keyCount++;
         checkkey(keys);
-        // if(numSetup == 0) ledDispl(displNum);
-        // else display_setup();
+        displSwitch();
       } 
       else if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}
       else lastKey = keys;
@@ -130,14 +130,13 @@ void loop(){
   //============================= НОВАЯ ПОЛ-СЕКУНДА =================================
   if(now - counter1s > 500){
     counter1s = now; 
-    if(++halfSecond > 119) halfSecond = 0;
-    // uint8_t temp = writePCF8574(halfSecond & 1);
-    // DEBUG_PRINT("temp="); DEBUG_PRINTLN(temp);
-    if(halfSecond == 0){
+    if(++halfSecond > 119){
+      halfSecond = 0; 
+      if(++minutes > 59) minutes = 0;
       displSwitch();
-    }
+    } 
   }
-}
+}//-------------- END LOOP -----------------------
 
 // Функция для записи байта на PCF8574
 byte writePCF8574(byte data) {

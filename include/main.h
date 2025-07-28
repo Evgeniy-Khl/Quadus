@@ -240,7 +240,8 @@ uint8_t numberOfDevices,    // число найденых датчиков
         lastKey,            // последняя нажатая кнопка
         keys,               // текущая кнопка
         keyCount,           // время удержания последней кнопки
-        countSeconds;       // счетчик секунд
+        countSeconds,       // счетчик секунд
+        minutes;            // счетчик минут
 extern
 int16_t pvAeration,         // текущее время проветривания
         pvVenting,          // ? текущее время проветривания
