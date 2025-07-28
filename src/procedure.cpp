@@ -151,32 +151,29 @@ void printConfig() {
 void saveConfig() {
     DEBUG_PRINTLN("Сохранение конфигурации...");
 
-    // Создаем JSON документ. Размер 512 байт более чем достаточен.
+    // Создаем JSON документ
     JsonDocument doc;
 
-    // Создаем корневой JSON массив
-    JsonArray jsonArray = doc.to<JsonArray>();
+    // Создаем корневой JSON ОБЪЕКТ, а не массив
+    JsonObject obj = doc.to<JsonObject>();
 
-    // Проходим по массиву структур и добавляем данные в JSON
-    for (int i = 0; i < 2; i++) {
-        JsonObject obj = jsonArray.add<JsonObject>();
-        obj["spT0on"] = settings.spT0on;
-        obj["spT0off"] = settings.spT0off;
-        obj["spT1on"] = settings.spT1on;
-        obj["spT1off"] = settings.spT1off;
-        obj["water0on"] = settings.water0on;
-        obj["water0off"] = settings.water0off;
-        obj["water1on"] = settings.water1on;
-        obj["water1off"] = settings.water1off;
-        obj["water2on"] = settings.water2on;
-        obj["water2off"] = settings.water2off;
-        obj["flap"] = settings.flap;
-        obj["timerOn"] = settings.timerOn;
-        obj["timerOff"] = settings.timerOff;
-        obj["alarm0"] = settings.alarm0;
-        obj["alarm1"] = settings.alarm1;
-        obj["special"] = settings.special;
-    }
+    // Добавляем данные в объект
+    obj["spT0on"] = settings.spT0on;
+    obj["spT0off"] = settings.spT0off;
+    obj["spT1on"] = settings.spT1on;
+    obj["spT1off"] = settings.spT1off;
+    obj["water0on"] = settings.water0on;
+    obj["water0off"] = settings.water0off;
+    obj["water1on"] = settings.water1on;
+    obj["water1off"] = settings.water1off;
+    obj["water2on"] = settings.water2on;
+    obj["water2off"] = settings.water2off;
+    obj["flap"] = settings.flap;
+    obj["timerOn"] = settings.timerOn;
+    obj["timerOff"] = settings.timerOff;
+    obj["alarm0"] = settings.alarm0;
+    obj["alarm1"] = settings.alarm1;
+    obj["special"] = settings.special;
 
     // Открываем файл для записи
     File configFile = LittleFS.open("/setpoint.json", "w");
@@ -220,33 +217,26 @@ bool loadConfig() {
 // Закрываем файл после чтения
     configFile.close();
 
-    // Получаем корневой JSON массив
-    JsonArray jsonArray = doc.as<JsonArray>();
+    // Получаем корневой JSON объект
+    JsonObject obj = doc.as<JsonObject>();
 
-// spT spRH timer alarm coolOn coolOff aeration flapLimit state service pulse mode extendMode Kp Ki Kd
-    // Проходим по JSON массиву и заполняем структуру
-    int i = 0;
-    for (JsonObject obj : jsonArray) {
-        if (i < 2) {
-            settings.spT0on = obj["spT0on"];
-            settings.spT0off = obj["spT0off"];
-            settings.spT1on = obj["spT1on"];
-            settings.spT1off = obj["spT1off"];
-            settings.water0on = obj["water0on"];
-            settings.water0off = obj["water0off"];
-            settings.water1on = obj["water1on"];
-            settings.water1off = obj["water1off"];
-            settings.water2on = obj["water2on"];
-            settings.water2off = obj["water2off"];
-            settings.flap = obj["flap"];
-            settings.timerOn = obj["timerOn"];
-            settings.timerOff = obj["timerOff"];
-            settings.alarm0 = obj["alarm0"];
-            settings.alarm1 = obj["alarm1"];
-            settings.special = obj["special"];
-            i++;
-        }
-    }
+    settings.spT0on = obj["spT0on"];
+    settings.spT0off = obj["spT0off"];
+    settings.spT1on = obj["spT1on"];
+    settings.spT1off = obj["spT1off"];
+    settings.water0on = obj["water0on"];
+    settings.water0off = obj["water0off"];
+    settings.water1on = obj["water1on"];
+    settings.water1off = obj["water1off"];
+    settings.water2on = obj["water2on"];
+    settings.water2off = obj["water2off"];
+    settings.flap = obj["flap"];
+    settings.timerOn = obj["timerOn"];
+    settings.timerOff = obj["timerOff"];
+    settings.alarm0 = obj["alarm0"];
+    settings.alarm1 = obj["alarm1"];
+    settings.special = obj["special"];
+  
     DEBUG_PRINTLN("Конфигурация успешно загружена.");
     return true;
 }

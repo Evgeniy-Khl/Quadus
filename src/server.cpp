@@ -178,7 +178,7 @@ void acceptEeprom() {
 
   //https://arduinojson.org/v7/assistant/#/step1
   void programDeser(String input){
-    uint8_t prg = settings.program;
+    // uint8_t prg = settings.program;
     JsonDocument doc;
 
     DeserializationError error = deserializeJson(doc, input);

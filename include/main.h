@@ -91,11 +91,11 @@ struct Settings{
     uint8_t flap;       // 0-100 Заслонка текущее положение
     uint8_t timerOn;    // 0-24 Освещение ON
     uint8_t timerOff;   // 0-24 Освещение OFF
-    uint8_t alarm0;     // отклонение t0
-    uint8_t alarm1;     // отклонение t1
-    uint8_t special;    // 0x03 - initWiFiManag(); 0x04 - resetSettings(); 
-    uint8_t deviceNum;  // номер прибора;
-    uint8_t program;    // номер программы;
+    uint8_t alarm0;     // 0-24 отклонение t0
+    uint8_t alarm1;     // 0-24 отклонение t1
+    uint8_t special;    // 0-3 => 0x03 - initWiFiManag(); 0x04 - resetSettings(); 
+    uint8_t deviceNum;  // 0-120 номер прибора;
+    uint8_t program;    // 0-4 номер программы;
 };
 
 extern Settings settings;
@@ -221,12 +221,16 @@ extern RTC_DS3231 rtc;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern char displStr[16];
+extern int8_t dataOut[6];
+extern const char* version;
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
+extern
+int8_t displNum;           // вариант дисплея
+
 extern 
 uint8_t numberOfDevices,    // число найденых датчиков
-        displNum,           // вариант дисплея
         resetDispl,         // время ожидания до возврата главного диплея
         numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд
@@ -252,6 +256,7 @@ extern uint8_t dataLed[6];
 byte writePCF8574(byte data);
 byte readPCF8574();
 void initWiFiManag(void);
+void displSwitch();
 
 #endif /* __MAIN_H */
 

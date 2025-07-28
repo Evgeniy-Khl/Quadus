@@ -1,16 +1,16 @@
 #include "main.h"
 
+const char* version = "QUADUS v.0.0";
 char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
-char displStr[16];
 uint8_t dataLed[6]; 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
 
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;
+int8_t displNum;           // вариант дисплея
 
 uint8_t numberOfDevices,    // число найденых датчиков
-        displNum,           // вариант дисплея
         resetDispl,         // время ожидания до возврата главного диплея
         numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд

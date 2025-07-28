@@ -28,7 +28,7 @@ void setup(){
 
   // Turn on the blacklight and print a message.
   lcd.backlight();
-  lcd.print("QUADUS v.0.0");
+  lcd.print(version);
   if(temp){
     lcd.clear();
     lcd.setCursor(0,1);
@@ -46,11 +46,11 @@ void setup(){
     // Например, вы можете отформатировать файловую систему только при первом запуске или при определенном условии.
     // **ВНИМАНИЕ: Раскомментирование следующей строки приведет к форматированию LittleFS при каждом запуске!**
     // Проверка и форматирование, если необходимо
-    if (LittleFS.format()) {
-      Serial.println("LittleFS formatted successfully");
-    } else {
-      Serial.println("Failed to format LittleFS");
-    }
+    // if (LittleFS.format()) {
+    //   Serial.println("LittleFS formatted successfully");
+    // } else {
+    //   Serial.println("Failed to format LittleFS");
+    // }
     //-------------------------------------------------------
     temp = checkSetpoint();
     if(temp){
@@ -133,27 +133,8 @@ void loop(){
     if(++halfSecond > 119) halfSecond = 0;
     // uint8_t temp = writePCF8574(halfSecond & 1);
     // DEBUG_PRINT("temp="); DEBUG_PRINTLN(temp);
-    if(WIFIENABLE && halfSecond == 0){
-      //**************** Получаем текущее время ************** */
-      time_t now = time(nullptr);
-      // Преобразуем его в структуру с локальным временем
-      struct tm* timeinfo = localtime(&now);
-      // Буфер для форматированной строки времени
-      char buffer[80];
-      // Форматируем строку: "Понедельник, Июль 26 2024 15:02:15"
-      strftime(buffer, sizeof(buffer), "%A, %B %d %Y %H:%M:%S", timeinfo);
-      // Выводим время в Монитор порта
-      DEBUG_PRINT("Current time: ");
-      DEBUG_PRINTLN(buffer);
-
-      lcd.setCursor(0,1);
-      sprintf(displStr,"%2ud.%2u:%2u:%2u",timeinfo->tm_mday,timeinfo->tm_hour,timeinfo->tm_min,timeinfo->tm_sec);
-      lcd.print(displStr);
-      //***************************************************** */
-    } else {
-      lcd.setCursor(0,1);
-      sprintf(displStr,"sec:%3u; k=%3u",halfSecond,keys);
-      lcd.print(displStr);
+    if(halfSecond == 0){
+      displSwitch();
     }
   }
 }
