@@ -94,10 +94,10 @@ void displLight(){
 
 void displAlarm(){
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 alarm=%2u C",settings.alarm0);
+    sprintf(displStr,"t1 alarm =%2u C",settings.alarm0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 alarm=%2u C",settings.alarm1);
+    sprintf(displStr,"t2 alarm =%2u C",settings.alarm1);
     lcd.print(displStr);
 }
 
