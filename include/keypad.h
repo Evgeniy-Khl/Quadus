@@ -23,6 +23,8 @@
 #define KEY_8 128
 
 void checkkey(uint8_t key);
+void displIncr(void);
+void displDecr(void);
 void saveset(void);
 
 #endif /*_KEYPAD_H*/

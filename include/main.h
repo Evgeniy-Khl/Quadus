@@ -146,9 +146,9 @@ extern union Byte portFlag;
 #define TURN		portOut.bitfield.a0  // Поворот лотков
 #define HEATER  portOut.bitfield.a1  // НАГРЕВАТЕЛЬ
 #define HUMIDI	portOut.bitfield.a2  // УВЛАЖНИТЕЛЬ
-#define EXTRA1	portOut.bitfield.a3  // Заслонка/вентилятор охлаждения
-#define EXTRA2	portOut.bitfield.a4  // Вспомогательный нагреватель
-#define EXTRA3 	portOut.bitfield.a5  // Авария
+#define RELAY1	portOut.bitfield.a3  // реле 1
+#define RELAY2	portOut.bitfield.a4  // реле 2
+#define RELAY3 	portOut.bitfield.a5  // реле 3
 
 #define ERROR1    errorsFlag.bitfield.a0  // ОШИБКА ДАТЧИКА 0  --- потерян; 66,0-завис [E01]
 #define ERROR2	  errorsFlag.bitfield.a1  // ОШИБКА ДАТЧИКА 1  --- потерян; 66,0-завис [E02]
