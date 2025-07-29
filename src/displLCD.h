@@ -6,5 +6,8 @@ void displ0();
 void displ1();
 void displ2();
 void displ3();
+void displWater(uint8_t item);
+
+void switchTimeOff(uint8_t item, uint8_t point);
 
 #endif /* __DISPLAY_LCD_H */
