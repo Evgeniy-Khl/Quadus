@@ -130,8 +130,16 @@ void loop(){
   //============================= НОВАЯ ПОЛ-СЕКУНДА =================================
   if(now - counter1s > 500){
     counter1s = now; 
+    if(resetDispl){
+      if(--resetDispl == 0) {
+        displNum = 0; // возврат к главному дисплею
+        lcd.clear(); 
+        displ0();
+      }
+    }
+
     if(++halfSecond > 119){
-      halfSecond = 0; 
+      halfSecond = 0;
       if(++minutes > 59) minutes = 0;
       displSwitch();
     } 

@@ -51,53 +51,75 @@ void displ1(){
 }
 
 void displ2(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.spT0off;
+        editBuff1 = settings.spT0on;
+    }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 max =%3u C",settings.spT0off);
+    sprintf(displStr,"t1 max =%3u C",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t1 min =%3u C",settings.spT0on);
+    sprintf(displStr,"t1 min =%3u C",editBuff1);
     lcd.print(displStr);
 }
 
 void displ3(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.spT1off;
+        editBuff1 = settings.spT1on;
+    }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t2 max =%3u C",settings.spT1off);
+    sprintf(displStr,"t2 max =%3u C",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 min =%3u C",settings.spT1on);
+    sprintf(displStr,"t2 min =%3u C",editBuff1);
     lcd.print(displStr);
 }
 
 void displWater(uint8_t item){
-    uint8_t valOn=0, valOff=0;
-    switch (item){
-        case 1: valOn = settings.water0on; valOff = settings.water0off; break;
-        case 2: valOn = settings.water1on; valOff = settings.water1off; break;
-        case 3: valOn = settings.water2on; valOff = settings.water2off; break;
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        switch (item){
+            case 1: editBuff0 = settings.water0on; editBuff1 = settings.water0off; break;
+            case 2: editBuff0 = settings.water1on; editBuff1 = settings.water1off; break;
+            case 3: editBuff0 = settings.water2on; editBuff1 = settings.water2off; break;
+        }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"W%u on:%3u min",item,valOn);
+    sprintf(displStr,"W%u on:%3u m.",item,editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    switchTimeOff(item,valOff);
+    switchTimeOff(item,editBuff1);
     lcd.print(displStr);
 }
 
 void displLight(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.timerOn;
+        editBuff1 = settings.timerOff;
+    }
     lcd.setCursor(0,0);
-    sprintf(displStr,"L on:%2u h.",settings.timerOn);
+    sprintf(displStr,"L on :%2u h.",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"L off:%2u h.",settings.timerOff);
+    sprintf(displStr,"L off:%2u h.",editBuff1);
     lcd.print(displStr);
 }
 
 void displAlarm(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.alarm0;
+        editBuff1 = settings.alarm1;
+    }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 alarm =%2u C",settings.alarm0);
+    sprintf(displStr,"t1 alarm =%2u C",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 alarm =%2u C",settings.alarm1);
+    sprintf(displStr,"t2 alarm =%2u C",editBuff1);
     lcd.print(displStr);
 }
 

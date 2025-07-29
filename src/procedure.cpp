@@ -147,7 +147,7 @@ void printConfig() {
 //----------- Функция сохранения конфигурации в JSON файл ----------------
 void saveConfig() {
     DEBUG_PRINTLN("Сохранение конфигурации...");
-
+    waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
     // Создаем JSON документ
     JsonDocument doc;
 
@@ -172,20 +172,27 @@ void saveConfig() {
     obj["alarm1"] = settings.alarm1;
     obj["special"] = settings.special;
 
+    lcd.clear();
+    lcd.setCursor(0,0);
     // Открываем файл для записи
     File configFile = LittleFS.open("/setpoint.json", "w");
     if (!configFile) {
         DEBUG_PRINTLN("Не удалось открыть файл для записи");
+        lcd.print("File ERROR!");
         return;
     }
-
+    lcd.print("Configuration");
+    lcd.setCursor(0,1);
     // Сериализуем JSON в файл
     if (serializeJson(doc, configFile) == 0) {
         DEBUG_PRINTLN("Ошибка записи в файл");
+        lcd.print("NOT saved!");
     } else {
         DEBUG_PRINTLN("Конфигурация успешно сохранена.");
+        lcd.print("saved.");
     }
-    
+    delay(3000);
+    lcd.clear();
     configFile.close();
 }
 

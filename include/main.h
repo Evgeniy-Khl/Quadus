@@ -24,6 +24,7 @@
 #include "procedure.h"
 #include "keypad.h"
 #include "sensors.h"
+#include "displLCD.h"
 
 #define DEBUG
 
@@ -165,8 +166,8 @@ extern union Byte portFlag;
 #define RTCENABLE   portFlag.bitfield.a3  // разрешены часы реальеного времени
 #define WIFIENABLE	portFlag.bitfield.a4  // разрешен WiFi
 #define AM2301	    portFlag.bitfield.a5  // exist AM2301 flag
-#define COOLING     portFlag.bitfield.a6  // охлаждение
-#define AERATION    portFlag.bitfield.a7  // проветривание
+#define NEWSCREEN   portFlag.bitfield.a6  // новый экран
+#define SAVING      portFlag.bitfield.a7  // проветривание
 
 #define ON  1
 #define PCF_ON  0
@@ -245,7 +246,8 @@ uint8_t numberOfDevices,    // число найденых датчиков
 extern
 int16_t pvAeration,         // текущее время проветривания
         pvVenting,          // ? текущее время проветривания
-        editBuff;           // временное хранилище редактируемой установки
+        editBuff0,          // временное хранилище редактируемой установки
+        editBuff1;          // временное хранилище редактируемой установки
 extern
 uint16_t    pvRH,           // текущая относительная влажность
             pvTimer,        // текущее значение таймера
