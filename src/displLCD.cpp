@@ -28,8 +28,8 @@ void displ0(){
 void displ1(){
     int position = 3; // Текущая позиция для записи в строку
     displStr[0] = ' ';
+    displStr[1] = ' ';
     displStr[2] = ' ';
-    displStr[3] = ' ';
     // 2. Проходим по массиву и собираем строку с разделителями
     for (int i = 0; i < 6; ++i) {
         char symbol;
@@ -66,11 +66,10 @@ void displ3(){
     lcd.setCursor(0,1);
     sprintf(displStr,"t2 min =%3u C",settings.spT1on);
     lcd.print(displStr);
-    
 }
 
 void displWater(uint8_t item){
-    uint8_t valOn, valOff;
+    uint8_t valOn=0, valOff=0;
     switch (item){
         case 1: valOn = settings.water0on; valOff = settings.water0off; break;
         case 2: valOn = settings.water1on; valOff = settings.water1off; break;
@@ -82,19 +81,37 @@ void displWater(uint8_t item){
     lcd.setCursor(0,1);
     switchTimeOff(item,valOff);
     lcd.print(displStr);
-    
 }
+
+void displLight(){
+    lcd.setCursor(0,0);
+    sprintf(displStr,"L on:%2u h.",settings.timerOn);
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    sprintf(displStr,"L off:%2u h.",settings.timerOff);
+    lcd.print(displStr);
+}
+
+void displAlarm(){
+    lcd.setCursor(0,0);
+    sprintf(displStr,"t1 alarm=%2u C",settings.alarm0);
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    sprintf(displStr,"t2 alarm=%2u C",settings.alarm1);
+    lcd.print(displStr);
+}
+
 void displSwitch(){
     switch (displNum){
-    case 0: displ0(); break;
-    case 1: displ1(); break;
-    case 2: displ2(); break;
-    case 3: displ3(); break;
-    case 4: displWater(1); break;
-    case 5: displWater(2); break;
-    case 6: displWater(3); break;
-    
-    default:       break;
+        case 0: displ0(); break;
+        case 1: displ1(); break;
+        case 2: displ2(); break;
+        case 3: displ3(); break;
+        case 4: displWater(1); break;
+        case 5: displWater(2); break;
+        case 6: displWater(3); break;
+        case 7: displLight(); break;
+        case 8: displAlarm(); break;
     }
 }
 
@@ -114,6 +131,6 @@ void switchTimeOff(uint8_t item, uint8_t point){
         case 14: val = 6; break;
         case 15: val = 7; break;
     }
-    if(point < 10) sprintf(displStr,"W%u off:%2u hour",item,val);
-    else sprintf(displStr,"%2u day");
+    if(point < 10) sprintf(displStr,"W%u off:%2u h.",item,val);
+    else sprintf(displStr,"W%u off:%2u d.",item,val);
 }

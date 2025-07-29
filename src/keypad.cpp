@@ -102,9 +102,9 @@ void checkkey(uint8_t key){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     switch (key) {
         // case KEY_1: numSetup = 1; editBuff = settings.spT0on; resetDispl = RESETDISPLAY; break;
-        case KEY_2: if(++displNum > 3) displNum = 0; lcd.clear(); break;
+        case KEY_2: if(++displNum > 8) displNum = 0; lcd.clear(); break;
         // case KEY_3:    break;
-        case KEY_4: if(--displNum < 0) displNum = 3; lcd.clear(); break;
+        case KEY_4: if(--displNum < 0) displNum = 8; lcd.clear(); break;
         // case KEY_5: break;
         // case KEY_6: break;
         // case KEY_7: break;
