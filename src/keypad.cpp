@@ -2,7 +2,7 @@
 
 void checkkey(uint8_t key){
     resetDispl = RESETDISPLAY; // удерживаем режим установок 10 сек.
-    switch (displNum){
+    switch (setupNum){
     case 1:        
         portOut.value = 0xFF;
         switch (key){
@@ -132,12 +132,12 @@ void checkkey(uint8_t key){
     default:
         NEWSCREEN = 1;
         switch (key){
-            case KEY_1: displNum = 2; lcd.clear(); break;
-            case KEY_2: displNum = 3; lcd.clear(); break;
-            case KEY_3: displNum = 4; lcd.clear(); break;
-            case KEY_4: displNum = 5; lcd.clear(); break;
-            case KEY_5: displNum = 6; lcd.clear(); break;
-            case KEY_6: displNum = 7; lcd.clear(); break;
+            case KEY_1: displNum = 1; lcd.clear(); break;
+            case KEY_2: displNum = 2; lcd.clear(); break;
+            case KEY_3: displNum = 3; lcd.clear(); break;
+            case KEY_4: displNum = 4; lcd.clear(); break;
+            case KEY_5: displNum = 5; lcd.clear(); break;
+            case KEY_6: displNum = 0; lcd.clear(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }
@@ -149,14 +149,14 @@ void checkkey(uint8_t key){
 void displIncr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(++displNum > 8) displNum = 0; 
+    if(++setupNum > 8) setupNum = 0; 
     lcd.clear();
 }
 
 void displDecr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(--displNum < 0) displNum = 8; 
+    if(--setupNum < 0) setupNum = 8; 
     lcd.clear();
 }
 

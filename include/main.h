@@ -25,6 +25,7 @@
 #include "keypad.h"
 #include "sensors.h"
 #include "displLCD.h"
+#include "setupLCD.h"
 
 #define DEBUG
 
@@ -228,12 +229,12 @@ extern const char* version;
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
 extern
-int8_t displNum;           // вариант дисплея
+int8_t  displNum,           // вариант дисплея
+        setupNum;           // пунк выбора установки
 
 extern 
 uint8_t numberOfDevices,    // число найденых датчиков
         resetDispl,         // время ожидания до возврата главного диплея
-        numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера

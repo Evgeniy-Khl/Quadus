@@ -123,7 +123,7 @@ void loop(){
       if(lastKey == keys && keys > 0){
         keyCount++;
         checkkey(keys);
-        displSwitch();
+        if(setupNum == 0) displSwitch(); else setupSwitch();
       } 
       else if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}
       else lastKey = keys;
@@ -134,7 +134,8 @@ void loop(){
     counter1s = now; 
     if(resetDispl){
       if(--resetDispl == 0) {
-        displNum = 0; // возврат к главному дисплею
+        if(setupNum) saveConfig();
+        setupNum = 0; // возврат к главному дисплею
         lcd.clear(); 
         displ0();
       }
@@ -143,7 +144,7 @@ void loop(){
     if(++halfSecond > 119){
       halfSecond = 0;
       if(++minutes > 59) minutes = 0;
-      displSwitch();
+      if(setupNum == 0) displSwitch(); else setupSwitch();
     } 
   }
 }//-------------- END LOOP -----------------------

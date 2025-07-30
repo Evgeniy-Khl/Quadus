@@ -8,11 +8,11 @@ int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
 
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;
-int8_t displNum;           // вариант дисплея
+int8_t  displNum,           // вариант дисплея
+        setupNum;           // пунк выбора установки
 
 uint8_t numberOfDevices,    // число найденых датчиков
         resetDispl,         // время ожидания до возврата главного диплея
-        numSetup,           // пунк выбора установки
         halfSecond,         // счетчик полу-секунд
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера
