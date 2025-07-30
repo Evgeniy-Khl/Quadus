@@ -4,18 +4,28 @@ void checkkey(uint8_t key){
     resetDispl = RESETDISPLAY; // удерживаем режим установок 10 сек.
     switch (setupNum){
     case 1:        
-        portOut.value = 0xFF;
+        waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
-            case KEY_1: TURN = 0; break;
-            case KEY_2: HEATER = 0; break;
-            case KEY_3: HUMIDI = 0; break;
-            case KEY_4: RELAY1 = 0; break;
-            case KEY_5: RELAY2 = 0; break;
-            case KEY_6: RELAY3 = 0; break;
+            case KEY_1: if(++dataOut[0] > 1) dataOut[0] = -1; break;
+            case KEY_2: if(++dataOut[1] > 1) dataOut[1] = -1; break;
+            case KEY_3: if(++dataOut[2] > 1) dataOut[2] = -1; break;
+            case KEY_4: if(++dataOut[3] > 1) dataOut[3] = -1; break;
+            case KEY_5: if(++dataOut[4] > 1) dataOut[4] = -1; break;
+            case KEY_6: if(++dataOut[5] > 1) dataOut[5] = -1; break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }
-        writePCF8574(portOut.value);
+        
+        for (uint8_t i = 0; i < 6; i++){
+          uint8_t val = (1 << i);
+          switch (dataOut[i]){
+          case 0: portOut.value &= ~val; break;
+          case 1: portOut.value |= val; break;
+          default:  break;
+          } 
+        }
+        DEBUG_PRINT("portOut.value="); DEBUG_PRINTLN(portOut.value);
+        // writePCF8574(portOut.value);
       break;
     case 2:
         switch (key){

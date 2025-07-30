@@ -137,7 +137,7 @@ void loop(){
         if(setupNum) saveConfig();
         setupNum = 0; // возврат к главному дисплею
         lcd.clear(); 
-        displ0();
+        displSwitch();
       }
     }
 
