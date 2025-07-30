@@ -262,8 +262,8 @@ void initWiFiManag(void);
 void displSwitch();
 
 //------------------------------------------------------------
-extern
-uint8_t error_n[8],       // ПОМИЛКА_
+extern const
+uint8_t error_[8],        // ПОМИЛКА_
         failed[10],       // НЕ_ВДАЛОСЯ
         connect[12],      // підключитися
         config[12],       // Конфігурація

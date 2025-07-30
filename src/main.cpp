@@ -56,7 +56,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_n);
+      myPrint(error_);
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("setpoint.json");
@@ -66,7 +66,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_n);
+      myPrint(error_);
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("config.json");

@@ -157,7 +157,7 @@ void switchTimeOff(uint8_t item, uint8_t point){
     else sprintf(displStr,"W%u off:%2u d.",item,val);
 }
 
-void myPrint(uint8_t* data) {
+void myPrint(const uint8_t* data) {
     for (size_t i = 0; i < sizeof(data); i++) {
         lcd.write(data[i]); // Выводим элемент по индексу i
     }
