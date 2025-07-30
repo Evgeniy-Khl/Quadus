@@ -34,9 +34,9 @@ void initWiFiManag(void){
     //---- Устанавливаем таймаут для портала конфигурации в секундах ----
     lcd.clear();
     lcd.setCursor(0,0);
-    myPrint(wordSet);
+    myPrint(wordSet,sizeof(wordSet));
     lcd.setCursor(0,1);
-    myPrint(timeout_);
+    myPrint(timeout_,sizeof(timeout_));
     lcd.print(tt);
     lcd.print(" cek.");
     wifiManager.setConfigPortalTimeout(tt);  
@@ -46,9 +46,9 @@ void initWiFiManag(void){
       DEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(failed);
+      myPrint(failed,sizeof(failed));
       lcd.setCursor(0,1);
-      myPrint(connect);
+      myPrint(connect,sizeof(connect));
       // Ничего не делаем здесь, чтобы программа просто продолжила выполнение
     } else {
         //------- if you get here you have connected to the WiFi -----------
@@ -103,7 +103,7 @@ void initWiFiManag(void){
         else {
             lcd.clear();
             lcd.setCursor(0,0);
-            myPrint(invalid);
+            myPrint(invalid,sizeof(invalid));
             lcd.setCursor(0,1);
             lcd.print("botToken!");
             delay(3000);

@@ -57,10 +57,10 @@ void displ2(){
         editBuff1 = settings.spT0on;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 max =%3u C",editBuff0);
+    sprintf(displStr,"t1 max =%3u\xDF\x43",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t1 min =%3u C",editBuff1);
+    sprintf(displStr,"t1 min =%3u\xDF\x43",editBuff1);
     lcd.print(displStr);
 }
 
@@ -71,10 +71,10 @@ void displ3(){
         editBuff1 = settings.spT1on;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t2 max =%3u C",editBuff0);
+    sprintf(displStr,"t2 max =%3u\xDF\x43",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 min =%3u C",editBuff1);
+    sprintf(displStr,"t2 min =%3u\xDF\x43",editBuff1);
     lcd.print(displStr);
 }
 
@@ -116,10 +116,10 @@ void displAlarm(){
         editBuff1 = settings.alarm1;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 alarm =%2u C",editBuff0);
+    sprintf(displStr,"t1 alarm =%2u\xDF\x43",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 alarm =%2u C",editBuff1);
+    sprintf(displStr,"t2 alarm =%2u\xDF\x43",editBuff1);
     lcd.print(displStr);
 }
 
@@ -157,8 +157,8 @@ void switchTimeOff(uint8_t item, uint8_t point){
     else sprintf(displStr,"W%u off:%2u d.",item,val);
 }
 
-void myPrint(const uint8_t* data) {
-    for (size_t i = 0; i < sizeof(data); i++) {
+void myPrint(const uint8_t* data, uint8_t size) {
+    for (size_t i = 0; i < size; i++) {
         lcd.write(data[i]); // Выводим элемент по индексу i
     }
 }

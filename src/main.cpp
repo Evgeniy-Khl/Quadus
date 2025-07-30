@@ -56,7 +56,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_);
+      myPrint(error_,sizeof(error_));
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("setpoint.json");
@@ -66,7 +66,7 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_);
+      myPrint(error_,sizeof(error_));
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("config.json");
@@ -76,7 +76,7 @@ void setup(){
     DEBUG_PRINTLN("failed to mount FS");
     lcd.clear();
     lcd.setCursor(0,0);
-    myPrint(failed);
+    myPrint(failed,sizeof(failed));
     lcd.setCursor(0,1);
     lcd.print("to mount FS");
     delay(3000);
