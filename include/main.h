@@ -261,5 +261,18 @@ byte readPCF8574();
 void initWiFiManag(void);
 void displSwitch();
 
+//------------------------------------------------------------
+extern
+uint8_t error_n[8],       // ПОМИЛКА_
+        failed[10],       // НЕ_ВДАЛОСЯ
+        connect[12],      // підключитися
+        config[12],       // Конфігурація
+        no_[3],           // НЕ_ 
+        saved[10],        // збережено!
+        file_damaged[15], // Файл пошкоджено
+        wordSet[12],      // Встановлений
+        timeout_[9],      // тайм-аут_
+        invalid[12];      // неправильний
+
 #endif /* __MAIN_H */
 

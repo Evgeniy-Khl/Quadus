@@ -29,24 +29,26 @@ void initWiFiManag(void){
     //wifiManager.setMinimumSignalQuality();
     //----------------------------------------------------------
     uint8_t tt =  (settings.special & 0x03) * 60;
-    
-      DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
-      DEBUG_PRINTLN(tt);
-      // Устанавливаем таймаут для портала конфигурации в 60 секунд (1 минута)
-      lcd.clear();
-      lcd.setCursor(0,0);
-      lcd.print("Setting timeout");
-      lcd.setCursor(0,1);
-      lcd.print(tt);
-      lcd.print(" seconds");
-      wifiManager.setConfigPortalTimeout(tt);  
-    //----------------------------------------------------------
+    DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
+    DEBUG_PRINTLN(tt);
+    //---- Устанавливаем таймаут для портала конфигурации в секундах ----
+    lcd.clear();
+    lcd.setCursor(0,0);
+    myPrint(wordSet);
+    lcd.setCursor(0,1);
+    myPrint(timeout_);
+    lcd.print(tt);
+    lcd.print(" cek.");
+    wifiManager.setConfigPortalTimeout(tt);  
+    //-------------------------------------------------------------------
     // Пытаемся подключиться
     if (!wifiManager.autoConnect("AutoConnectAP")) {
       DEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
-      lcd.print("Failed connect!");
+      myPrint(failed);
+      lcd.setCursor(0,1);
+      myPrint(connect);
       // Ничего не делаем здесь, чтобы программа просто продолжила выполнение
     } else {
         //------- if you get here you have connected to the WiFi -----------
@@ -58,7 +60,7 @@ void initWiFiManag(void){
         lcd.setCursor(0,0);
         lcd.print("Wi-Fi Local ip:");
         lcd.setCursor(0,1);
-        lcd.print("WiFi.localIP()");
+        lcd.print(WiFi.localIP());
         #ifdef ESP8266
           X509List cert(TELEGRAM_CERTIFICATE_ROOT);
           client.setTrustAnchors(&cert);      // Add root certificate for api.telegram.org
@@ -96,22 +98,36 @@ void initWiFiManag(void){
         if (strlen(botToken) > 0) {
             bot.updateToken(botToken);
             // if(botSetup()) Serial.println("The command list was updated successfully.");
-            bot.sendMessage(chatID, "QUADUS v.0.0", "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+            bot.sendMessage(chatID, version, "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+        }
+        else {
+            lcd.clear();
+            lcd.setCursor(0,0);
+            myPrint(invalid);
+            lcd.setCursor(0,1);
+            lcd.print("botToken!");
+            delay(3000);
         }
         //--------------- save the custom parameters to FS -------------------------
         if(shouldSaveConfig) {
-          DEBUG_PRINTLN("saving config");
-          JsonDocument json;
-          json["botToken"] = botToken;
-          json["chatID"] = chatID;
-          File configFile = LittleFS.open("/config.json", "w");
-          if (!configFile) {
-            DEBUG_PRINTLN("failed to open config file for writing");
-          }
-          serializeJson(json, Serial);
-          serializeJson(json, configFile);
-          configFile.close();
-          
+            DEBUG_PRINTLN("saving config");
+            JsonDocument json;
+            json["botToken"] = botToken;
+            json["chatID"] = chatID;
+            File configFile = LittleFS.open("/config.json", "w");
+            if (!configFile) {
+                DEBUG_PRINTLN("failed to open config file for writing");
+            } else {
+                if (serializeJson(json, configFile) == 0) {
+                    DEBUG_PRINTLN("Failed to write to file");
+                } else {
+                    DEBUG_PRINTLN("Config saved successfully");
+                }
+                #ifdef DEBUG
+                  serializeJson(json, Serial);
+                #endif
+                configFile.close();
+            }
         }
         //============================== END SAVE =====================================
         server.on("/", HTTP_GET, []() {

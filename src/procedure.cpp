@@ -178,18 +178,18 @@ void saveConfig() {
     File configFile = LittleFS.open("/setpoint.json", "w");
     if (!configFile) {
         DEBUG_PRINTLN("Не удалось открыть файл для записи");
-        lcd.print("File ERROR!");
+        myPrint(file_damaged,sizeof(file_damaged));
         return;
     }
-    lcd.print("Configuration");
+    myPrint(config,sizeof(config));
     lcd.setCursor(0,1);
     // Сериализуем JSON в файл
     if (serializeJson(doc, configFile) == 0) {
         DEBUG_PRINTLN("Ошибка записи в файл");
-        lcd.print("NOT saved!");
+        myPrint(no_,sizeof(no_));
     } else {
         DEBUG_PRINTLN("Конфигурация успешно сохранена.");
-        lcd.print("saved.");
+        myPrint(saved,sizeof(saved));
     }
     delay(3000);
     lcd.clear();
