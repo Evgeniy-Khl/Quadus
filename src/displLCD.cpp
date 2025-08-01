@@ -1,7 +1,7 @@
 #include "displLCD.h"
 
 char displStr[16];
-//----------- Основной экран ------------------
+//----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
     if(WIFIENABLE){
       time_t now = time(nullptr);               // Получаем текущее время 
@@ -24,15 +24,16 @@ void displ0(){
       lcd.print(displStr);
     }
 }
-//---------- Ручное управление выходами --------------
+//---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    lcd.print("displ1()");
+    sprintf(displStr,"t1:%3u\xDF\x43  t2:%3u\xDF\x43",pvT0, pvT1);
+    lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
+    sprintf(displStr,"RH:%3u%%",pvRH);
     lcd.print(displStr);
 }
-
+//---------- Остаток времени до переключения W0, W1 --------------
 void displ2(){
     lcd.setCursor(0,0);
     lcd.print("displ2()");
@@ -40,7 +41,7 @@ void displ2(){
     sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
     lcd.print(displStr);
 }
-
+//---------- Остаток времени до переключения W2, L --------------
 void displ3(){
     lcd.setCursor(0,0);
     lcd.print("displ3()");
@@ -48,7 +49,7 @@ void displ3(){
     sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
     lcd.print(displStr);
 }
-
+//---------- Положение заслонки выполняемая программа --------------
 void displ4(){
     lcd.setCursor(0,0);
     lcd.print("displ4()");

@@ -23,7 +23,7 @@ void setup1(){
     }
     displStr[position] = '\0';          // 3. Завершаем строку нулевым символом
     lcd.setCursor(0,0);
-    lcd.print(" Manual control ");
+    myPrint(manual_control, sizeof(manual_control));
     lcd.setCursor(0,1);
     lcd.print(displStr);
 }
@@ -56,7 +56,7 @@ void setup3(){
     lcd.print(displStr);
 }
 
-void setWater(uint8_t item){
+void setRelay(uint8_t item){
     if(NEWSCREEN){
         NEWSCREEN = 0;
         switch (item){
@@ -67,9 +67,12 @@ void setWater(uint8_t item){
     }
     lcd.setCursor(0,0);
     sprintf(displStr,"W%u on:%3u m.",item,editBuff0);
+    if(modeOut[item] == 0) strcat(displStr,"\xDF\x43");
+    else strcat(displStr,"\x78\xB3\xBB\x2E");
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    switchTimeOff(item,editBuff1);
+    if(modeOut[item] == 0) switchTimeOff(item,editBuff1);
+    else sprintf(displStr,"W%u off:%3u\xDF\x43",item,editBuff1);
     lcd.print(displStr);
 }
 
@@ -101,14 +104,41 @@ void setAlarm(){
     lcd.print(displStr);
 }
 
+//---------- Ручное управление выходами --------------
+void setModeOut(){
+    int position = 4; // Текущая позиция для записи в строку
+    displStr[0] = ' ';
+    displStr[1] = ' ';
+    displStr[2] = ' ';
+    displStr[3] = ' ';
+    // 2. Проходим по массиву и собираем строку с разделителями
+    for (int i = 0; i < 5; ++i) {
+        char symbol;
+        if (modeOut[i] == 2) symbol = '2';
+        else if (modeOut[i] == 0) symbol = '0';
+        else symbol = '1';
+        
+        displStr[position++] = symbol;  // Добавляем преобразованный символ в строку
+        // Добавляем ';' после каждого символа, КРОМЕ последнего
+        if (i < 4) {
+            displStr[position++] = ';';
+        }
+    }
+    displStr[position] = '\0';          // 3. Завершаем строку нулевым символом
+    lcd.setCursor(0,0);
+    myPrint(output_mode, sizeof(output_mode));
+    lcd.setCursor(0,1);
+    lcd.print(displStr);
+}
+
 void setupSwitch(){
     switch (setupNum){
         case 1: setup1(); break;
         case 2: setup2(); break;
         case 3: setup3(); break;
-        case 4: setWater(1); break;
-        case 5: setWater(2); break;
-        case 6: setWater(3); break;
+        case 4: setRelay(1); break;
+        case 5: setRelay(2); break;
+        case 6: setRelay(3); break;
         case 7: setLight(); break;
         case 8: setAlarm(); break;
     }

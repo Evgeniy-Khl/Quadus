@@ -207,6 +207,7 @@ extern union Byte portFlag;
 
 // 1-1час.;2-2час.;3-3час.;4-4час.;5-6час.;6-8час.;7-10час.;8-12час.;9-24час.;10-2сут.;11-3сут.;12-4сут.;13-5сут.;14-6сут.;15-7сут.;
 
+extern const char* version;
 extern char botToken[50];
 extern char chatID [15];
 extern WiFiClientSecure client;
@@ -224,13 +225,15 @@ extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern char displStr[16];
 extern int8_t dataOut[6];
-extern const char* version;
+extern int8_t modeOut[5];
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
 extern
 int8_t  displNum,           // вариант дисплея
-        setupNum;           // пунк выбора установки
+        setupNum,           // пунк выбора установки
+        pvT0,               // температура t1
+        pvT1;               // температура t2
 
 extern 
 uint8_t numberOfDevices,    // число найденых датчиков
@@ -273,7 +276,9 @@ uint8_t error_[8],        // ПОМИЛКА_
         file_damaged[15], // Файл пошкоджено
         wordSet[12],      // Встановлений
         timeout_[9],      // тайм-аут_
-        invalid[12];      // неправильний
+        invalid[12],      // неправильний
+        manual_control[15],// Ручне керування
+        output_mode[12];  // Режим виходів
 
 #endif /* __MAIN_H */
 

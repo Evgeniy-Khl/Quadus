@@ -15,7 +15,7 @@ void checkkey(uint8_t key){
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }
-        
+        // преобразуем номер кнопки во включение одного реле
         for (uint8_t i = 0; i < 6; i++){
           uint8_t val = (1 << i);
           switch (dataOut[i]){
