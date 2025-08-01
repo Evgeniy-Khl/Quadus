@@ -20,7 +20,7 @@ void initWiFiManag(void){
     //------------------ reset settings ------------------------
     if(settings.special & 0x04){
       settings.special &= 0xFB;
-      saveConfig();
+      saveSetPoint();
       wifiManager.resetSettings();
     } 
     //----------------------------------------------------------

@@ -5,7 +5,7 @@ char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
 uint8_t dataLed[6]; 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
-int8_t modeOut[3] = {2,0,0};
+//int8_t modeOut[3] = {2,0,0};
 
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;
@@ -75,6 +75,10 @@ Settings settings = {
     .alarm1 = ALARM1,       // 0-120 отклонение температуры T1
     .special = 0,
     .deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
+    .program = 0,           // исполняемая программа;
+    .modeOut0 = 2,          // режим вывода реле;
+    .modeOut1 = 0,          // режим вывода реле;
+    .modeOut2 = 0,          // режим вывода реле;
 };
 
 const uint8_t tabRH[420]={

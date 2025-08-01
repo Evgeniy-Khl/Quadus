@@ -71,16 +71,16 @@ uint8_t checkSetpoint(void){
       if(!loadConfig()){
         DEBUG_PRINTLN("Конфігурація не завантажена!");
         err = 1 ;
-        saveConfig();  // значения по умолчанию
+        saveSetPoint();  // значения по умолчанию
       }
   } else {
-      saveConfig();  // значения по умолчанию
+      saveSetPoint();  // значения по умолчанию
       DEBUG_PRINTLN("Конфігурація за замовчуванням!");
       err = 2 ;
   }
   DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
-    printConfig();
+    printSetPoint();
   #endif
   return err;
 }
@@ -122,7 +122,7 @@ uint8_t checkConfig(void){
 
 //-------- Функция для печати текущих значений структуры в Serial порт --------
 #ifdef DEBUG
-void printConfig() {
+void printSetPoint() {
     DEBUG_PRINTLN("--------------------");
     DEBUG_PRINTF("  spT0on: %d\n", settings.spT0on);
     DEBUG_PRINTF("  spT0off: %d\n", settings.spT0off);
@@ -140,12 +140,16 @@ void printConfig() {
     DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
     DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
     DEBUG_PRINTF("  special: %d\n", settings.special);
+    DEBUG_PRINTF("  program: %d\n", settings.program);
+    DEBUG_PRINTF("  modeOut0: %d\n", settings.modeOut0);
+    DEBUG_PRINTF("  modeOut1: %d\n", settings.modeOut1);
+    DEBUG_PRINTF("  modeOut1: %d\n", settings.modeOut1);
     DEBUG_PRINTLN("--------------------");
 }
 #endif
 
 //----------- Функция сохранения конфигурации в JSON файл ----------------
-void saveConfig() {
+void saveSetPoint() {
     DEBUG_PRINTLN("Сохранение конфигурации...");
     waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
     // Создаем JSON документ
@@ -171,6 +175,10 @@ void saveConfig() {
     obj["alarm0"] = settings.alarm0;
     obj["alarm1"] = settings.alarm1;
     obj["special"] = settings.special;
+    obj["program"] = settings.program;
+    obj["modeOut0"] = settings.modeOut0;
+    obj["modeOut1"] = settings.modeOut1;
+    obj["modeOut2"] = settings.modeOut2;
 
     lcd.clear();
     lcd.setCursor(0,0);
@@ -340,7 +348,7 @@ void reset(void){
   delay(500);
   beeperOn(50);
   delay(500);
-  saveConfig();
+  saveSetPoint();
   beeperOn(100);
   delay(3000);
 }

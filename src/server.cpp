@@ -142,7 +142,7 @@ void acceptEeprom() {
 
   server.send(200); // Отправляем только статус 200
 
-  saveConfig();
+  saveSetPoint();
 }
 
   void respondsProgram(){

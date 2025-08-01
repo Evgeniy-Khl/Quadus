@@ -134,7 +134,7 @@ void loop(){
     counter1s = now; 
     if(resetDispl){
       if(--resetDispl == 0) {
-        if(setupNum) saveConfig();
+        if(setupNum) saveSetPoint();
         setupNum = 0; // возврат к главному дисплею
         lcd.clear(); 
         displSwitch();

@@ -37,7 +37,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.spT0off = editBuff0;
                 settings.spT0on  = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -53,7 +53,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.spT1off = editBuff0;
                 settings.spT1on  = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -69,7 +69,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.water0on  = editBuff0;
                 settings.water0off = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -85,7 +85,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.water1on  = editBuff0;
                 settings.water1off = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -101,7 +101,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.water2on  = editBuff0;
                 settings.water2off = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -117,7 +117,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.timerOn  = editBuff0;
                 settings.timerOff = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -133,7 +133,7 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.alarm0 = editBuff0;
                 settings.alarm1 = editBuff1;
-                saveConfig();   // 5 сек. кнопка не доступна
+                saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
@@ -159,14 +159,14 @@ void checkkey(uint8_t key){
 void displIncr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(++setupNum > 8) setupNum = 0; 
+    if(++setupNum > 9) setupNum = 0; 
     lcd.clear();
 }
 
 void displDecr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(--setupNum < 0) setupNum = 8; 
+    if(--setupNum < 0) setupNum = 9; 
     lcd.clear();
 }
 

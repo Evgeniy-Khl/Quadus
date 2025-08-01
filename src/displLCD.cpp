@@ -27,10 +27,11 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1:%3u\xDF\x43  t2:%3u\xDF\x43",pvT0, pvT1);
+    sprintf(displStr,"t1 =%3u\xDF\x43",pvT0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"RH:%3u%%",pvRH);
+    sprintf(displStr,"t2 =%3u\xDF\x43", pvT1);
+    //sprintf(displStr,"RH:%3u%%",pvRH);
     lcd.print(displStr);
 }
 //---------- Остаток времени до переключения W0, W1 --------------

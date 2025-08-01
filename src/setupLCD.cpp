@@ -57,22 +57,23 @@ void setup3(){
 }
 
 void setRelay(uint8_t item){
+    uint8_t mode = 0;
     if(NEWSCREEN){
         NEWSCREEN = 0;
         switch (item){
-            case 1: editBuff0 = settings.water0on; editBuff1 = settings.water0off; break;
-            case 2: editBuff0 = settings.water1on; editBuff1 = settings.water1off; break;
-            case 3: editBuff0 = settings.water2on; editBuff1 = settings.water2off; break;
+            case 1: editBuff0 = settings.water0on; editBuff1 = settings.water0off; mode = settings.modeOut0; break;
+            case 2: editBuff0 = settings.water1on; editBuff1 = settings.water1off; mode = settings.modeOut1; break;
+            case 3: editBuff0 = settings.water2on; editBuff1 = settings.water2off; mode = settings.modeOut2; break;
         }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"W%u on:%3u m.",item,editBuff0);
-    if(modeOut[item] == 0) strcat(displStr,"\xDF\x43");
+    sprintf(displStr,"R%u on:%3u m.",item,editBuff0);
+    if(mode == 0) strcat(displStr,"\xDF\x43");
     else strcat(displStr,"\x78\xB3\xBB\x2E");
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    if(modeOut[item] == 0) switchTimeOff(item,editBuff1);
-    else sprintf(displStr,"W%u off:%3u\xDF\x43",item,editBuff1);
+    if(mode == 0) switchTimeOff(item,editBuff1);
+    else sprintf(displStr,"R%u off:%3u\xDF\x43",item,editBuff1);
     lcd.print(displStr);
 }
 
@@ -104,27 +105,19 @@ void setAlarm(){
     lcd.print(displStr);
 }
 
-//---------- Ручное управление выходами --------------
+//---------- Режим выхода --------------
 void setModeOut(){
-    int position = 4; // Текущая позиция для записи в строку
     displStr[0] = ' ';
     displStr[1] = ' ';
     displStr[2] = ' ';
     displStr[3] = ' ';
-    // 2. Проходим по массиву и собираем строку с разделителями
-    for (int i = 0; i < 5; ++i) {
-        char symbol;
-        if (modeOut[i] == 2) symbol = '2';
-        else if (modeOut[i] == 0) symbol = '0';
-        else symbol = '1';
-        
-        displStr[position++] = symbol;  // Добавляем преобразованный символ в строку
-        // Добавляем ';' после каждого символа, КРОМЕ последнего
-        if (i < 4) {
-            displStr[position++] = ';';
-        }
-    }
-    displStr[position] = '\0';          // 3. Завершаем строку нулевым символом
+    displStr[4] = settings.modeOut0 + '0'; // '0' имеет ASCII-код 48. 2 + 48 = 50, что является кодом для '2'
+    displStr[5] = ';';
+    displStr[6] = settings.modeOut1 + '0';
+    displStr[7] = ';';
+    displStr[8] = settings.modeOut2 + '0';
+    displStr[9] = '\0';
+
     lcd.setCursor(0,0);
     myPrint(output_mode, sizeof(output_mode));
     lcd.setCursor(0,1);
@@ -141,6 +134,7 @@ void setupSwitch(){
         case 6: setRelay(3); break;
         case 7: setLight(); break;
         case 8: setAlarm(); break;
+        case 9: setModeOut(); break;
     }
 }
 

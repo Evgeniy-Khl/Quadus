@@ -98,6 +98,9 @@ struct Settings{
     uint8_t special;    // 0-3 => 0x03 - initWiFiManag(); 0x04 - resetSettings(); 
     uint8_t deviceNum;  // 0-120 номер прибора;
     uint8_t program;    // 0-4 номер программы;
+    uint8_t modeOut0;   // 0-2 режим выхода;
+    uint8_t modeOut1;   // 0-2 режим выхода;
+    uint8_t modeOut2;   // 0-2 режим выхода;
 };
 
 extern Settings settings;
@@ -225,7 +228,7 @@ extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern char displStr[16];
 extern int8_t dataOut[6];
-extern int8_t modeOut[5];
+//extern int8_t modeOut[5];
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
