@@ -281,7 +281,9 @@ uint8_t error_[8],        // ПОМИЛКА_
         timeout_[9],      // тайм-аут_
         invalid[12],      // неправильний
         manual_control[15],// Ручне керування
-        output_mode[13];  // Режим виходів
+        output_mode[13],  // Режим виходів
+        restored[10];     // відновлена
+
 
 #endif /* __MAIN_H */
 

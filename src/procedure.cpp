@@ -68,7 +68,7 @@ uint8_t checkSetpoint(void){
   uint8_t err = 0;
   //--------- Загрузка конфигурации --------------------------------------------
   if(LittleFS.exists("/setpoint.json")){
-      if(!loadConfig()){
+      if(!loadSetPoint()){
         DEBUG_PRINTLN("Конфігурація не завантажена!");
         err = 1 ;
         saveSetPoint();  // значения по умолчанию
@@ -175,6 +175,7 @@ void saveSetPoint() {
     obj["alarm0"] = settings.alarm0;
     obj["alarm1"] = settings.alarm1;
     obj["special"] = settings.special;
+    obj["deviceNum"] = settings.deviceNum;
     obj["program"] = settings.program;
     obj["modeOut0"] = settings.modeOut0;
     obj["modeOut1"] = settings.modeOut1;
@@ -205,7 +206,7 @@ void saveSetPoint() {
 }
 
 //------------ Функция загрузки конфигурации из JSON файла -------------
-bool loadConfig() {
+bool loadSetPoint() {
     DEBUG_PRINTLN("Загрузка конфигурации...");
 
     // Открываем файл для чтения
@@ -248,6 +249,11 @@ bool loadConfig() {
     settings.alarm0 = obj["alarm0"];
     settings.alarm1 = obj["alarm1"];
     settings.special = obj["special"];
+    settings.deviceNum = obj["deviceNum"];
+    settings.program = obj["program"];
+    settings.modeOut0 = obj["modeOut0"];
+    settings.modeOut1 = obj["modeOut1"];
+    settings.modeOut2 = obj["modeOut2"];
   
     DEBUG_PRINTLN("Конфигурация успешно загружена.");
     return true;
@@ -326,7 +332,6 @@ errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 // }
 
 void reset(void){
-
     settings.spT0on = T0ON, 	      // 0-120 Уставка температуры T0 ON
     settings.spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
     settings.spT1on = T1ON, 	      // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
@@ -343,14 +348,24 @@ void reset(void){
     settings.alarm0 = ALARM0,       // 0-120 отклонение температуры T0
     settings.alarm1 = ALARM1,       // 0-120 отклонение температуры T1
     settings.special = 0,
+    settings.deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
+    settings.program = 0,           // исполняемая программа;
+    settings.modeOut0 = 2,          // режим вывода реле;
+    settings.modeOut1 = 0,          // режим вывода реле;
+    settings.modeOut2 = 0,          // режим вывода реле;
 
-  beeperOn(50);
-  delay(500);
-  beeperOn(50);
-  delay(500);
-  saveSetPoint();
-  beeperOn(100);
-  delay(3000);
+    lcd.clear();
+    lcd.setCursor(0,0);
+    myPrint(config,sizeof(config));
+    lcd.setCursor(0,1);
+    myPrint(restored,sizeof(restored));
+    beeperOn(50);
+    delay(500);
+    beeperOn(50);
+    delay(500);
+    saveSetPoint();
+    beeperOn(100);
+    delay(3000);
 }
 
 //============================== Config ========================================

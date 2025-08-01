@@ -23,7 +23,7 @@ uint8_t checkSetpoint(void);
 uint8_t checkConfig(void);
 void printSetPoint();
 void saveSetPoint();
-bool loadConfig();
+bool loadSetPoint();
 void printAddress(DeviceAddress deviceAddress);
 void printBinary(unsigned char byte);
 uint8_t tableRH(int16_t maxT, int16_t minT);
