@@ -133,7 +133,7 @@ void setModeOut(){
         case 2:  displStr[15] = 'O'; break;
         default: displStr[15] = 'T'; break;
     }
-    displStr[9] = '\0';
+    displStr[16] = '\0';
 
     lcd.setCursor(0,0);
     myPrint(output_mode, sizeof(output_mode));

@@ -140,6 +140,7 @@ void checkkey(uint8_t key){
         }  
       break;
     case 9:
+        waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
             case KEY_1: if(++settings.modeOut0 > 2) settings.modeOut0 = 0; break;
             case KEY_2: if(++settings.modeOut1 > 2) settings.modeOut1 = 0; break;
@@ -162,7 +163,6 @@ void checkkey(uint8_t key){
         }
       break;
     }
-
 }
 
 void displIncr(){
