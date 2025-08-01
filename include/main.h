@@ -225,6 +225,10 @@ extern Interval interval;
 //-------------
 
 extern RTC_DS3231 rtc;
+extern const char* ntpServer;
+extern const char* tzInfo;
+extern bool rtcTimeSet;
+extern struct tm timeinfo;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern int8_t dataOut[6];
@@ -249,7 +253,8 @@ uint8_t numberOfDevices,    // число найденых датчиков
         keys,               // текущая кнопка
         keyCount,           // время удержания последней кнопки
         countSeconds,       // счетчик секунд
-        minutes;            // счетчик минут
+        minutes,            // счетчик минут
+        lastSyncDay;        // Переменная для хранения дня последней синхронизации
 extern
 int16_t pvAeration,         // текущее время проветривания
         pvVenting,          // ? текущее время проветривания

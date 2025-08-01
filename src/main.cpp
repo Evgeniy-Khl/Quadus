@@ -7,6 +7,7 @@ WiFiClientSecure client;
 MyTelegramBot bot(botToken, client);
 
 RTC_DS3231 rtc;                     // Создаем объект RTC для DS3231
+DateTime curentTime;
 
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
@@ -140,11 +141,30 @@ void loop(){
         displSwitch();
       }
     }
-
+    //------------------------ новая минута --------------------------
     if(++halfSecond > 119){
       halfSecond = 0;
-      if(++minutes > 59) minutes = 0;
       if(setupNum == 0) displSwitch(); else setupSwitch();
+      //---------------------------- новый час ----------------------------------
+      if(++minutes > 59){
+        minutes = 0;
+        if(RTCENABLE){
+          // Получаем текущее время с модуля DS3231
+          curentTime = rtc.now();
+          if(WIFIENABLE){
+            // --- Логика ежедневной синхронизации ---
+            // Проверяем, наступил ли новый день И сейчас 3 часа ночи
+            if (curentTime.day() != lastSyncDay && curentTime.hour() == 3) {
+              Serial.println("\nIt's 3 AM, time for daily sync!");
+              syncTime(); // Запускаем нашу функцию синхронизации
+            }
+            // Выводим текущее время из RTC в монитор порта каждый час
+            DEBUG_PRINTF("%04d/%02d/%02d %02d:%02d:%02d\n", 
+                          curentTime.year(),curentTime.month(),curentTime.day(),
+                          curentTime.hour(),curentTime.minute(),curentTime.second());
+          }
+        }
+      } // --------------------------------------------------------------------
     } 
   }
 }//-------------- END LOOP -----------------------

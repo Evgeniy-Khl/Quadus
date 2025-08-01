@@ -415,7 +415,28 @@ void initEnvironment(void){
   */
 
   //---------- Инициализация DS3231 ----------------------------------------
-  if(rtc.begin()) RTCENABLE = 1;
+  if(rtc.begin()){
+    RTCENABLE = 1;
+    // Первичная синхронизация времени при запуске
+    // Особенно важно, если у RTC села батарейка
+    if (rtc.lostPower()) {
+        DEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
+        syncTime();
+    } else {
+        DEBUG_PRINTLN("RTC has power, time should be valid.");
+        // Устанавливаем часовой пояс для времени, полученного из RTC
+        // Это нужно, чтобы time(nullptr) возвращал корректное локальное время
+        time_t t = rtc.now().unixtime();
+        struct timeval tv = {t, 0};
+        settimeofday(&tv, nullptr);
+        setenv("TZ", tzInfo, 1);
+        tzset();
+    }
+    
+    // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
+    lastSyncDay = rtc.now().day();
+  } else DEBUG_PRINTLN("Couldn't find RTC!"); 
+  
   //------------------------------------------------------------------------------
   testProgs();              // тест
   //==============================================================================
@@ -459,4 +480,37 @@ void initEnvironment(void){
     }
   #endif
   //==================================================================================
+}
+
+// =======================================================================
+// ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC
+// =======================================================================
+void syncTime() {
+  DEBUG_PRINTLN("\nStarting time synchronization...");
+  
+  // Конфигурируем и запускаем синхронизацию времени
+  configTzTime(tzInfo, ntpServer); // Новый, правильный метод
+
+  // Ожидаем, пока время будет получено
+  struct tm timeinfo;
+  if (!getLocalTime(&timeinfo, 10000)) { // Ждем до 10 секунд
+    DEBUG_PRINTLN("Failed to obtain time from NTP server.");
+    return;
+  }
+
+  DEBUG_PRINTLN("Time successfully synchronized with NTP server.");
+  
+  // Получаем текущее время в формате time_t
+  time_t now_t = time(nullptr);
+  
+  // Записываем полученное время в модуль DS3231
+  rtc.adjust(DateTime(now_t));
+  
+  DEBUG_PRINTLN("RTC time has been updated.");
+
+  // Обновляем день последней синхронизации
+  lastSyncDay = rtc.now().day();
+  
+  // Отключаем NTP, чтобы не занимать ресурсы
+  // sntp_stop();
 }

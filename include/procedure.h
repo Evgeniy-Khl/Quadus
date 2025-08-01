@@ -30,5 +30,6 @@ uint8_t tableRH(int16_t maxT, int16_t minT);
 uint8_t alarm(void);
 void reset(void);
 void initEnvironment(void);
+void syncTime();
 
 #endif /* _PROCEDURE_H */
