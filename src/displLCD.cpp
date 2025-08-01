@@ -1,6 +1,5 @@
 #include "displLCD.h"
 
-char displStr[16];
 //----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
     if(WIFIENABLE){

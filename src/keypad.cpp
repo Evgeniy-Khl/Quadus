@@ -139,6 +139,15 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
+    case 9:
+        switch (key){
+            case KEY_1: if(++settings.modeOut0 > 2) settings.modeOut0 = 0; break;
+            case KEY_2: if(++settings.modeOut1 > 2) settings.modeOut1 = 0; break;
+            case KEY_3: if(++settings.modeOut2 > 2) settings.modeOut2 = 0; break;
+            case KEY_7: displIncr(); break;
+            case KEY_8: displDecr(); break;
+        }
+      break;
     default:
         NEWSCREEN = 1;
         switch (key){

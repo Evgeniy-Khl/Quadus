@@ -184,7 +184,7 @@ extern union Byte portFlag;
 #ifdef LED_DISPLAY
   #define BEEP_PIN        0
   #define PWMOUT_PIN      15
-  #define RESETDISPLAY    20  // 20/2=10 Sec.
+  #define RESETDISPLAY    40  // 20/2=20 Sec.
   #define MINWAIT         100
   #define WAITCHECKKEYPAD 1000	// mSec. максимальная пауза перед реакцией на кнопку
   extern TM1638 module;
@@ -211,6 +211,7 @@ extern union Byte portFlag;
 // 1-1час.;2-2час.;3-3час.;4-4час.;5-6час.;6-8час.;7-10час.;8-12час.;9-24час.;10-2сут.;11-3сут.;12-4сут.;13-5сут.;14-6сут.;15-7сут.;
 
 extern const char* version;
+extern char displStr[17];
 extern char botToken[50];
 extern char chatID [15];
 extern WiFiClientSecure client;
@@ -226,7 +227,6 @@ extern Interval interval;
 extern RTC_DS3231 rtc;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
-extern char displStr[16];
 extern int8_t dataOut[6];
 //extern int8_t modeOut[5];
 
@@ -281,7 +281,7 @@ uint8_t error_[8],        // ПОМИЛКА_
         timeout_[9],      // тайм-аут_
         invalid[12],      // неправильний
         manual_control[15],// Ручне керування
-        output_mode[12];  // Режим виходів
+        output_mode[13];  // Режим виходів
 
 #endif /* __MAIN_H */
 

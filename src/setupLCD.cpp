@@ -1,7 +1,5 @@
 #include "setupLCD.h"
 
-extern char displStr[16];
-
 //---------- Ручное управление выходами --------------
 void setup1(){
     int position = 3; // Текущая позиция для записи в строку
@@ -67,9 +65,9 @@ void setRelay(uint8_t item){
         }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"R%u on:%3u m.",item,editBuff0);
-    if(mode == 0) strcat(displStr,"\xDF\x43");
-    else strcat(displStr,"\x78\xB3\xBB\x2E");
+    sprintf(displStr,"R%u on :%3u",item,editBuff0);
+    if(mode == 0) strcat(displStr,"\x78\xB3\x2E");
+    else strcat(displStr,"\xDF\x43");
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(mode == 0) switchTimeOff(item,editBuff1);
@@ -107,15 +105,34 @@ void setAlarm(){
 
 //---------- Режим выхода --------------
 void setModeOut(){
-    displStr[0] = ' ';
-    displStr[1] = ' ';
-    displStr[2] = ' ';
-    displStr[3] = ' ';
-    displStr[4] = settings.modeOut0 + '0'; // '0' имеет ASCII-код 48. 2 + 48 = 50, что является кодом для '2'
-    displStr[5] = ';';
-    displStr[6] = settings.modeOut1 + '0';
-    displStr[7] = ';';
-    displStr[8] = settings.modeOut2 + '0';
+    displStr[0] = 'R';
+    displStr[1] = '1';
+    displStr[2] = ':';
+    switch (settings.modeOut0){
+        case 1:  displStr[3] = 'H'; break;
+        case 2:  displStr[3] = 'O'; break;
+        default: displStr[3] = 'T'; break;
+    }
+    displStr[4] = ' ';
+    displStr[5] = ' ';
+    displStr[6] = 'R';
+    displStr[7] = '2';
+    displStr[8] = ':';
+    switch (settings.modeOut1){
+        case 1:  displStr[9] = 'H'; break;
+        case 2:  displStr[9] = 'O'; break;
+        default: displStr[9] = 'T'; break;
+    }
+    displStr[10] = ' ';
+    displStr[11] = ' ';
+    displStr[12] = 'R';
+    displStr[13] = '3';
+    displStr[14] = ':';
+    switch (settings.modeOut2){
+        case 1:  displStr[15] = 'H'; break;
+        case 2:  displStr[15] = 'O'; break;
+        default: displStr[15] = 'T'; break;
+    }
     displStr[9] = '\0';
 
     lcd.setCursor(0,0);
@@ -154,8 +171,8 @@ void switchTimeOff(uint8_t item, uint8_t point){
         case 14: val = 6; break;
         case 15: val = 7; break;
     }
-    if(point < 10) sprintf(displStr,"W%u off:%2u h.",item,val);
-    else sprintf(displStr,"W%u off:%2u d.",item,val);
+    if(point < 10) sprintf(displStr,"R%u off:%2u\xB4\x6F\xE3.",item,val);
+    else sprintf(displStr,"R%u off:%2u\xE3\x69\xB2",item,val);
 }
 
 // void myPrint(const uint8_t* data, uint8_t size) {
