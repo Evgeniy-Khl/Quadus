@@ -48,9 +48,9 @@ void setup(){
     // **ВНИМАНИЕ: Раскомментирование следующей строки приведет к форматированию LittleFS при каждом запуске!**
     // Проверка и форматирование, если необходимо
     // if (LittleFS.format()) {
-    //   Serial.println("LittleFS formatted successfully");
+    //   DEBUG_PRINTLN("LittleFS formatted successfully");
     // } else {
-    //   Serial.println("Failed to format LittleFS");
+    //   DEBUG_PRINTLN("Failed to format LittleFS");
     // }
     //-------------------------------------------------------
     temp = checkSetpoint();
@@ -155,7 +155,7 @@ void loop(){
             // --- Логика ежедневной синхронизации ---
             // Проверяем, наступил ли новый день И сейчас 3 часа ночи
             if (curentTime.day() != lastSyncDay && curentTime.hour() == 3) {
-              Serial.println("\nIt's 3 AM, time for daily sync!");
+              DEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
               syncTime(); // Запускаем нашу функцию синхронизации
             }
             // Выводим текущее время из RTC в монитор порта каждый час
@@ -167,7 +167,7 @@ void loop(){
       } // --------------------------------------------------------------------
     } 
   }
-}//-------------- END LOOP -----------------------
+}//============================================== END LOOP =============================================
 
 // Функция для записи байта на PCF8574
 byte writePCF8574(byte data) {
