@@ -7,7 +7,7 @@ WiFiClientSecure client;
 MyTelegramBot bot(botToken, client);
 
 RTC_DS3231 rtc;                     // Создаем объект RTC для DS3231
-DateTime curentTime;
+DateTime curT;
 
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
@@ -103,7 +103,7 @@ void setup(){
   delay(3000);
   lcd.clear();
   displSwitch();
-  REACHED0 = 1; REACHED1 = 1;
+  // REACHED0 = 1; REACHED1 = 1;
 }
 
 void loop(){
@@ -147,20 +147,44 @@ void loop(){
     if(++halfSecond > 119){
       halfSecond = 0;
       if(setupNum == 0) displSwitch(); else setupSwitch();
+      curT = rtc.now();
+      time_t utc_time = rtc.now().unixtime();
+      timeinfo = localtime(&utc_time);
+
+    // Время, которое хранится в RTC (UTC)
+      DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
+      DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+                    curT.year(),
+                    curT.month(),
+                    curT.day(),
+                    curT.hour(),
+                    curT.minute(),
+                    curT.second());
+
+      // Время, сконвертированное для нашего часового пояса
+      DEBUG_PRINT("Converted Local Time (EET/EEST): ");
+      DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+                    timeinfo->tm_year + 1900,
+                    timeinfo->tm_mon + 1,
+                    timeinfo->tm_mday,
+                    timeinfo->tm_hour,
+                    timeinfo->tm_min,
+                    timeinfo->tm_sec);
+
       //---------------------------- новый час ----------------------------------
       if(++minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          curentTime = rtc.now();                                             // Получаем текущее время с модуля DS3231
+          curT = rtc.now();                                             // Получаем текущее время с модуля DS3231
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
-            if (curentTime.day() != lastSyncDay && curentTime.hour() == 3) {  // Проверяем, наступил ли новый день И сейчас 3 часа ночи
+            if (curT.day() != lastSyncDay && curT.hour() == 3) {  // Проверяем, наступил ли новый день И сейчас 3 часа ночи
               DEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
               syncTime();                                                     // Запускаем нашу функцию синхронизации
             }
             DEBUG_PRINTF("%04d/%02d/%02d %02d:%02d:%02d\n",                   // Выводим текущее время из RTC в монитор порта каждый час
-                          curentTime.year(),curentTime.month(),curentTime.day(),
-                          curentTime.hour(),curentTime.minute(),curentTime.second());
+                          curT.year(),curT.month(),curT.day(),
+                          curT.hour(),curT.minute(),curT.second());
           }
         }
       } // --------------------------------------------------------------------

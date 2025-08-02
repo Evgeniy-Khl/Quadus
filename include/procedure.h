@@ -28,5 +28,6 @@ void alarm(uint8_t cn);
 void reset(void);
 void initEnvironment(void);
 void syncTime();
+void setSystemTimeFromRTC();
 
 #endif /* _PROCEDURE_H */

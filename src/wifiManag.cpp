@@ -65,17 +65,7 @@ void initWiFiManag(void){
           X509List cert(TELEGRAM_CERTIFICATE_ROOT);
           client.setTrustAnchors(&cert);      // Add root certificate for api.telegram.org
         #endif
-        //------------------- Настройки времени ----------------------------
         
-        configTime(tzInfo, ntpServer);
-        // Ожидаем, пока время будет получено
-        DEBUG_PRINT("Waiting for time synchronization");
-        while (!getLocalTime(&timeinfo)) {
-          DEBUG_PRINT(".");
-          delay(1000);
-        }
-        DEBUG_PRINTLN("\nTime synchronized!");
-
         //------------------ read updated parameters -----------------------
         strcpy(botToken, custom_botToken.getValue());
         strcpy(chatID, custom_chatID.getValue());

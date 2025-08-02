@@ -22,7 +22,7 @@ const char* tzInfo = "EET-2EEST,M3.5.0/3,M10.5.0/4";
 // Новый, правильный метод использует строку часового пояса:
 
 bool rtcTimeSet = false;// Флаг, чтобы убедиться, что мы устанавливаем время на RTC только один раз
-struct tm timeinfo;
+struct tm* timeinfo;
 
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;

@@ -2,18 +2,25 @@
 
 //----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
-    if(WIFIENABLE){
-      time_t now = time(nullptr);               // Получаем текущее время 
-      struct tm* timeinfo = localtime(&now);    // Преобразуем его в структуру с локальным временем
+    if(RTCENABLE){
+      time_t unix_time = time(nullptr);             // Получаем текущее время из процессора
+      time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix timestamp (это UTC)
+      struct tm* timeUnix = localtime(&unix_time);  // Преобразуем unix_time в структуру с локальным временем
+      struct tm* timeUtc = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
       #ifdef DEBUG
-        char buffer[80];                          // Буфер для форматированной строки времени
-        strftime(buffer, sizeof(buffer), "%A, %B %d %Y %H:%M:%S", timeinfo);// Форматируем строку: "Понедельник, Июль 26 2024 15:02:15"
-        // Выводим время в Монитор порта
-        DEBUG_PRINT("Current time: ");
+        char buffer[80];                            // Буфер для форматированной строки времени
+        strftime(buffer, sizeof(buffer), "%A, %B %d %Y %H:%M:%S", timeUnix);// Форматируем строку: "Понедельник, Июль 26 2024 15:02:15"
+        DEBUG_PRINT("CPU timeUnix: ");
+        DEBUG_PRINTLN(buffer);
+        strftime(buffer, sizeof(buffer), "%A, %B %d %Y %H:%M:%S", timeUtc);// Форматируем строку: "Понедельник, Июль 26 2024 15:02:15"
+        DEBUG_PRINT("DS3231 timeUtc: ");
         DEBUG_PRINTLN(buffer);
       #endif
       lcd.setCursor(0,0);
-      sprintf(displStr,"%2u.%2u.    %2u:%2u",timeinfo->tm_mday,timeinfo->tm_mon,timeinfo->tm_hour,timeinfo->tm_min);
+      sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeUtc->tm_mday,timeUtc->tm_mon+1,(timeUtc->tm_year+1900)%100,timeUtc->tm_hour,timeUtc->tm_min);
+      lcd.print(displStr);
+      lcd.setCursor(0,1);
+      sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeUnix->tm_mday,timeUnix->tm_mon+1,(timeUnix->tm_year+1900)%100,timeUnix->tm_hour,timeUnix->tm_min);
       lcd.print(displStr);
     } else {
       lcd.setCursor(0,0);

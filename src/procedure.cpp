@@ -413,23 +413,30 @@ void initEnvironment(void){
     RTCENABLE = 1;
     // Первичная синхронизация времени при запуске
     // Особенно важно, если у RTC села батарейка
-    if (rtc.lostPower()) {
+    if (rtc.lostPower()) {            // батарейка села.
         DEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
         syncTime();
-    } else {
+    } else {                          // если батарейка в порядке, функция вернёт false.
         DEBUG_PRINTLN("RTC has power, time should be valid.");
-        // Устанавливаем часовой пояс для времени, полученного из RTC
-        // Это нужно, чтобы time(nullptr) возвращал корректное локальное время
-        time_t t = rtc.now().unixtime();
-        struct timeval tv = {t, 0};
-        settimeofday(&tv, nullptr);
-        setenv("TZ", tzInfo, 1);
-        tzset();
+        // 1. Устанавливаем системное время из RTC, чтобы оно было верным СРАЗУ
+        // rtc.now(): Эта команда обращается к модулю DS3231 по шине I2C 
+        // и считывает из него текущие данные: год, месяц, день, час, минуту и секунду. 
+        // Она возвращает специальный объект типа DateTime.
+        // .unixtime(): Это метод объекта DateTime, который конвертирует полученную дату и время в формат Unix-времени. 
+        // Это одно большое число, представляющее собой количество секунд, прошедших с полуночи 1 января 1970 года по Гринвичу (UTC).
+        time_t t = rtc.now().unixtime();      // сохраняем это число (Unix-время) в переменную t
+        timeval tv = {(long)t, 0};            // специальная структура для этой функции, которая хранит секунды (tv_sec) и микросекунды (tv_usec).
+        // создаем структуру tv, помещаем в неё наше время t (в секунды) и 0 (в микросекунды), а затем передаем её в settimeofday().
+        settimeofday(&tv, nullptr);           // системная функция, которая устанавливает внутренние часы CPU.
+
+        // 2. Включаем применение правил часового пояса И запускаем NTP в фоне
+        // Это установит правило TZ и незаметно скорректирует время позже, если нужно
+        configTime(tzInfo, ntpServer);
+        Serial.println("System time set from RTC. TZ rule applied.");
     }
-    
     // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
     lastSyncDay = rtc.now().day();
-    //------------------------------------
+    //-----------ТЕСТ AT2432-------------------
     testProgs();              // тест
   } else DEBUG_PRINTLN("Couldn't find RTC!"); 
   //==============================================================================
@@ -475,35 +482,31 @@ void initEnvironment(void){
   //==================================================================================
 }
 
-// =======================================================================
-// ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC
-// =======================================================================
+//------------ ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC ------------
 void syncTime() {
   DEBUG_PRINTLN("\nStarting time synchronization...");
-  
   // Конфигурируем и запускаем синхронизацию времени
-  configTzTime(tzInfo, ntpServer); // Новый, правильный метод
-
-  // Ожидаем, пока время будет получено
-  struct tm timeinfo;
-  if (!getLocalTime(&timeinfo, 10000)) { // Ждем до 10 секунд
-    DEBUG_PRINTLN("Failed to obtain time from NTP server.");
-    return;
+  configTzTime(tzInfo, ntpServer);              // Новый, правильный метод
+  DEBUG_PRINT("Waiting for NTP response");
+  unsigned long startAttempt = millis();        // Засекаем время начала попытки
+  while (time(nullptr) < 1000000000) {          // Ждём, пока время CPU не станет "большим"
+    if (millis() - startAttempt > 10000) {      // Проверяем таймаут (например, 10 секунд)
+      DEBUG_PRINTLN("\nFailed to obtain time (timeout).");
+      return;                                   // <-- ВЫХОД ИЗ ФУНКЦИИ по таймауту
+    }
+    DEBUG_PRINT(".");
+    delay(1000);
   }
-
-  DEBUG_PRINTLN("Time successfully synchronized with NTP server.");
-  
-  // Получаем текущее время в формате time_t
-  time_t now_t = time(nullptr);
-  
-  // Записываем полученное время в модуль DS3231
-  rtc.adjust(DateTime(now_t));
-  
+  // Этот код выполнится только при УСПЕШНОЙ синхронизации
+  DEBUG_PRINTLN("\nTime successfully synchronized.");
+  rtc.adjust(DateTime(time(nullptr)));
   DEBUG_PRINTLN("RTC time has been updated.");
-
-  // Обновляем день последней синхронизации
-  lastSyncDay = rtc.now().day();
-  
-  // Отключаем NTP, чтобы не занимать ресурсы
-  // sntp_stop();
+  // lastSyncDay = rtc.now().day();
 }
+
+// Функция для установки системного времени из RTC
+// void setSystemTimeFromRTC() {
+//   time_t t = rtc.now().unixtime();
+//   timeval tv = {(long)t, 0};
+//   settimeofday(&tv, nullptr);
+// }

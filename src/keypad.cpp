@@ -149,6 +149,20 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
+    case 10:
+          switch (key){
+            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 15); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_5: editBuff0 = settings.alarm0; editBuff1 = settings.alarm1; break;
+            case KEY_6:
+                settings.alarm0 = editBuff0;
+                settings.alarm1 = editBuff1;
+                saveSetPoint();   // 5 сек. кнопка не доступна
+              break;
+          }
+      break;
     default:
         NEWSCREEN = 1;
         switch (key){

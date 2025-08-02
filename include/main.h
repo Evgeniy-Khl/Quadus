@@ -225,8 +225,8 @@ extern Interval interval;
 //-------------
 
 extern RTC_DS3231 rtc;
-extern DateTime curentTime;
-extern struct tm timeinfo;
+extern DateTime curT;
+//extern struct tm* timeinfo;
 extern bool rtcTimeSet;
 
 extern const char* ntpServer;
