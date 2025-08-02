@@ -29,9 +29,9 @@ void checkkey(uint8_t key){
       break;
     case 2:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1,120); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
             case KEY_5: editBuff0 = settings.spT0off; editBuff1 = settings.spT0on; break;
             case KEY_6:
@@ -45,9 +45,9 @@ void checkkey(uint8_t key){
       break;
     case 3:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,100); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1,100); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
             case KEY_5: editBuff0 = settings.spT1off; editBuff1 = settings.spT1on; break;
             case KEY_6:

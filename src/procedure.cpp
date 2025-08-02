@@ -33,27 +33,17 @@ bool check_freeze(uint8_t i){
  return false;
 }
 
-int16_t checkPV(uint8_t cn){
-  int16_t err;
-  if(ds[cn].pvT >= 850) {errorsFlag.value |= (cn+1); err = 0;}
-  else err = settings.spT0on - ds[cn].pvT;
-  ds[cn].pvErr = err;        // err > 0 -> холодно
-  return err;
-}
-
-uint8_t RelayPos(unsigned char cn, unsigned char hysteresis){	// [n] канал № 1 или 2
-  uint8_t x=UNALTERED;
-  int16_t err = checkPV(cn);        // err > 0 -> холодно
-  if(err >= hysteresis) x = ON;    // включить
-  if(err <= 0) x = OFF;            // отключить
+uint8_t RelayPos(uint8_t val, uint8_t max, uint8_t min){
+  uint8_t x = UNALTERED;
+  if(val >= max) x = OFF;   // отключить
+  if(val <= min) x = ON;    // включить
   return x;
 }
 
-uint8_t RelayNeg(uint8_t cn, uint8_t on, uint8_t off){	// [n] канал № 1 или 2
-  uint8_t x=UNALTERED;
-  int16_t err = checkPV(cn);        // err > 0 -> холодно
-  if ((err+on) <= 0) x = ON;        // включить
-  if ((err+off) >= 0) x = OFF;      // отключить
+uint8_t RelayNeg(uint8_t val, uint8_t max, uint8_t min){
+  uint8_t x = UNALTERED;
+  if(val >= max) x = ON;    // включить
+  if(val <= min) x = OFF;   // отключить
   return x;
 }
 
@@ -143,7 +133,7 @@ void printSetPoint() {
     DEBUG_PRINTF("  program: %d\n", settings.program);
     DEBUG_PRINTF("  modeOut0: %d\n", settings.modeOut0);
     DEBUG_PRINTF("  modeOut1: %d\n", settings.modeOut1);
-    DEBUG_PRINTF("  modeOut1: %d\n", settings.modeOut1);
+    DEBUG_PRINTF("  modeOut2: %d\n", settings.modeOut2);
     DEBUG_PRINTLN("--------------------");
 }
 #endif
@@ -293,36 +283,40 @@ errors = 0x10   // отказ одного из двух датчиков тем
 errors = 0x20   // отказ вспомогательного датчика температуры
 errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 */
-// uint8_t alarm(void){
-//   uint8_t cn;
-//   int16_t err, above, lower;
-//   for (cn=0; cn<2; cn++){
-//     lower = settings.sp_structs[cn].alarm;          // ниже
-//     above = lower;                                  // выше
-//     // above += sp[cn].offSet;                      // если режим ОХЛАЖДЕНИЕ или ОСУШЕНИЕ
-//     err = ds[cn].pvErr;
-//     if(abs(err) < lower) ds[cn].deviation = 1;      // вышли на заданную температуру
-//     if(ds[0].deviation == 0) ds[1].deviation = 0;   // отключение тревоги по 2 каналу
-//     if(ds[cn].deviation){
-//       if (err > lower){                             // ПЕРЕОХЛАЖДЕНИЕ
-//           ds[cn].deviation = 2;                     // мигают цифры
-//           errorsFlag.value |= ((cn+1)<<2);          // включить сигнал АВАРИЯ
-//       }
-//     };
-//     if (err < -above){                              // ПЕРЕГРЕВ
-//         ds[cn].deviation = 3;                       // мигают цифры
-//         errorsFlag.value |= ((cn+1)<<2);            // включить сигнал АВАРИЯ
-//     };
-//   };
-//   cn = OFF;   
-//   if(errorsFlag.value){
-//     if(errorsFlag.value & 0x03) lower = 100;
-//     else lower = 50;
-//     if(disableBeep==0) {beeperOn(lower); cn = ON;};// длительность звукового сигнала и включить канал 4 (6 А)
-//   }
-//   else disableBeep = 0;
-//   return cn;
-// }
+void alarm(uint8_t cn){
+  int16_t val, maxVal, minVal, alarm;
+  bool reched, beep;
+  if(cn){
+    val = pvT1;
+    maxVal = max(settings.spT1on, settings.spT1off);
+    minVal = min(settings.spT1on, settings.spT1off);
+    alarm = settings.alarm1;
+    reched = REACHED1;
+  } else {
+    val = pvT0;
+    maxVal = max(settings.spT0on, settings.spT0off);
+    minVal = min(settings.spT0on, settings.spT0off);
+    alarm = settings.alarm0;
+    reched = REACHED0;
+  }
+  if(reched){
+    if(val <= (minVal - alarm) || val >= (maxVal + alarm)) beep = true;
+  }
+  else if(val >= minVal && val <= maxVal) reched = true;      // вышли на заданную температуру
+  if(cn){
+    REACHED1 = reched;
+    ERROR8 = beep;
+  } else {
+    REACHED0 = reched;
+    ERROR4 = beep;
+  }
+  if(errorsFlag.value){
+    if(errorsFlag.value & 0x03) alarm = 100;
+    else alarm = 50;
+    if(disableBeep==0) beeperOn(alarm);// длительность звукового сигнала и включить канал 4 (6 А)
+  }
+  else disableBeep = 0;
+}
 
 // // Вспомогательная функция для печати
 // void printBinary(unsigned char byte) {

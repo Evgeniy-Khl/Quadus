@@ -173,10 +173,10 @@ extern union Byte portFlag;
 #define NEWSCREEN   portFlag.bitfield.a6  // новый экран
 #define SAVING      portFlag.bitfield.a7  // проветривание
 
-#define ON  1
-#define PCF_ON  0
-#define OFF 0
-#define PCF_OFF 1
+#define ON          1
+#define PCF_ON      0
+#define OFF         0
+#define PCF_OFF     1
 #define TRIACON     999
 #define TRIACOFF    0
 #define DISPLAYOFF  300
@@ -211,7 +211,7 @@ extern union Byte portFlag;
 // 1-1час.;2-2час.;3-3час.;4-4час.;5-6час.;6-8час.;7-10час.;8-12час.;9-24час.;10-2сут.;11-3сут.;12-4сут.;13-5сут.;14-6сут.;15-7сут.;
 
 extern const char* version;
-extern char displStr[17];
+extern char displStr[18];
 extern char botToken[50];
 extern char chatID [15];
 extern WiFiClientSecure client;
@@ -225,10 +225,12 @@ extern Interval interval;
 //-------------
 
 extern RTC_DS3231 rtc;
+extern DateTime curentTime;
+extern struct tm timeinfo;
+extern bool rtcTimeSet;
+
 extern const char* ntpServer;
 extern const char* tzInfo;
-extern bool rtcTimeSet;
-extern struct tm timeinfo;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern int8_t dataOut[6];
@@ -291,4 +293,3 @@ uint8_t error_[8],        // ПОМИЛКА_
 
 
 #endif /* __MAIN_H */
-

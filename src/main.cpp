@@ -22,7 +22,7 @@ void setup(){
   #ifdef DEBUG
     Serial.begin(115200);               // Инициализация последовательного порта для отладки
   #endif
-  // initialize the LCD
+  //--------------------------------- initialize the LCD -----------------------------------
   lcd.begin();  // ВЛОЖЕН > Wire.begin() Инициализация I2C (SDA, SCL по умолчанию для ESP8266 - GPIO4, GPIO5)
 
   uint8_t temp = writePCF8574(0xFF);    // Установить все пины в LOW (если они используются как выходы)
@@ -82,14 +82,14 @@ void setup(){
     lcd.print("to mount FS");
     delay(3000);
   }
-  #ifdef DEBUG
-    //---------------------- Получение информации о файловой системе
-    FSInfo fs_info;
-    LittleFS.info(fs_info);
-    DEBUG_PRINTF("Total space: %u bytes\n", fs_info.totalBytes);
-    DEBUG_PRINTF("Used space: %u bytes\n", fs_info.usedBytes);
-    DEBUG_PRINTF("Free space: %u bytes\n", fs_info.totalBytes - fs_info.usedBytes);
-  #endif
+  // #ifdef DEBUG
+  //   //---------------------- Получение информации о файловой системе
+  //   FSInfo fs_info;
+  //   LittleFS.info(fs_info);
+  //   DEBUG_PRINTF("Total space: %u bytes\n", fs_info.totalBytes);
+  //   DEBUG_PRINTF("Used space: %u bytes\n", fs_info.usedBytes);
+  //   DEBUG_PRINTF("Free space: %u bytes\n", fs_info.totalBytes - fs_info.usedBytes);
+  // #endif
   //---------------------------- инициализация WiFiManager -----------------------------------
   if(settings.special & 0x03) initWiFiManag();
   else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
@@ -103,6 +103,7 @@ void setup(){
   delay(3000);
   lcd.clear();
   displSwitch();
+  REACHED0 = 1; REACHED1 = 1;
 }
 
 void loop(){
@@ -141,6 +142,7 @@ void loop(){
         displSwitch();
       }
     }
+    alarm(0); alarm(1);
     //------------------------ новая минута --------------------------
     if(++halfSecond > 119){
       halfSecond = 0;
@@ -149,17 +151,14 @@ void loop(){
       if(++minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          // Получаем текущее время с модуля DS3231
-          curentTime = rtc.now();
+          curentTime = rtc.now();                                             // Получаем текущее время с модуля DS3231
           if(WIFIENABLE){
-            // --- Логика ежедневной синхронизации ---
-            // Проверяем, наступил ли новый день И сейчас 3 часа ночи
-            if (curentTime.day() != lastSyncDay && curentTime.hour() == 3) {
+            // ------------- Логика ежедневной синхронизации --------------
+            if (curentTime.day() != lastSyncDay && curentTime.hour() == 3) {  // Проверяем, наступил ли новый день И сейчас 3 часа ночи
               DEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
-              syncTime(); // Запускаем нашу функцию синхронизации
+              syncTime();                                                     // Запускаем нашу функцию синхронизации
             }
-            // Выводим текущее время из RTC в монитор порта каждый час
-            DEBUG_PRINTF("%04d/%02d/%02d %02d:%02d:%02d\n", 
+            DEBUG_PRINTF("%04d/%02d/%02d %02d:%02d:%02d\n",                   // Выводим текущее время из RTC в монитор порта каждый час
                           curentTime.year(),curentTime.month(),curentTime.day(),
                           curentTime.hour(),curentTime.minute(),curentTime.second());
           }

@@ -26,12 +26,13 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 =%3u\xDF\x43",pvT0);
+    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 [%2u-%2u]",pvT0, settings.spT0on, settings.spT0off);
+    if(ERROR4) displStr[0] = '!';
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    if(AM2301) sprintf(displStr,"RH =%3u%%", pvRH);
-    else sprintf(displStr,"t2 =%3u\xDF\x43", pvT1);
-    //sprintf(displStr,"RH:%3u%%",pvRH);
+    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  [%2u-%2u]", pvRH, settings.spT1on, settings.spT1off);
+    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 [%2u-%2u]",pvT1, settings.spT1on, settings.spT1off);
+    if(ERROR8) displStr[0] = '!';
     lcd.print(displStr);
 }
 //---------- Остаток времени до переключения W0, W1 --------------

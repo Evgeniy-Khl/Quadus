@@ -1,7 +1,7 @@
 #include "main.h"
 
 const char* version = "QUADUS v.0.0";
-char displStr[17];
+char displStr[18];
 char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
 uint8_t dataLed[6]; 
