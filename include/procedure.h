@@ -2,12 +2,16 @@
 #define _PROCEDURE_H
 #include "main.h"
 
-typedef struct {
-    float Ki, iPart, Kp, pPart, output;
-} PIDController;
+// Перечисление для состояний нашего меню
+enum SetState {
+  SET_YEAR,
+  SET_MONTH,
+  SET_DAY,
+  SET_HOUR,
+  SET_MINUTE,
+  CONFIRM_SAVE
+};
 
-
-extern PIDController pid[];
 extern uint8_t seconds;
 
 void beeperOn(uint8_t val);
@@ -27,7 +31,10 @@ uint8_t tableRH(int16_t maxT, int16_t minT);
 void alarm(uint8_t cn);
 void reset(void);
 void initEnvironment(void);
-void syncTime();
+bool syncTime();
+void displayMenu(SetState state, const DateTime& dt);
+void manualTimeSet();
+void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime);
 void setSystemTimeFromRTC();
 
 #endif /* _PROCEDURE_H */

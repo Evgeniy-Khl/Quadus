@@ -311,7 +311,7 @@ void alarm(uint8_t cn){
     ERROR4 = beep;
   }
   if(errorsFlag.value){
-    if(errorsFlag.value & 0x03) alarm = 100;
+    if(errorsFlag.value == 0x03) alarm = 100;
     else alarm = 50;
     if(disableBeep==0) beeperOn(alarm);// длительность звукового сигнала и включить канал 4 (6 А)
   }
@@ -415,7 +415,11 @@ void initEnvironment(void){
     // Особенно важно, если у RTC села батарейка
     if (rtc.lostPower()) {            // батарейка села.
         DEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
-        syncTime();
+        bool res = syncTime();        // true если неудалась синхронизация
+        if(res){
+          DEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
+          manualTimeSet();
+        }
     } else {                          // если батарейка в порядке, функция вернёт false.
         DEBUG_PRINTLN("RTC has power, time should be valid.");
         // 1. Устанавливаем системное время из RTC, чтобы оно было верным СРАЗУ
@@ -432,7 +436,7 @@ void initEnvironment(void){
         // 2. Включаем применение правил часового пояса И запускаем NTP в фоне
         // Это установит правило TZ и незаметно скорректирует время позже, если нужно
         configTime(tzInfo, ntpServer);
-        Serial.println("System time set from RTC. TZ rule applied.");
+        DEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
     }
     // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
     lastSyncDay = rtc.now().day();
@@ -483,7 +487,7 @@ void initEnvironment(void){
 }
 
 //------------ ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC ------------
-void syncTime() {
+bool syncTime() {
   DEBUG_PRINTLN("\nStarting time synchronization...");
   // Конфигурируем и запускаем синхронизацию времени
   configTzTime(tzInfo, ntpServer);              // Новый, правильный метод
@@ -492,7 +496,7 @@ void syncTime() {
   while (time(nullptr) < 1000000000) {          // Ждём, пока время CPU не станет "большим"
     if (millis() - startAttempt > 10000) {      // Проверяем таймаут (например, 10 секунд)
       DEBUG_PRINTLN("\nFailed to obtain time (timeout).");
-      return;                                   // <-- ВЫХОД ИЗ ФУНКЦИИ по таймауту
+      return true;                                   // <-- ВЫХОД ИЗ ФУНКЦИИ по таймауту
     }
     DEBUG_PRINT(".");
     delay(1000);
@@ -502,11 +506,135 @@ void syncTime() {
   rtc.adjust(DateTime(time(nullptr)));
   DEBUG_PRINTLN("RTC time has been updated.");
   // lastSyncDay = rtc.now().day();
+  return false;
 }
 
 // Функция для установки системного времени из RTC
 // void setSystemTimeFromRTC() {
 //   time_t t = rtc.now().unixtime();
 //   timeval tv = {(long)t, 0};
-//   settimeofday(&tv, nullptr);
+//   settimeofday(==tv, nullptr);
 // }
+
+
+
+// Функция вывода текущего меню в Serial Port
+void displayMenu(SetState state, const DateTime& dt){
+  char buffer[40];
+  switch (state) {
+    case SET_YEAR:
+      #ifdef DEBUG
+      sprintf(buffer, "-> Установка ГОДА:   %04d", dt.year());
+      #endif
+      sprintf(displStr,"YEAR: %04d", dt.year());
+      break;
+    case SET_MONTH:
+      #ifdef DEBUG
+      sprintf(buffer, "-> Установка МЕСЯЦА: %02d", dt.month());
+      #endif
+      sprintf(displStr,"MONTH: %02d", dt.month());
+      break;
+    case SET_DAY:
+      #ifdef DEBUG
+      sprintf(buffer, "-> Установка ДНЯ:    %02d", dt.day());
+      #endif
+      sprintf(displStr,"DAY: %02d", dt.day());
+      break;
+    case SET_HOUR:
+      #ifdef DEBUG
+      sprintf(buffer, "-> Установка ЧАСА:   %02d", dt.hour());
+      #endif
+      sprintf(displStr,"HOUR: %02d", dt.hour());
+      break;
+    case SET_MINUTE:
+      #ifdef DEBUG
+      sprintf(buffer, "-> Установка МИНУТ:  %02d", dt.minute());
+      #endif
+      sprintf(displStr,"MINUTE: %02d", dt.minute());
+      break;
+    case CONFIRM_SAVE:
+      #ifdef DEBUG
+      sprintf(buffer, "Сохранить это время?");
+      #endif
+      break;
+  }
+  DEBUG_PRINTLN(buffer);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  if(state == CONFIRM_SAVE) myPrint(save_time, sizeof(save_time));
+  else lcd.print(displStr);
+}
+
+//------------------ ОСНОВНАЯ ФУНКЦИЯ РУЧНОЙ НАСТРОЙКИ ------------------------
+void manualTimeSet(){
+  DateTime tempTime = rtc.now();          // Начинаем с текущего времени из RTC
+  SetState currentState = SET_YEAR;       // Начальное состояние - установка года
+  DEBUG_PRINTLN("\n--- Вход в режим настройки времени ---");
+  displayMenu(currentState, tempTime);  // Отображаем текущее меню
+  while (true) {
+    long now = millis();
+    if(now - counterWait > waitCheckKeyPad){
+      counterWait = now;
+      keys = module.getButtons();             // Считываем состояние кнопок
+      DEBUG_PRINT("--> Кнопка: "); DEBUG_PRINTLN(keys);
+      if(keys > 0){
+        if (keys == KEY_6){                // Обработка кнопки "Выйти" в любой момент
+          // rtc.adjust(tempTime);
+          DEBUG_PRINTLN("Время НЕ сохранено!");
+          DEBUG_PRINTLN("--- Выход из режима настройки ---\n");
+          return; // Выходим из функции
+        } else if(currentState == CONFIRM_SAVE){
+          if (keys == KEY_3) {
+              rtc.adjust(tempTime); // Установка нового времени
+              lcd.clear();
+              lcd.setCursor(0,0);
+              myPrint(time_saved,sizeof(time_saved));
+              DEBUG_PRINTLN("\nВремя сохранено!");
+              DEBUG_PRINTLN("--- Выход из режима настройки ---\n");
+              return; // Выходим из функции
+          }
+        } else {
+          keycheck(currentState, keys, tempTime);
+          displayMenu(currentState, tempTime);  // Отображаем текущее меню
+        }
+      } 
+      else waitCheckKeyPad = MINWAIT;
+    }
+    delay(100);
+  }
+}
+
+void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime){
+    waitCheckKeyPad = WAITCHECKKEYPAD;  // 1 сек. кнопка не доступна
+    switch (currentState) {
+      case SET_YEAR:
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(365, 0, 0, 0);
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(365, 0, 0, 0);
+        if (keys == KEY_3) {currentState = SET_MONTH; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        break;
+      case SET_MONTH:
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(30, 0, 0, 0); // Упрощенно
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(30, 0, 0, 0); // Упрощенно
+        if (keys == KEY_3) {currentState = SET_DAY; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        break;
+      case SET_DAY:
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(1, 0, 0, 0);
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(1, 0, 0, 0);
+        if (keys == KEY_3) {currentState = SET_HOUR; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        break;
+      case SET_HOUR:
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(0, 1, 0, 0);
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(0, 1, 0, 0);
+        if (keys == KEY_3) {currentState = SET_MINUTE; 
+                            tempTime = tempTime - TimeSpan(0, 3, 0, 0);
+                           waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
+                           }
+        break;
+      case SET_MINUTE:
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(0, 0, 1, 0);
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(0, 0, 1, 0);
+        if (keys == KEY_3) {currentState = CONFIRM_SAVE; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        break;
+      case CONFIRM_SAVE: break;
+    }
+}

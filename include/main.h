@@ -289,7 +289,8 @@ uint8_t error_[8],        // ПОМИЛКА_
         invalid[12],      // неправильний
         manual_control[15],// Ручне керування
         output_mode[13],  // Режим виходів
-        restored[10];     // відновлена
-
+        restored[10],     // відновлена
+        save_time[13],    // Зберегти час?
+        time_saved[13];// Час збережено.
 
 #endif /* __MAIN_H */
