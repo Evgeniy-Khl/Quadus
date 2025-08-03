@@ -46,8 +46,7 @@ void initWiFiManag(void){
       DEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(failed,sizeof(failed));
-      lcd.setCursor(0,1);
+      myPrint(no_,sizeof(no_));
       myPrint(connect,sizeof(connect));
       // Ничего не делаем здесь, чтобы программа просто продолжила выполнение
     } else {

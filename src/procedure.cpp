@@ -516,8 +516,6 @@ bool syncTime() {
 //   settimeofday(==tv, nullptr);
 // }
 
-
-
 // Функция вывода текущего меню в Serial Port
 void displayMenu(SetState state, const DateTime& dt){
   char buffer[40];
@@ -526,31 +524,31 @@ void displayMenu(SetState state, const DateTime& dt){
       #ifdef DEBUG
       sprintf(buffer, "-> Установка ГОДА:   %04d", dt.year());
       #endif
-      sprintf(displStr,"YEAR: %04d", dt.year());
+      sprintf(displStr,"\x50\x69\xBA: %04d", dt.year());
       break;
     case SET_MONTH:
       #ifdef DEBUG
       sprintf(buffer, "-> Установка МЕСЯЦА: %02d", dt.month());
       #endif
-      sprintf(displStr,"MONTH: %02d", dt.month());
+      sprintf(displStr,"\x4D\x69\x63\xC7\xE5\xC4: %02d", dt.month());
       break;
     case SET_DAY:
       #ifdef DEBUG
       sprintf(buffer, "-> Установка ДНЯ:    %02d", dt.day());
       #endif
-      sprintf(displStr,"DAY: %02d", dt.day());
+      sprintf(displStr,"\xE0\x65\xBD\xC4: %02d", dt.day());
       break;
     case SET_HOUR:
       #ifdef DEBUG
       sprintf(buffer, "-> Установка ЧАСА:   %02d", dt.hour());
       #endif
-      sprintf(displStr,"HOUR: %02d", dt.hour());
+      sprintf(displStr,"\xA1\x6F\xE3\xB8\xBD\x61: %02d", dt.hour());
       break;
     case SET_MINUTE:
       #ifdef DEBUG
       sprintf(buffer, "-> Установка МИНУТ:  %02d", dt.minute());
       #endif
-      sprintf(displStr,"MINUTE: %02d", dt.minute());
+      sprintf(displStr,"\x58\xB3\xB8\xBB\xB8\xBD: %02d", dt.minute());
       break;
     case CONFIRM_SAVE:
       #ifdef DEBUG
@@ -576,36 +574,32 @@ void manualTimeSet(){
     if(now - counterWait > waitCheckKeyPad){
       counterWait = now;
       keys = module.getButtons();             // Считываем состояние кнопок
-      DEBUG_PRINT("--> Кнопка: "); DEBUG_PRINTLN(keys);
       if(keys > 0){
         if (keys == KEY_6){                // Обработка кнопки "Выйти" в любой момент
           // rtc.adjust(tempTime);
-          DEBUG_PRINTLN("Время НЕ сохранено!");
-          DEBUG_PRINTLN("--- Выход из режима настройки ---\n");
+          DEBUG_PRINTLN("Время не сохранено!");
           return; // Выходим из функции
         } else if(currentState == CONFIRM_SAVE){
           if (keys == KEY_3) {
               rtc.adjust(tempTime); // Установка нового времени
-              lcd.clear();
-              lcd.setCursor(0,0);
+              lcd.setCursor(0,1);
               myPrint(time_saved,sizeof(time_saved));
-              DEBUG_PRINTLN("\nВремя сохранено!");
-              DEBUG_PRINTLN("--- Выход из режима настройки ---\n");
+              DEBUG_PRINTLN("Время сохранено!");
+              delay(1000);
               return; // Выходим из функции
           }
         } else {
           keycheck(currentState, keys, tempTime);
           displayMenu(currentState, tempTime);  // Отображаем текущее меню
         }
-      } 
-      else waitCheckKeyPad = MINWAIT;
+      } else waitCheckKeyPad = MINWAIT;
     }
     delay(100);
   }
 }
 
 void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime){
-    waitCheckKeyPad = WAITCHECKKEYPAD;  // 1 сек. кнопка не доступна
+    waitCheckKeyPad = WAITCHECKKEYPAD/2;  // 0.5 сек. кнопка не доступна
     switch (currentState) {
       case SET_YEAR:
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(365, 0, 0, 0);
