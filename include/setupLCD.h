@@ -10,6 +10,7 @@ void setAlarm();
 void setModeOut();
 void setupSwitch();
 void switchTimeOff(uint8_t item, uint8_t point);
+uint8_t displTimeOff(uint8_t item, uint8_t point);
 // void myPrint(const uint8_t* data, uint8_t size);
 
 #endif /* __SETUP_LCD_H */

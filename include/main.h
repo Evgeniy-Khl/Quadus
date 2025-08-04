@@ -148,7 +148,7 @@ extern union Byte portOut;
 extern union Byte errorsFlag;
 extern union Byte portFlag;
 
-#define TURN		portOut.bitfield.a0  // Поворот лотков
+#define LIGHT		portOut.bitfield.a0  // Освещение
 #define HEATER  portOut.bitfield.a1  // НАГРЕВАТЕЛЬ
 #define HUMIDI	portOut.bitfield.a2  // УВЛАЖНИТЕЛЬ
 #define RELAY1	portOut.bitfield.a3  // реле 1
@@ -225,8 +225,8 @@ extern Interval interval;
 //-------------
 
 extern RTC_DS3231 rtc;
-extern DateTime curT;
-//extern struct tm* timeinfo;
+// extern DateTime curT;
+extern struct tm* timeinfo;
 extern bool rtcTimeSet;
 
 extern const char* ntpServer;
@@ -251,15 +251,16 @@ uint8_t numberOfDevices,    // число найденых датчиков
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера
         disableBeep,        // время запрета включения аварийной сигнализации
-        lastKey,            // последняя нажатая кнопка
         keys,               // текущая кнопка
-        keyCount,           // время удержания последней кнопки
+        keyCount,           // счетчик удержания кнопки
+        lastKey,            // предыдущая кнопка
         countSeconds,       // счетчик секунд
         minutes,            // счетчик минут
         lastSyncDay;        // Переменная для хранения дня последней синхронизации
 extern
-int16_t pvAeration,         // текущее время проветривания
-        pvVenting,          // ? текущее время проветривания
+int16_t pvTimeR1,           // текущее время реле 0
+        pvTimeR2,           // текущее время реле 1
+        pvTimeR3,           // текущее время реле 2
         editBuff0,          // временное хранилище редактируемой установки
         editBuff1;          // временное хранилище редактируемой установки
 extern
@@ -290,6 +291,6 @@ uint8_t error_[8],        // ПОМИЛКА_
         output_mode[13],  // Режим виходів
         restored[10],     // відновлена
         save_time[13],    // Зберегти час?
-        time_saved[13];// Час збережено.
+        time_saved[14];// Час збережено.
 
 #endif /* __MAIN_H */

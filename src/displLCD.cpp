@@ -3,16 +3,16 @@
 //----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
     if(RTCENABLE){
-    //   time_t unix_time = time(nullptr);             // Получаем текущее время из процессора
-      time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix timestamp (это UTC)
+    //   time_t unix_time = time(nullptr);             // Получаем текущее время из процессора, сконвертированное для нашего часового пояса
+      time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
     //   struct tm* timeUnix = localtime(&unix_time);  // Преобразуем unix_time в структуру с локальным временем
       struct tm* timeUtc = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
       lcd.setCursor(0,0);
       sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeUtc->tm_mday,timeUtc->tm_mon+1,(timeUtc->tm_year+1900)%100,timeUtc->tm_hour,timeUtc->tm_min);
       lcd.print(displStr);
       lcd.setCursor(0,1);
-      if(WIFIENABLE) lcd.print(WiFi.localIP());
-      else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));}
+      if(WIFIENABLE) {lcd.print("IP "); lcd.print(WiFi.localIP());}
+      else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" WF");}
     } else {
       lcd.setCursor(0,0);
       lcd.print(version);
@@ -24,29 +24,65 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 [%2u-%2u]",pvT0, settings.spT0on, settings.spT0off);
+    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 [%2u\x2D%2u]",pvT0, settings.spT0on, settings.spT0off);
     if(ERROR4) displStr[0] = '!';
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  [%2u-%2u]", pvRH, settings.spT1on, settings.spT1off);
-    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 [%2u-%2u]",pvT1, settings.spT1on, settings.spT1off);
+    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  [%2u\x2D%2u]", pvRH, settings.spT1on, settings.spT1off);
+    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 [%2u\x2D%2u]",pvT1, settings.spT1on, settings.spT1off);
     if(ERROR8) displStr[0] = '!';
     lcd.print(displStr);
 }
-//---------- Остаток времени до переключения W0, W1 --------------
+//---------- Остаток времени до переключения LT, R1 --------------
 void displ2(){
+    time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
+    struct tm* timeUtc = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
     lcd.setCursor(0,0);
-    lcd.print("displ2()");
+    snprintf(displStr, sizeof(displStr)," CB %02u:%02u[%u\x2D%u]",timeUtc->tm_hour,timeUtc->tm_min, settings.timerOn, settings.timerOff);
+    if(LIGHT) displStr[0] = '\xEE';
+    else displStr[0] = '\xEF';
+    lcd.print(displStr);
+    // if(mode == 0){
+    if(RELAY1){    //-- OFF --
+        uint8_t day = pvTimeR1 / 1440;
+        uint8_t hour = (pvTimeR1 % 1440) / 60;
+        uint8_t min = pvTimeR1 % 60;
+        snprintf(displStr, sizeof(displStr),"\xDAR1 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Rx 0дiб. 00:00
+    } else {      //-- ON --
+        snprintf(displStr, sizeof(displStr),"\xD9R1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1); // Rx увiм.00хвл.
+    }
+    // } 
+    // else sprintf(displStr,"R%u off:%3u\xDF\x43",1,editBuff1);
     lcd.setCursor(0,1);
-    sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
     lcd.print(displStr);
 }
-//---------- Остаток времени до переключения W2, L --------------
+//---------- Остаток времени до переключения R2, R3 --------------
 void displ3(){
+    // if(mode == 0){
+    if(RELAY2){    //-- OFF --
+        uint8_t day = pvTimeR2 / 1440;
+        uint8_t hour = (pvTimeR2 % 1440) / 60;
+        uint8_t min = pvTimeR2 % 60;
+        snprintf(displStr, sizeof(displStr),"\xDAR2 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Rx 0дiб. 00:00
+    } else {      //-- ON --
+        snprintf(displStr, sizeof(displStr),"\xD9R2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2); // Rx увiм.00хвл.
+    }
+    // } 
+    // else sprintf(displStr,"R%u off:%3u\xDF\x43",1,editBuff1);
     lcd.setCursor(0,0);
-    lcd.print("displ3()");
+    lcd.print(displStr);
+    // if(mode == 0){
+    if(RELAY3){    //-- OFF --
+        uint8_t day = pvTimeR3 / 1440;
+        uint8_t hour = (pvTimeR3 % 1440) / 60;
+        uint8_t min = pvTimeR3 % 60;
+        snprintf(displStr, sizeof(displStr),"\xDAR3 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Rx 0дiб. 00:00
+    } else {      //-- ON --
+        snprintf(displStr, sizeof(displStr),"\xD9R3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3); // Rx увiм.00хвл.
+    }
+    // } 
+    // else sprintf(displStr,"R%u off:%3u\xDF\x43",1,editBuff1);
     lcd.setCursor(0,1);
-    sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
     lcd.print(displStr);
 }
 //---------- Положение заслонки выполняемая программа --------------

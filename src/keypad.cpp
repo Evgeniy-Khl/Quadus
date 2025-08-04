@@ -61,10 +61,10 @@ void checkkey(uint8_t key){
       break;
     case 4:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 15); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,15); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.water0on; editBuff1 = settings.water0off; break;
             case KEY_6:
                 settings.water0on  = editBuff0;
@@ -77,10 +77,10 @@ void checkkey(uint8_t key){
       break;
     case 5:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 15); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,15); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.water1on; editBuff1 = settings.water1off; break;
             case KEY_6:
                 settings.water1on  = editBuff0;
@@ -93,10 +93,10 @@ void checkkey(uint8_t key){
       break;
     case 6:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 15); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,15); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.water2on; editBuff1 = settings.water2off; break;
             case KEY_6:
                 settings.water2on  = editBuff0;
@@ -125,10 +125,10 @@ void checkkey(uint8_t key){
       break;
     case 8:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,120); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 15); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.alarm0; editBuff1 = settings.alarm1; break;
             case KEY_6:
                 settings.alarm0 = editBuff0;
@@ -151,6 +151,7 @@ void checkkey(uint8_t key){
       break;
     default:
         NEWSCREEN = 1;
+        waitCheckKeyPad = WAITCHECKKEYPAD;
         switch (key){
             case KEY_1: displNum = 1; lcd.clear(); break;
             case KEY_2: displNum = 2; lcd.clear(); break;
@@ -158,6 +159,11 @@ void checkkey(uint8_t key){
             case KEY_4: displNum = 4; lcd.clear(); break;
             case KEY_5: displNum = 5; lcd.clear(); break;
             case KEY_6: displNum = 0; lcd.clear(); break;
+            case KEY_6_1: displNum = 0; lcd.clear(); break;
+            case KEY_6_2: displNum = 0; lcd.clear(); break;
+            case KEY_6_3: displNum = 0; lcd.clear(); break;
+            case KEY_6_4: displNum = 0; lcd.clear(); break;
+            case KEY_6_5: displNum = 0; lcd.clear(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }

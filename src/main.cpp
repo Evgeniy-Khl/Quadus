@@ -7,7 +7,7 @@ WiFiClientSecure client;
 MyTelegramBot bot(botToken, client);
 
 RTC_DS3231 rtc;                     // Создаем объект RTC для DS3231
-DateTime curT;
+// DateTime curT;
 
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
@@ -57,29 +57,29 @@ void setup(){
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_,sizeof(error_));
+      myPrint(error_,sizeof(error_));// ПОМИЛКА 
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("setpoint.json");
-      delay(3000);
+      delay(2000);
     }
     temp = checkConfig();
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_,sizeof(error_));
+      myPrint(error_,sizeof(error_));// ПОМИЛКА 
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("config.json");
-      delay(3000);
+      delay(2000);
     }
   } else {
     DEBUG_PRINTLN("failed to mount FS");
     lcd.clear();
     lcd.setCursor(0,0);
-    lcd.print("failed");
+    myPrint(error_,sizeof(error_)); lcd.print("- FS");// ПОМИЛКА - FS
     lcd.setCursor(0,1);
-    lcd.print("to mount FS");
+    myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));// не підключено
     delay(3000);
   }
   // #ifdef DEBUG
@@ -99,11 +99,13 @@ void setup(){
   digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
   pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
   
-  portOut.value = 0xFF;
   delay(3000);
   lcd.clear();
   displSwitch();
-  // REACHED0 = 1; REACHED1 = 1;
+  portOut.value = 0xFF;
+  relaySwitch(1);
+  relaySwitch(2);
+  relaySwitch(3);
 }
 
 void loop(){
@@ -130,10 +132,10 @@ void loop(){
       else if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}
       else lastKey = keys;
     }
-
   //============================= НОВАЯ ПОЛ-СЕКУНДА =================================
   if(now - counter1s > 500){
-    counter1s = now; 
+    counter1s = now;
+    halfSecond++; 
     if(resetDispl){
       if(--resetDispl == 0) {
         if(setupNum) saveSetPoint();
@@ -142,54 +144,63 @@ void loop(){
         displSwitch();
       }
     }
-    alarm(0); alarm(1);
-    //------------------------ новая минута --------------------------
-    if(++halfSecond > 119){
-      halfSecond = 0;
+    if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
+      countSeconds++;
+      relaySwitch(1);
+      relaySwitch(2);
+      relaySwitch(3);
       if(setupNum == 0) displSwitch(); else setupSwitch();
-      curT = rtc.now();
-      time_t utc_time = rtc.now().unixtime();
-      timeinfo = localtime(&utc_time);
+      alarm(0); alarm(1);
 
-    // Время, которое хранится в RTC (UTC)
-      DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
-      DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-                    curT.year(),
-                    curT.month(),
-                    curT.day(),
-                    curT.hour(),
-                    curT.minute(),
-                    curT.second());
+    } //---------------------------------------------------------------
+    if(halfSecond > 119){//------ новая минута ------------------------
+      halfSecond = 0; minutes++;
+      if(RTCENABLE){
+        // curT = rtc.now();
+        time_t utc_time = rtc.now().unixtime();
+        timeinfo = localtime(&utc_time);
+        uint8_t currentHour = timeinfo->tm_hour;// Получаем текущий час
+        minutes = timeinfo->tm_min;             // Получаем текущуу минуту
+        if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
+        #ifdef DEBUG
+        DEBUG_PRINTLN("checkLightState():");
+        printBinary(portOut.value);
+        #endif
+        /* // Время, которое хранится в RTC (UTC)
+        DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
+        DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+                      curT.year(), curT.month(),
+                      curT.day(), curT.hour(),
+                      curT.minute(), curT.second()); */
 
-      // Время, сконвертированное для нашего часового пояса
-      DEBUG_PRINT("Converted Local Time (EET/EEST): ");
-      DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-                    timeinfo->tm_year + 1900,
-                    timeinfo->tm_mon + 1,
-                    timeinfo->tm_mday,
-                    timeinfo->tm_hour,
-                    timeinfo->tm_min,
-                    timeinfo->tm_sec);
-
+        // Время, сконвертированное для нашего часового пояса
+        DEBUG_PRINT("Converted Local Time  (EET/EEST): ");
+        DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
+                      timeinfo->tm_mday, timeinfo->tm_hour,
+                      timeinfo->tm_min, timeinfo->tm_sec);
+      }
       //---------------------------- новый час ----------------------------------
       if(++minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          curT = rtc.now();                                             // Получаем текущее время с модуля DS3231
+          time_t utc_time = rtc.now().unixtime();                             // Получаем текущее время с модуля DS3231
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
-            if (curT.day() != lastSyncDay && curT.hour() == 3) {  // Проверяем, наступил ли новый день И сейчас 3 часа ночи
+            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи
               DEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
               syncTime();                                                     // Запускаем нашу функцию синхронизации
             }
-            DEBUG_PRINTF("%04d/%02d/%02d %02d:%02d:%02d\n",                   // Выводим текущее время из RTC в монитор порта каждый час
-                          curT.year(),curT.month(),curT.day(),
-                          curT.hour(),curT.minute(),curT.second());
+            DEBUG_PRINT("Update Local Time  (EET/EEST): ");
+            DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
+                      timeinfo->tm_mday, timeinfo->tm_hour,
+                      timeinfo->tm_min, timeinfo->tm_sec);
           }
         }
-      } // --------------------------------------------------------------------
-    } 
-  }
+      } // ------------------------- час ----------------------------
+    } //--------------------------- минута --------------------------
+  } //-------------------------- пол-секунда ------------------------
 }//============================================== END LOOP =============================================
 
 // Функция для записи байта на PCF8574

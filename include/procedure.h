@@ -35,6 +35,9 @@ bool syncTime();
 void displayMenu(SetState state, const DateTime& dt);
 void manualTimeSet();
 void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime);
+bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour);
+void relaySwitch(uint8_t cn);
+uint16_t transformTimeOff(uint8_t point);
 void setSystemTimeFromRTC();
 
 #endif /* _PROCEDURE_H */

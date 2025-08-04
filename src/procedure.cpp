@@ -7,23 +7,63 @@ void beeperOn(uint8_t val){
   digitalWrite(BEEP_PIN, LOW); // Включаем бипер
 }
 
-//------------- симистричный таймер -------------------
-// void rotate_trays(void){
-//   if(!TURN){
-//     if(--pvTimer == 0){
-//       pvTimer = settings.timer; 
-//       TURN = PCF_OFF;
-//       DEBUG_PRINTLN("TURN = PCF_OFF");
-//     }
-//   } else {
-//     if(--pvTimer == 0){
-//       if(settings.timer) pvTimer = settings.timer;
-//       else pvTimer = settings.timer;
-//       TURN = PCF_ON;
-//       DEBUG_PRINTLN("TURN = PCF_ON");
-//     }
-//   }
-// }
+// 1-1час.;2-2час.;3-3час.;4-4час.;5-6час.;6-8час.;7-10час.;8-12час.;9-24час.;10-2сут.;11-3сут.;12-4сут.;13-5сут.;14-6сут.;15-7сут.;
+uint16_t transformTimeOff(uint8_t point){
+    uint16_t val = point;
+    switch (point){
+        case 5: val = 6; break;
+        case 6: val = 8; break;
+        case 7: val = 10; break;
+        case 8: val = 12; break;
+        case 9: val = 24; break;
+        case 10: val = 2; break;
+        case 11: val = 3; break;
+        case 12: val = 4; break;
+        case 13: val = 5; break;
+        case 14: val = 6; break;
+        case 15: val = 7; break;
+    }
+    if(point < 10) val *= 60;
+    else val *= (60*24);
+    return val; // max val = 10080 мин.
+}
+
+bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour) {
+  if (onHour == offHour) return false;
+  if (onHour < offHour) return (currentHour >= onHour && currentHour < offHour);
+  else return (currentHour >= onHour || currentHour < offHour);
+}
+
+void relaySwitch(uint8_t cn){
+  bool state = PCF_OFF, prnBit = false;
+  int16_t val = 0, spOn = 0, spOff = 0;
+  switch (cn){
+    case 1: state = RELAY1; val = pvTimeR1; spOn = settings.water0on; spOff = settings.water0off; break;
+    case 2: state = RELAY2; val = pvTimeR2; spOn = settings.water1on; spOff = settings.water1off; break;
+    case 3: state = RELAY3; val = pvTimeR3; spOn = settings.water2on; spOff = settings.water2off; break;
+  }
+  spOff = transformTimeOff(spOff);
+  if(--val <= 0){
+     prnBit = true;
+    if(state){//-- OFF --
+      val = spOn; state = PCF_ON;
+      DEBUG_PRINT("spOn="); DEBUG_PRINT(spOn);
+      DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = ON");
+    } else {//-- ON --
+      val = spOff; state = PCF_OFF;
+      DEBUG_PRINT("spOff="); DEBUG_PRINT(spOff);
+      DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = OFF");
+    }
+  }
+  switch (cn){
+    case 1: RELAY1 = state; pvTimeR1 = val; break;
+    case 2: RELAY2 = state; pvTimeR2 = val; break;
+    case 3: RELAY3 = state; pvTimeR3 = val; break;
+  }
+  #ifdef DEBUG
+  if(prnBit) printBinary(portOut.value);
+  #endif
+}
 
 //------------- индикация 66,0 - завис датчик. --------------
 bool check_freeze(uint8_t i){
@@ -285,7 +325,7 @@ errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 */
 void alarm(uint8_t cn){
   int16_t val, maxVal, minVal, alarm;
-  bool reched, beep;
+  bool reched, beep = false;
   if(cn){
     val = pvT1;
     maxVal = max(settings.spT1on, settings.spT1off);
@@ -299,10 +339,12 @@ void alarm(uint8_t cn){
     alarm = settings.alarm0;
     reched = REACHED0;
   }
+
   if(reched){
     if(val <= (minVal - alarm) || val >= (maxVal + alarm)) beep = true;
-  }
+  } 
   else if(val >= minVal && val <= maxVal) reched = true;      // вышли на заданную температуру
+
   if(cn){
     REACHED1 = reched;
     ERROR8 = beep;
@@ -318,12 +360,14 @@ void alarm(uint8_t cn){
   else disableBeep = 0;
 }
 
-// // Вспомогательная функция для печати
-// void printBinary(unsigned char byte) {
-//   for (int i = 7; i >= 0; i--) {
-//     DEBUG_PRINTLN(bitRead(byte, i));
-//   }
-// }
+// Вспомогательная функция для печати
+void printBinary(unsigned char byte) {
+  for (int i = 7; i >= 0; i--) {
+    if(i > 5) DEBUG_PRINT("x");
+    else DEBUG_PRINT(bitRead(byte, i));
+  }
+    DEBUG_PRINTLN("\n-----------------");
+}
 
 void reset(void){
     settings.spT0on = T0ON, 	      // 0-120 Уставка температуры T0 ON
