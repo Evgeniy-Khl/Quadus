@@ -2,19 +2,23 @@
 #define _KEYPAD_H
 #include "main.h"
 
-#define KEY_1 1
-#define KEY_2 16
-#define KEY_3 2
-#define KEY_4 32
-#define KEY_5 4
+#define KEY_1       1
+#define KEY_2       16
+#define KEY_3       2
+#define KEY_4       32
+#define KEY_5       4
 #define KEY_5_4_6   KEY_5+KEY_4+KEY_6
-#define KEY_6 64
+#define KEY_6       64
 #define KEY_6_1     KEY_6+KEY_1
 #define KEY_6_2     KEY_6+KEY_2
 #define KEY_6_3     KEY_6+KEY_3
 #define KEY_6_4     KEY_6+KEY_4
 #define KEY_6_5     KEY_6+KEY_5
-#define KEY_7 8
+#define KEY_6_5_1   KEY_6+KEY_5+KEY_1
+#define KEY_6_5_2   KEY_6+KEY_5+KEY_2
+#define KEY_6_5_3   KEY_6+KEY_5+KEY_3
+#define KEY_6_5_4   KEY_6+KEY_5+KEY_4
+#define KEY_7       8
 #define KEY_7_1     KEY_7+KEY_1
 #define KEY_7_2     KEY_7+KEY_2
 #define KEY_7_2_4   KEY_7+KEY_2+KEY_4

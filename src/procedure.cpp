@@ -388,7 +388,7 @@ void reset(void){
     settings.special = 0,
     settings.deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
     settings.program = 0,           // исполняемая программа;
-    settings.modeOut0 = 2,          // режим вывода реле;
+    settings.modeOut0 = 0,          // режим вывода реле;
     settings.modeOut1 = 0,          // режим вывода реле;
     settings.modeOut2 = 0,          // режим вывода реле;
 
@@ -459,6 +459,14 @@ void initEnvironment(void){
     // Особенно важно, если у RTC села батарейка
     if (rtc.lostPower()) {            // батарейка села.
         DEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
+        bool res = syncTime();        // true если неудалась синхронизация
+        if(res){
+          DEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
+          manualTimeSet();
+        }
+    } else if(settings.special & 0x04){// перенастройка времени 
+        settings.special &= 0xFB;
+        saveSetPoint();
         bool res = syncTime();        // true если неудалась синхронизация
         if(res){
           DEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
@@ -537,12 +545,15 @@ bool syncTime() {
   configTzTime(tzInfo, ntpServer);              // Новый, правильный метод
   DEBUG_PRINT("Waiting for NTP response");
   unsigned long startAttempt = millis();        // Засекаем время начала попытки
+  lcd.clear();
+  lcd.setCursor(0,0);
   while (time(nullptr) < 1000000000) {          // Ждём, пока время CPU не станет "большим"
     if (millis() - startAttempt > 10000) {      // Проверяем таймаут (например, 10 секунд)
       DEBUG_PRINTLN("\nFailed to obtain time (timeout).");
       return true;                                   // <-- ВЫХОД ИЗ ФУНКЦИИ по таймауту
     }
     DEBUG_PRINT(".");
+    lcd.print("!");
     delay(1000);
   }
   // Этот код выполнится только при УСПЕШНОЙ синхронизации

@@ -95,7 +95,7 @@ struct Settings{
     uint8_t timerOff;   // 0-24 Освещение OFF
     uint8_t alarm0;     // 0-24 отклонение t0
     uint8_t alarm1;     // 0-24 отклонение t1
-    uint8_t special;    // 0-3 => 0x03 - initWiFiManag(); 0x04 - resetSettings(); 
+    uint8_t special;    // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
     uint8_t deviceNum;  // 0-120 номер прибора;
     uint8_t program;    // 0-4 номер программы;
     uint8_t modeOut0;   // 0-2 режим выхода;

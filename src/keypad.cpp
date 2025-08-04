@@ -149,6 +149,38 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
+    case 10:
+        switch (key){
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
+            case KEY_5: editBuff0 = settings.flap; editBuff1 = settings.program; break;
+            case KEY_6:
+                settings.flap = editBuff0;
+                settings.program = editBuff1;
+                saveSetPoint();   // 5 сек. кнопка не доступна
+              break;
+            case KEY_7: displIncr(); break;
+            case KEY_8: displDecr(); break;
+        }  
+      break;
+    case 11:
+        switch (key){
+            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
+            case KEY_5: editBuff0 = settings.deviceNum; editBuff1 = settings.special; break;
+            case KEY_6:
+                settings.deviceNum = editBuff0;
+                settings.special = editBuff1;
+                saveSetPoint();   // 5 сек. кнопка не доступна
+              break;
+            case KEY_7: displIncr(); break;
+            case KEY_8: displDecr(); break;
+        }  
+      break;
     default:
         NEWSCREEN = 1;
         waitCheckKeyPad = WAITCHECKKEYPAD;
@@ -166,6 +198,10 @@ void checkkey(uint8_t key){
             case KEY_6_5: displNum = 0; lcd.clear(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
+            case KEY_6_5_1: reset(); break;//ESP.restart();
+            case KEY_6_5_2: settings.special |= 0x04; saveSetPoint(); ESP.restart(); break;// syncTime();
+            case KEY_6_5_3: settings.special |= 0x08; saveSetPoint(); ESP.restart(); break;// wifiManager.resetSettings()
+            case KEY_6_5_4:  break;
         }
       break;
     }
@@ -174,14 +210,14 @@ void checkkey(uint8_t key){
 void displIncr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(++setupNum > 9) setupNum = 0; 
+    if(++setupNum > 11) setupNum = 0; 
     lcd.clear();
 }
 
 void displDecr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(--setupNum < 0) setupNum = 9; 
+    if(--setupNum < 0) setupNum = 11; 
     lcd.clear();
 }
 

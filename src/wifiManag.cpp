@@ -18,8 +18,8 @@ void initWiFiManag(void){
     wifiManager.addParameter(&custom_chatID);
 
     //------------------ reset settings ------------------------
-    if(settings.special & 0x04){
-      settings.special &= 0xFB;
+    if(settings.special & 0x08){
+      settings.special &= 0xF7;
       saveSetPoint();
       wifiManager.resetSettings();
     } 
@@ -46,6 +46,8 @@ void initWiFiManag(void){
       DEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
+      lcd.print("Wi-Fi");
+      lcd.setCursor(0,1);
       myPrint(no_,sizeof(no_));
       myPrint(connect,sizeof(connect));
       // Ничего не делаем здесь, чтобы программа просто продолжила выполнение

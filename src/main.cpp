@@ -185,6 +185,7 @@ void loop(){
         minutes = 0;
         if(RTCENABLE){
           time_t utc_time = rtc.now().unixtime();                             // Получаем текущее время с модуля DS3231
+          timeinfo = localtime(&utc_time);                                    // Преобразуем utc_time в структуру с локальным временем
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
             if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи

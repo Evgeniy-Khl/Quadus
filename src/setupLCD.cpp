@@ -82,10 +82,10 @@ void setLight(){
         editBuff1 = settings.timerOff;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"L on :%2u h.",editBuff0);
+    sprintf(displStr,"CB on :%2u h.",editBuff0);
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"L off:%2u h.",editBuff1);
+    sprintf(displStr,"CB off:%2u h.",editBuff1);
     lcd.print(displStr);
 }
 
@@ -100,6 +100,34 @@ void setAlarm(){
     lcd.print(displStr);
     lcd.setCursor(0,1);
     sprintf(displStr,"t2 alarm =%2u\xDF\x43",editBuff1);
+    lcd.print(displStr);
+}
+
+void setDevSpec(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.deviceNum;
+        editBuff1 = settings.special;
+    }
+    lcd.setCursor(0,0);
+    sprintf(displStr,"deviceNum =%2u\xDF\x43",editBuff0);
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    sprintf(displStr,"special   =%2u\xDF\x43",editBuff1);
+    lcd.print(displStr);
+}
+
+void setFlapProg(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.flap;
+        editBuff1 = settings.program;
+    }
+    lcd.setCursor(0,0);
+    sprintf(displStr,"flap    =%2u\xDF\x43",editBuff0);
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    sprintf(displStr,"program =%2u\xDF\x43",editBuff1);
     lcd.print(displStr);
 }
 
@@ -152,6 +180,8 @@ void setupSwitch(){
         case 7: setLight(); break;
         case 8: setAlarm(); break;
         case 9: setModeOut(); break;
+        case 10: setFlapProg(); break;
+        case 11: setDevSpec(); break;
     }
 }
 

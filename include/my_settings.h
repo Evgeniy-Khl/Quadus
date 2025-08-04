@@ -93,7 +93,7 @@ Settings settings = {
     .timerOff = TIMEROFF,   // 0-24
     .alarm0 = ALARM0,       // 0-120 отклонение температуры T0
     .alarm1 = ALARM1,       // 0-120 отклонение температуры T1
-    .special = 0,
+    .special = 0,           // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
     .deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
     .program = 0,           // исполняемая программа;
     .modeOut0 = 2,          // режим вывода реле;
