@@ -6,7 +6,6 @@ char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
 uint8_t dataLed[6]; 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
-//int8_t modeOut[3] = {2,0,0};
 
 const char* ntpServer = "pool.ntp.org"; // Сервер NTP
 // Строка конфигурации часового пояса для Украины (EET/EEST)
@@ -42,7 +41,8 @@ uint8_t numberOfDevices,    // число найденых датчиков
         lastKey,            // предыдущая кнопка
         countSeconds,       // счетчик секунд
         minutes,            // счетчик минут
-        lastSyncDay;        // Переменная для хранения дня последней синхронизации
+        lastSyncDay,        // Переменная для хранения дня последней синхронизации
+        sources;            // источники для реле 3 и реле 4
 
 int16_t pvTimeLT,           // текущее время реле свет
         pvTimeR1,           // текущее время реле 0
@@ -96,9 +96,12 @@ Settings settings = {
     .special = 0,           // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
     .deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
     .program = 0,           // исполняемая программа;
-    .modeOut0 = 2,          // режим вывода реле;
-    .modeOut1 = 0,          // режим вывода реле;
-    .modeOut2 = 0,          // режим вывода реле;
+    .modeLight = 0,        // маска 0x0F - разрешения реле освещения;
+    .modeHeater = 0,        // маска 0x0F - разрешения реле температуры;
+    .modeHumidi = 0,        // маска 0x0F - разрешения реле влажности;
+    .modeRelay1 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
+    .modeRelay2 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 4
+    .modeRelay3 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 5
 };
 
 const uint8_t tabRH[420]={

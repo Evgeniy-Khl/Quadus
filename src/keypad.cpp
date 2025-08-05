@@ -142,9 +142,9 @@ void checkkey(uint8_t key){
     case 9:
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
-            case KEY_1: if(++settings.modeOut0 > 1) settings.modeOut0 = 0; break;
-            case KEY_2: if(++settings.modeOut1 > 1) settings.modeOut1 = 0; break;
-            case KEY_3: if(++settings.modeOut2 > 1) settings.modeOut2 = 0; break;
+            case KEY_1: if(++settings.modeRelay1 > 1) settings.modeRelay1 = 0; break;
+            case KEY_2: if(++settings.modeRelay2 > 1) settings.modeRelay2 = 0; break;
+            case KEY_3: if(++settings.modeRelay3 > 1) settings.modeRelay3 = 0; break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }

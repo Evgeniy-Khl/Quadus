@@ -34,33 +34,58 @@ bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour) {
 
 void relaySwitch(uint8_t cn){
   bool state = PCF_OFF, prnBit = false;
-  int16_t val = 0, spOn = 0, spOff = 0;
+  int16_t val = 0, spOn = 0, spOff = 0, permission = 0;
   switch (cn){
-    case 1: state = RELAY1; val = pvTimeR1; spOn = settings.water0on; spOff = settings.water0off; break;
-    case 2: state = RELAY2; val = pvTimeR2; spOn = settings.water1on; spOff = settings.water1off; break;
-    case 3: state = RELAY3; val = pvTimeR3; spOn = settings.water2on; spOff = settings.water2off; break;
+    case 1: 
+            state = RELAY1; 
+            val = pvTimeR1; 
+            spOn = settings.water0on; 
+            spOff = settings.water0off;
+            permission = settings.modeRelay1 & 3;
+      break;
+    case 2: 
+            state = RELAY2; 
+            val = pvTimeR2; 
+            spOn = settings.water1on; 
+            spOff = settings.water1off; 
+            permission = settings.modeRelay2 & 3;
+      break;
+    case 3: 
+            state = RELAY3; 
+            val = pvTimeR3; 
+            spOn = settings.water2on; 
+            spOff = settings.water2off; 
+            permission = settings.modeRelay3 & 3;
+      break;
   }
-  spOff = transformTimeOff(spOff);
-  if(--val <= 0){
-     prnBit = true;
-    if(state){//-- OFF --
-      val = spOn; state = PCF_ON;
-      DEBUG_PRINT("spOn="); DEBUG_PRINT(spOn);
-      DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = ON");
-    } else {//-- ON --
-      val = spOff; state = PCF_OFF;
-      DEBUG_PRINT("spOff="); DEBUG_PRINT(spOff);
-      DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = OFF");
+  if(permission){ // если permission == 0 разрешена работа всегда
+    if(LIGHT == PCF_OFF && permission == 2) permission = 0;// если permission == 2 разрешена работа только когда свет потушен
+    else if(LIGHT == PCF_ON && permission == 1) permission = 0;// если permission == 1 разрешена работа только когда свет включен
+  }
+
+  if(permission == 0){
+    spOff = transformTimeOff(spOff);
+    if(--val <= 0){
+      prnBit = true;
+      if(state){//-- OFF --
+        val = spOn; state = PCF_ON;
+        DEBUG_PRINT("spOn="); DEBUG_PRINT(spOn);
+        DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = ON");
+      } else {//-- ON --
+        val = spOff; state = PCF_OFF;
+        DEBUG_PRINT("spOff="); DEBUG_PRINT(spOff);
+        DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = OFF");
+      }
     }
+    switch (cn){
+      case 1: RELAY1 = state; pvTimeR1 = val; break;
+      case 2: RELAY2 = state; pvTimeR2 = val; break;
+      case 3: RELAY3 = state; pvTimeR3 = val; break;
+    }
+    #ifdef DEBUG
+    if(prnBit) printBinary(portOut.value);
+    #endif
   }
-  switch (cn){
-    case 1: RELAY1 = state; pvTimeR1 = val; break;
-    case 2: RELAY2 = state; pvTimeR2 = val; break;
-    case 3: RELAY3 = state; pvTimeR3 = val; break;
-  }
-  #ifdef DEBUG
-  if(prnBit) printBinary(portOut.value);
-  #endif
 }
 
 //------------- индикация 66,0 - завис датчик. --------------
@@ -106,6 +131,9 @@ uint8_t checkSetpoint(void){
       DEBUG_PRINTLN("Конфігурація за замовчуванням!");
       err = 2 ;
   }
+  
+  sources = settings.modeRelay1 >> 4;
+  sources |= settings.modeRelay2;
   DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
     printSetPoint();
@@ -169,9 +197,12 @@ void printSetPoint() {
     DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
     DEBUG_PRINTF("  special: %d\n", settings.special);
     DEBUG_PRINTF("  program: %d\n", settings.program);
-    DEBUG_PRINTF("  modeOut0: %d\n", settings.modeOut0);
-    DEBUG_PRINTF("  modeOut1: %d\n", settings.modeOut1);
-    DEBUG_PRINTF("  modeOut2: %d\n", settings.modeOut2);
+    DEBUG_PRINTF("  modeLight: %d\n", settings.modeLight);
+    DEBUG_PRINTF("  modeHeater: %d\n", settings.modeHeater);
+    DEBUG_PRINTF("  modeHumidi: %d\n", settings.modeHumidi);
+    DEBUG_PRINTF("  modeRelay1: %d\n", settings.modeRelay1);
+    DEBUG_PRINTF("  modeRelay2: %d\n", settings.modeRelay2);
+    DEBUG_PRINTF("  modeRelay3: %d\n", settings.modeRelay3);
     DEBUG_PRINTLN("--------------------");
 }
 #endif
@@ -205,9 +236,12 @@ void saveSetPoint() {
     obj["special"] = settings.special;
     obj["deviceNum"] = settings.deviceNum;
     obj["program"] = settings.program;
-    obj["modeOut0"] = settings.modeOut0;
-    obj["modeOut1"] = settings.modeOut1;
-    obj["modeOut2"] = settings.modeOut2;
+    obj["modeLight"] = settings.modeLight;
+    obj["modeHeater"] = settings.modeHeater;
+    obj["modeHumidi"] = settings.modeHumidi;
+    obj["modeRelay1"] = settings.modeRelay1;
+    obj["modeRelay2"] = settings.modeRelay2;
+    obj["modeRelay3"] = settings.modeRelay3;
 
     lcd.clear();
     lcd.setCursor(0,0);
@@ -279,9 +313,12 @@ bool loadSetPoint() {
     settings.special = obj["special"];
     settings.deviceNum = obj["deviceNum"];
     settings.program = obj["program"];
-    settings.modeOut0 = obj["modeOut0"];
-    settings.modeOut1 = obj["modeOut1"];
-    settings.modeOut2 = obj["modeOut2"];
+    settings.modeLight = obj["modeLight"];
+    settings.modeHeater = obj["modeHeater"];
+    settings.modeHumidi = obj["modeHumidi"];
+    settings.modeRelay1 = obj["modeRelay1"];
+    settings.modeRelay2 = obj["modeRelay2"];
+    settings.modeRelay3 = obj["modeRelay3"];
   
     DEBUG_PRINTLN("Конфигурация успешно загружена.");
     return true;
@@ -386,9 +423,12 @@ void reset(void){
     settings.special = 0,
     settings.deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
     settings.program = 0,           // исполняемая программа;
-    settings.modeOut0 = 0,          // режим вывода реле;
-    settings.modeOut1 = 0,          // режим вывода реле;
-    settings.modeOut2 = 0,          // режим вывода реле;
+    settings.modeLight = 0,          // режим вывода реле;
+    settings.modeHeater = 0,          // режим вывода реле;
+    settings.modeHumidi = 0,          // режим вывода реле;
+    settings.modeRelay1 = 0,          // режим вывода реле;
+    settings.modeRelay2 = 0,          // режим вывода реле;
+    settings.modeRelay3 = 0,          // режим вывода реле;
 
     lcd.clear();
     lcd.setCursor(0,0);

@@ -154,10 +154,8 @@ void loop(){
     }
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++;
-      uint8_t res = UNALTERED;
       //--------------- температура -----------------------------------
       HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, settings.spT0off);
-      
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
         // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
@@ -165,7 +163,6 @@ void loop(){
       #endif
       //----------------- влажность -----------------------------------
       HUMIDI = checkDeviceState(HUMIDI, pvT1, settings.spT1on, settings.spT1off);
-      
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
         // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);

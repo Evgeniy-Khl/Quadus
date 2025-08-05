@@ -59,9 +59,9 @@ void setRelay(uint8_t item){
     if(NEWSCREEN){
         NEWSCREEN = 0;
         switch (item){
-            case 1: editBuff0 = settings.water0on; editBuff1 = settings.water0off; mode = settings.modeOut0; break;
-            case 2: editBuff0 = settings.water1on; editBuff1 = settings.water1off; mode = settings.modeOut1; break;
-            case 3: editBuff0 = settings.water2on; editBuff1 = settings.water2off; mode = settings.modeOut2; break;
+            case 1: editBuff0 = settings.water0on; editBuff1 = settings.water0off; mode = settings.modeRelay1; break;
+            case 2: editBuff0 = settings.water1on; editBuff1 = settings.water1off; mode = settings.modeRelay2; break;
+            case 3: editBuff0 = settings.water2on; editBuff1 = settings.water2off; mode = settings.modeRelay3; break;
         }
     }
     lcd.setCursor(0,0);
@@ -136,7 +136,7 @@ void setModeOut(){
     displStr[0] = 'R';
     displStr[1] = '1';
     displStr[2] = ':';
-    if(settings.modeOut0) displStr[3] = '1';
+    if(settings.modeRelay1) displStr[3] = '1';
     else displStr[3] = '0';
     
     displStr[4] = ' ';
@@ -144,7 +144,7 @@ void setModeOut(){
     displStr[6] = 'R';
     displStr[7] = '2';
     displStr[8] = ':';
-    if(settings.modeOut1) displStr[9] = '1';
+    if(settings.modeRelay2) displStr[9] = '1';
     else displStr[9] = '0';
 
     displStr[10] = ' ';
@@ -152,7 +152,7 @@ void setModeOut(){
     displStr[12] = 'R';
     displStr[13] = '3';
     displStr[14] = ':';
-    if(settings.modeOut2) displStr[15] = '1';
+    if(settings.modeRelay3) displStr[15] = '1';
     else displStr[15] = '0';
 
     displStr[16] = '\0';

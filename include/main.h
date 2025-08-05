@@ -98,9 +98,12 @@ struct Settings{
     uint8_t special;    // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
     uint8_t deviceNum;  // 0-120 номер прибора;
     uint8_t program;    // 0-4 номер программы;
-    uint8_t modeOut0;   // 0-2 режим выхода;
-    uint8_t modeOut1;   // 0-2 режим выхода;
-    uint8_t modeOut2;   // 0-2 режим выхода;
+    uint8_t modeLight;    // маска 0x0F - разрешения реле освещения;
+    uint8_t modeHeater;   // маска 0x0F - разрешения реле температуры;
+    uint8_t modeHumidi;   // маска 0x0F - разрешения реле влажности;
+    uint8_t modeRelay1;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
+    uint8_t modeRelay2;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 4
+    uint8_t modeRelay3;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 5
 };
 
 extern Settings settings;
@@ -177,7 +180,6 @@ extern union Byte portFlag;
 #define PCF_ON      0
 #define OFF         0
 #define PCF_OFF     1
-#define UNALTERED   2 // неизменный
 
 #ifdef LED_DISPLAY
   #define BEEP_PIN        0
@@ -232,7 +234,6 @@ extern const char* tzInfo;
 extern DallasTemperature sensors;
 extern LiquidCrystal_I2C lcd;
 extern int8_t dataOut[6];
-//extern int8_t modeOut[5];
 
 extern bool newDispl;
 extern long counterWait, counter10, counter1s;
@@ -254,7 +255,8 @@ uint8_t numberOfDevices,    // число найденых датчиков
         lastKey,            // предыдущая кнопка
         countSeconds,       // счетчик секунд
         minutes,            // счетчик минут
-        lastSyncDay;        // Переменная для хранения дня последней синхронизации
+        lastSyncDay,        // Переменная для хранения дня последней синхронизации
+        sources;            // источники для реле 3 и реле 4
 extern
 int16_t pvTimeR1,           // текущее время реле 0
         pvTimeR2,           // текущее время реле 1
