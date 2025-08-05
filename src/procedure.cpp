@@ -58,12 +58,12 @@ void relaySwitch(uint8_t cn){
             permission = settings.modeRelay3 & 3;
       break;
   }
-  if(permission){ // если permission == 0 разрешена работа всегда
+  if(permission){ // если permission > 0 то ...
     if(LIGHT == PCF_OFF && permission == 2) permission = 0;// если permission == 2 разрешена работа только когда свет потушен
     else if(LIGHT == PCF_ON && permission == 1) permission = 0;// если permission == 1 разрешена работа только когда свет включен
   }
 
-  if(permission == 0){
+  if(permission == 0){// если permission == 0 разрешена работа всегдa
     spOff = transformTimeOff(spOff);
     if(--val <= 0){
       prnBit = true;
@@ -85,6 +85,12 @@ void relaySwitch(uint8_t cn){
     #ifdef DEBUG
     if(prnBit) printBinary(portOut.value);
     #endif
+  } else {  // иначе отключаем
+    switch (cn){
+      case 1: RELAY1 = PCF_OFF; pvTimeR1 = -1; break;
+      case 2: RELAY2 = PCF_OFF; pvTimeR2 = -1; break;
+      case 3: RELAY3 = PCF_OFF; pvTimeR3 = -1; break;
+    }
   }
 }
 

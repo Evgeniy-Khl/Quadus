@@ -139,12 +139,13 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 9:
+    case 9://---------- установка разрешений ----------------
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
-            case KEY_1: if(++settings.modeRelay1 > 1) settings.modeRelay1 = 0; break;
-            case KEY_2: if(++settings.modeRelay2 > 1) settings.modeRelay2 = 0; break;
-            case KEY_3: if(++settings.modeRelay3 > 1) settings.modeRelay3 = 0; break;
+            case KEY_1: if(++settings.modeRelay1 > 2) settings.modeRelay1 = 0; break;
+            case KEY_2: if(++settings.modeRelay2 > 2) settings.modeRelay2 = 0; break;
+            case KEY_3: if(++settings.modeRelay3 > 2) settings.modeRelay3 = 0; break;
+            case KEY_6: saveSetPoint(); break;   // 5 сек. кнопка не доступна
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }

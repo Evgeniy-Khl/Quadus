@@ -155,14 +155,14 @@ void loop(){
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++;
       //--------------- температура -----------------------------------
-      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, settings.spT0off);
+      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35);
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
         // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
         // printBinary(portOut.value);
       #endif
       //----------------- влажность -----------------------------------
-      HUMIDI = checkDeviceState(HUMIDI, pvT1, settings.spT1on, settings.spT1off);
+      HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off);
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
         // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);
@@ -171,6 +171,10 @@ void loop(){
       //---------------------------------------------------------------
       if(setupNum == 0) displSwitch(); else setupSwitch();
       alarm(0); alarm(1);
+      //??????????????????????
+      relaySwitch(1);
+      relaySwitch(2);
+      relaySwitch(3);
 
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
@@ -187,9 +191,9 @@ void loop(){
         DEBUG_PRINTLN("checkLightState():");
         printBinary(portOut.value);
         #endif
-        relaySwitch(1);
-        relaySwitch(2);
-        relaySwitch(3);
+        // relaySwitch(1);
+        // relaySwitch(2);
+        // relaySwitch(3);
         /* // Время, которое хранится в RTC (UTC)
         DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",

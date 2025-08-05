@@ -132,33 +132,27 @@ void setFlapProg(){
 }
 
 //---------- Режим выхода --------------
-void setModeOut(){
+void setPermissions(){
     displStr[0] = 'R';
     displStr[1] = '1';
     displStr[2] = ':';
-    if(settings.modeRelay1) displStr[3] = '1';
-    else displStr[3] = '0';
-    
+    displStr[3] = '0' + settings.modeRelay1;
     displStr[4] = ' ';
     displStr[5] = ' ';
     displStr[6] = 'R';
     displStr[7] = '2';
     displStr[8] = ':';
-    if(settings.modeRelay2) displStr[9] = '1';
-    else displStr[9] = '0';
-
+    displStr[9] = '0' + settings.modeRelay2;
     displStr[10] = ' ';
     displStr[11] = ' ';
     displStr[12] = 'R';
     displStr[13] = '3';
     displStr[14] = ':';
-    if(settings.modeRelay3) displStr[15] = '1';
-    else displStr[15] = '0';
-
+    displStr[15] = '0' + settings.modeRelay3;
     displStr[16] = '\0';
 
     lcd.setCursor(0,0);
-    myPrint(output_mode, sizeof(output_mode));
+    myPrint(set_permissions, sizeof(set_permissions));
     lcd.setCursor(0,1);
     lcd.print(displStr);
 }
@@ -173,7 +167,7 @@ void setupSwitch(){
         case 6: setRelay(3); break;
         case 7: setLight(); break;
         case 8: setAlarm(); break;
-        case 9: setModeOut(); break;
+        case 9: setPermissions(); break;// установка разрешений
         case 10: setFlapProg(); break;
         case 11: setDevSpec(); break;
     }
