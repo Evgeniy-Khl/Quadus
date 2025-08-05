@@ -103,9 +103,17 @@ void setup(){
   lcd.clear();
   displSwitch();
   portOut.value = 0xFF;
-  relaySwitch(1);
-  relaySwitch(2);
-  relaySwitch(3);
+  if(RTCENABLE){
+    relaySwitch(1);
+    relaySwitch(2);
+    relaySwitch(3);
+    time_t utc_time = rtc.now().unixtime();
+    timeinfo = localtime(&utc_time);
+    uint8_t currentHour = timeinfo->tm_hour;// Получаем текущий час
+    minutes = timeinfo->tm_min;             // Получаем текущуу минуту
+    countSeconds = timeinfo->tm_sec;        // Получаем текущуу секунду
+    if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
+  }
 }
 
 void loop(){
@@ -146,26 +154,45 @@ void loop(){
     }
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++;
-      relaySwitch(1);
-      relaySwitch(2);
-      relaySwitch(3);
+      uint8_t res = UNALTERED;
+      //--------------- температура -----------------------------------
+      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, settings.spT0off);
+      
+      #ifdef DEBUG
+        if(HEATER == PCF_ON) pvT0++; else pvT0--;
+        // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
+        // printBinary(portOut.value);
+      #endif
+      //----------------- влажность -----------------------------------
+      HUMIDI = checkDeviceState(HUMIDI, pvT1, settings.spT1on, settings.spT1off);
+      
+      #ifdef DEBUG
+        if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
+        // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);
+        // printBinary(portOut.value);
+      #endif
+      //---------------------------------------------------------------
       if(setupNum == 0) displSwitch(); else setupSwitch();
       alarm(0); alarm(1);
 
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
-      halfSecond = 0; minutes++;
+      halfSecond = 0; countSeconds = 0; minutes++;
       if(RTCENABLE){
         // curT = rtc.now();
         time_t utc_time = rtc.now().unixtime();
         timeinfo = localtime(&utc_time);
         uint8_t currentHour = timeinfo->tm_hour;// Получаем текущий час
         minutes = timeinfo->tm_min;             // Получаем текущуу минуту
+        countSeconds = timeinfo->tm_sec;        // Получаем текущуу секунду
         if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
         #ifdef DEBUG
         DEBUG_PRINTLN("checkLightState():");
         printBinary(portOut.value);
         #endif
+        relaySwitch(1);
+        relaySwitch(2);
+        relaySwitch(3);
         /* // Время, которое хранится в RTC (UTC)
         DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",

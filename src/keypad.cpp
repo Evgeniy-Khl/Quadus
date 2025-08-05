@@ -33,10 +33,10 @@ void checkkey(uint8_t key){
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
             case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
-            case KEY_5: editBuff0 = settings.spT0off; editBuff1 = settings.spT0on; break;
+            case KEY_5: editBuff0 = settings.spT0on; editBuff1 = settings.spT0off; break;
             case KEY_6:
-                settings.spT0off = editBuff0;
-                settings.spT0on  = editBuff1;
+                settings.spT0on = editBuff0;
+                settings.spT0off  = editBuff1;
                 saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
@@ -49,10 +49,10 @@ void checkkey(uint8_t key){
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
             case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
-            case KEY_5: editBuff0 = settings.spT1off; editBuff1 = settings.spT1on; break;
+            case KEY_5: editBuff0 = settings.spT1on; editBuff1 = settings.spT1off; break;
             case KEY_6:
-                settings.spT1off = editBuff0;
-                settings.spT1on  = editBuff1;
+                settings.spT1on = editBuff0;
+                settings.spT1off  = editBuff1;
                 saveSetPoint();   // 5 сек. кнопка не доступна
               break;
             case KEY_7: displIncr(); break;
@@ -142,9 +142,9 @@ void checkkey(uint8_t key){
     case 9:
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
-            case KEY_1: if(++settings.modeOut0 > 2) settings.modeOut0 = 0; break;
-            case KEY_2: if(++settings.modeOut1 > 2) settings.modeOut1 = 0; break;
-            case KEY_3: if(++settings.modeOut2 > 2) settings.modeOut2 = 0; break;
+            case KEY_1: if(++settings.modeOut0 > 1) settings.modeOut0 = 0; break;
+            case KEY_2: if(++settings.modeOut1 > 1) settings.modeOut1 = 0; break;
+            case KEY_3: if(++settings.modeOut2 > 1) settings.modeOut2 = 0; break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }
@@ -169,7 +169,7 @@ void checkkey(uint8_t key){
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 3); break;
             case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.deviceNum; editBuff1 = settings.special; break;
             case KEY_6:

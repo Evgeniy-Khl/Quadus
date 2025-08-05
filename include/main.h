@@ -177,9 +177,7 @@ extern union Byte portFlag;
 #define PCF_ON      0
 #define OFF         0
 #define PCF_OFF     1
-#define TRIACON     999
-#define TRIACOFF    0
-#define DISPLAYOFF  300
+#define UNALTERED   2 // неизменный
 
 #ifdef LED_DISPLAY
   #define BEEP_PIN        0

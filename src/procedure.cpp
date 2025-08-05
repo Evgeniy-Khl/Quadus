@@ -1,7 +1,5 @@
 #include "main.h"
 
-#define UNALTERED   2 // неизменный
-
 void beeperOn(uint8_t val){
   beepOn = val;
   digitalWrite(BEEP_PIN, LOW); // Включаем бипер
@@ -73,21 +71,21 @@ bool check_freeze(uint8_t i){
  return false;
 }
 
-uint8_t RelayPos(uint8_t val, uint8_t max, uint8_t min){
-  uint8_t x = UNALTERED;
-  if(val >= max) x = OFF;   // отключить
-  if(val <= min) x = ON;    // включить
-  return x;
+bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp){
+  if (onTemp == offTemp) {
+    return PCF_OFF;
+  }
+  if (onTemp < offTemp) { // Режим нагрева
+    if (currentTemp <= onTemp) return PCF_ON;
+    if (currentTemp >= offTemp) return PCF_OFF;
+  } else { // Режим охлаждения
+    if (currentTemp >= onTemp) return PCF_ON;
+    if (currentTemp <= offTemp) return PCF_OFF;
+  }
+  return previousState; // В зоне гистерезиса состояние не меняем
 }
 
-uint8_t RelayNeg(uint8_t val, uint8_t max, uint8_t min){
-  uint8_t x = UNALTERED;
-  if(val >= max) x = ON;    // включить
-  if(val <= min) x = OFF;   // отключить
-  return x;
-}
-
-void OutStatusLed(void){
+void outStatusLed(void){
     for(uint8_t i = 0; i < 6; i++){
       uint8_t numBit = 1 << i;
       dataLed[i] = (~portOut.value) & numBit;

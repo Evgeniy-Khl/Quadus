@@ -29,28 +29,28 @@ void setup1(){
 void setup2(){
     if(NEWSCREEN){
         NEWSCREEN = 0;
-        editBuff0 = settings.spT0off;
-        editBuff1 = settings.spT0on;
+        editBuff0 = settings.spT0on;
+        editBuff1 = settings.spT0off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 max =%3u\xDF\x43",editBuff0);
+    sprintf(displStr,"t1 \x79\xB3\x69\xBC\xBA\xBD\x2E %2u\xDF\x43",editBuff0);      //t1 увiмкн. ??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t1 min =%3u\xDF\x43",editBuff1);
+    sprintf(displStr,"t1 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t1 вимкнути ??°C
     lcd.print(displStr);
 }
 
 void setup3(){
     if(NEWSCREEN){
         NEWSCREEN = 0;
-        editBuff0 = settings.spT1off;
-        editBuff1 = settings.spT1on;
+        editBuff0 = settings.spT1on;
+        editBuff1 = settings.spT1off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t2 max =%3u\xDF\x43",editBuff0);
+    sprintf(displStr,"t2 \x79\xB3\x69\xBC\xBA\xBD\x2E %2u\xDF\x43",editBuff0);      //t2 увiмкн. ??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 min =%3u\xDF\x43",editBuff1);
+    sprintf(displStr,"t2 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t1 вимкнути ??°C
     lcd.print(displStr);
 }
 
@@ -65,13 +65,13 @@ void setRelay(uint8_t item){
         }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"R%u on :%3u",item,editBuff0);
-    if(mode == 0) strcat(displStr,"\x78\xB3\x2E");
-    else strcat(displStr,"\xDF\x43");
+    sprintf(displStr,"R%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2u",item,editBuff0);
+    if(mode == 0) strcat(displStr," \x78\xB3\x2E");                 //Rx увімкн.??хвл.
+    else strcat(displStr,"\xDF\x43");                               //Rx увімкн.??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(mode == 0) switchTimeOff(item,editBuff1);
-    else sprintf(displStr,"R%u off:%3u\xDF\x43",item,editBuff1);
+    else sprintf(displStr,"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u\xDF\x43",item,editBuff1);    //Rx вимкн.??°C
     lcd.print(displStr);
 }
 
@@ -82,10 +82,10 @@ void setLight(){
         editBuff1 = settings.timerOff;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"CB on :%2u h.",editBuff0);
+    sprintf(displStr,"CB \x79\xB3\x69\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff0);   //CB увімкн.??год.
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"CB off:%2u h.",editBuff1);
+    sprintf(displStr,"CB \xB3\xB8\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff1);       //CB вимкн.??год.
     lcd.print(displStr);
 }
 
@@ -96,10 +96,10 @@ void setAlarm(){
         editBuff1 = settings.alarm1;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 alarm =%2u\xDF\x43",editBuff0);
+    sprintf(displStr,"t1 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2u\xDF\x43",editBuff0);//t1 тривога =??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 alarm =%2u\xDF\x43",editBuff1);
+    sprintf(displStr,"t2 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2u\xDF\x43",editBuff1);//t2 тривога =??°C
     lcd.print(displStr);
 }
 
@@ -110,10 +110,10 @@ void setDevSpec(){
         editBuff1 = settings.special;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"deviceNum =%2u\xDF\x43",editBuff0);
+    sprintf(displStr,"\xBE\x70\xB8\xBB\x61\xE3 N%2u",editBuff0);    // прилад N
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"special   =%2u\xDF\x43",editBuff1);
+    sprintf(displStr,"\xC0\x61\x63 Wi-Fi %u \x78\xB3\xBB\x2E",editBuff1);  // час Wi-Fi 3 хвл.
     lcd.print(displStr);
 }
 
@@ -124,10 +124,10 @@ void setFlapProg(){
         editBuff1 = settings.program;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"flap    =%2u\xDF\x43",editBuff0);
+    sprintf(displStr,"\xB7\x61\x63\xBB\x69\xBD\xBA\x61 %2u%%",editBuff0);//заслiнка ??%
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"program =%2u\xDF\x43",editBuff1);
+    sprintf(displStr,"\xBE\x70\x6F\xB4\x70\x61\xBC\x61 N %2u",editBuff1);//програма N ??
     lcd.print(displStr);
 }
 
@@ -136,31 +136,25 @@ void setModeOut(){
     displStr[0] = 'R';
     displStr[1] = '1';
     displStr[2] = ':';
-    switch (settings.modeOut0){
-        case 1:  displStr[3] = 'H'; break;
-        case 2:  displStr[3] = 'O'; break;
-        default: displStr[3] = 'T'; break;
-    }
+    if(settings.modeOut0) displStr[3] = '1';
+    else displStr[3] = '0';
+    
     displStr[4] = ' ';
     displStr[5] = ' ';
     displStr[6] = 'R';
     displStr[7] = '2';
     displStr[8] = ':';
-    switch (settings.modeOut1){
-        case 1:  displStr[9] = 'H'; break;
-        case 2:  displStr[9] = 'O'; break;
-        default: displStr[9] = 'T'; break;
-    }
+    if(settings.modeOut1) displStr[9] = '1';
+    else displStr[9] = '0';
+
     displStr[10] = ' ';
     displStr[11] = ' ';
     displStr[12] = 'R';
     displStr[13] = '3';
     displStr[14] = ':';
-    switch (settings.modeOut2){
-        case 1:  displStr[15] = 'H'; break;
-        case 2:  displStr[15] = 'O'; break;
-        default: displStr[15] = 'T'; break;
-    }
+    if(settings.modeOut2) displStr[15] = '1';
+    else displStr[15] = '0';
+
     displStr[16] = '\0';
 
     lcd.setCursor(0,0);
@@ -201,8 +195,8 @@ void switchTimeOff(uint8_t item, uint8_t point){
         case 14: val = 6; break;
         case 15: val = 7; break;
     }
-    if(point < 10) sprintf(displStr,"R%u off:%2u\xB4\x6F\xE3.",item,val);
-    else sprintf(displStr,"R%u off:%2u\xE3\x69\xB2",item,val);
+    if(point < 10) snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u \xB4\x6F\xE3\x2E",item,val);   //Rx вимкн.?? год.
+    else snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u \xE3\x69\xB2\x2E",item,val);  //Rx вимкн.?? дiб.
 }
 
 // void myPrint(const uint8_t* data, uint8_t size) {

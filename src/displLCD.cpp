@@ -2,25 +2,19 @@
 
 //----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
+    lcd.setCursor(0,0);
     if(RTCENABLE){
     //   time_t unix_time = time(nullptr);             // Получаем текущее время из процессора, сконвертированное для нашего часового пояса
       time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
     //   struct tm* timeUnix = localtime(&unix_time);  // Преобразуем unix_time в структуру с локальным временем
       timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
-      lcd.setCursor(0,0);
       sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeinfo->tm_mday,timeinfo->tm_mon+1,
                         (timeinfo->tm_year+1900)%100,timeinfo->tm_hour,timeinfo->tm_min);
       lcd.print(displStr);
-      lcd.setCursor(0,1);
-      if(WIFIENABLE) {lcd.print("IP "); lcd.print(WiFi.localIP());}
-      else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" WF");}
-    } else {
-      lcd.setCursor(0,0);
-      lcd.print(version);
-      lcd.setCursor(0,1);
-      sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
-      lcd.print(displStr);
-    }
+    } else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" TC");}
+    lcd.setCursor(0,1);
+    if(WIFIENABLE) {lcd.print("IP "); lcd.print(WiFi.localIP());}
+    else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" WF");}
 }
 //---------- Температура датчиков и RH --------------
 void displ1(){
