@@ -124,10 +124,10 @@ void setFlapProg(){
         editBuff1 = settings.program;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"\xB7\x61\x63\xBB\x69\xBD\xBA\x61 %2u%%",editBuff0);//заслiнка ??%
+    sprintf(displStr,"\xB7\x61\x63\xBB\x69\xBD\xBA\x61  %2u%%",editBuff0); //заслiнка ??%
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"\xBE\x70\x6F\xB4\x70\x61\xBC\x61 N %2u",editBuff1);//програма N ??
+    sprintf(displStr,"\xBE\x70\x6F\xB4\x70\x61\xBC\x61 N%2u",editBuff1);  //програма N??
     lcd.print(displStr);
 }
 
@@ -208,8 +208,8 @@ void switchTimeOff(uint8_t item, uint8_t point){
         case 14: val = 6; break;
         case 15: val = 7; break;
     }
-    if(point < 10) snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u \xB4\x6F\xE3\x2E",item,val);   //Rx вимкн.?? год.
-    else snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u \xE3\x69\xB2\x2E",item,val);  //Rx вимкн.?? дiб.
+    if(point < 10) snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E %2u\xB4\x6F\xE3\x2E",item,val);   //Rx вимкн. ??год.
+    else snprintf(displStr, sizeof(displStr),"R%u \xB3\xB8\xBC\xBA\xBD\x2E %2u\xE3\x69\xB2\x2E",item,val);  //Rx вимкн. ??дiб.
 }
 
 // void myPrint(const uint8_t* data, uint8_t size) {

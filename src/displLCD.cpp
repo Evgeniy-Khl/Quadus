@@ -19,7 +19,7 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 ",pvT0);//t1=???°C ([8])
+    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 ",pvT0);            //t1=???°C ([8])
     lcd.print(displStr);
 
     uint8_t permit = settings.modeHeater;
@@ -34,8 +34,8 @@ void displ1(){
     }
     //-------------------------------------------------------------------------------------------------------------
     lcd.setCursor(0,1);
-    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  ", pvRH);//Bo=???%_ ([8])
-    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 ",pvT1);//t2=???°C ([8])
+    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  ", pvRH);     //Bo=???%_ ([8])
+    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 ",pvT1);       //t2=???°C ([8])
     lcd.print(displStr);
 
     permit = settings.modeHumidi;
