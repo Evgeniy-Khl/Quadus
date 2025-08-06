@@ -19,7 +19,7 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43 ",pvT0);            //t1=???°C ([8])
+    snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",pvT0);            //t1=???°C ([8])
     lcd.print(displStr);
 
     uint8_t permit = settings.modeHeater;
@@ -28,14 +28,18 @@ void displ1(){
         else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
     }
     if(permit == 0){
-        snprintf(displStr, sizeof(displStr),"[%2u\x2D%2u]", settings.spT0on, settings.spT0off);
+        snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT0on, settings.spT0off);
         if(ERROR4) displStr[8] = '!';
-        lcd.print(displStr);
+    } else {
+        for (uint8_t i = 8; i < 16; i++){
+            displStr[i] = ' ';
+        }
     }
+    lcd.print(displStr);
     //-------------------------------------------------------------------------------------------------------------
     lcd.setCursor(0,1);
-    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%%  ", pvRH);     //Bo=???%_ ([8])
-    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43 ",pvT1);       //t2=???°C ([8])
+    if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%% ", pvRH);     //Bo=???%_ ([8])
+    else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
     lcd.print(displStr);
 
     permit = settings.modeHumidi;
@@ -44,10 +48,14 @@ void displ1(){
         else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
     }
     if(permit == 0){
-        snprintf(displStr, sizeof(displStr),"[%2u\x2D%2u]", settings.spT1on, settings.spT1off);
+        snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT1on, settings.spT1off);
         if(ERROR8) displStr[8] = '!';
-        lcd.print(displStr);
+    } else {
+        for (uint8_t i = 8; i < 16; i++){
+            displStr[i] = ' ';
+        }
     }
+    lcd.print(displStr);
 }
 //---------- Остаток времени до переключения LT, R1 --------------
 void displ2(){
