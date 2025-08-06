@@ -33,7 +33,7 @@ void setup2(){
         editBuff1 = settings.spT0off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 \x79\xB3\x69\xBC\xBA\xBD\x2E %2u\xDF\x43",editBuff0);      //t1 увiмкн. ??°C
+    sprintf(displStr,"t1 \x79\xB3\x69\xBC\xBA\xBD\x2E  %2u\xDF\x43",editBuff0);      //t1 увiмкн.  ??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
     sprintf(displStr,"t1 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t1 вимкнути ??°C
@@ -47,7 +47,7 @@ void setup3(){
         editBuff1 = settings.spT1off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t2 \x79\xB3\x69\xBC\xBA\xBD\x2E %2u\xDF\x43",editBuff0);      //t2 увiмкн. ??°C
+    sprintf(displStr,"t2 \x79\xB3\x69\xBC\xBA\xBD\x2E  %2u\xDF\x43",editBuff0);      //t2 увiмкн.  ??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
     sprintf(displStr,"t2 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t1 вимкнути ??°C
@@ -85,7 +85,7 @@ void setLight(){
     sprintf(displStr,"CB \x79\xB3\x69\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff0);   //CB увімкн.??год.
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"CB \xB3\xB8\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff1);       //CB вимкн.??год.
+    sprintf(displStr,"CB \xB3\xB8\xBC\xBA\xBD\x2E %2u\xB4\x6F\xE3\x2E",editBuff1);      //CB вимкн. ??год.
     lcd.print(displStr);
 }
 

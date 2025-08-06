@@ -158,6 +158,7 @@ void loop(){
       HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
+        if(pvT0 < 0) pvT0 = 0;
         // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
         // printBinary(portOut.value);
       #endif
@@ -165,6 +166,7 @@ void loop(){
       HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
+        if(pvT1 < 0) pvT1 = 0;
         // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);
         // printBinary(portOut.value);
       #endif
