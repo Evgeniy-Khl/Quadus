@@ -139,7 +139,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 9://---------- установка разрешений ----------------
+    case 9://---------- установка разрешений для реле ----------------
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
         switch (key){
             case KEY_1: if(++settings.modeRelay1 > 2) settings.modeRelay1 = 0; break;
@@ -150,7 +150,17 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
-    case 10:
+    case 10://---------- установка разрешений для температуры ----------------
+        waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
+        switch (key){
+            case KEY_1: if(++settings.modeHeater > 2) settings.modeHeater = 0; break;
+            case KEY_2: if(++settings.modeHumidi > 2) settings.modeHumidi = 0; break;
+            case KEY_6: saveSetPoint(); break;   // 5 сек. кнопка не доступна
+            case KEY_7: displIncr(); break;
+            case KEY_8: displDecr(); break;
+        }
+      break;
+    case 11:
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
@@ -166,7 +176,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 11:
+    case 12:
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
@@ -211,14 +221,14 @@ void checkkey(uint8_t key){
 void displIncr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(++setupNum > 11) setupNum = 0; 
+    if(++setupNum > 12) setupNum = 0; 
     lcd.clear();
 }
 
 void displDecr(){
     waitCheckKeyPad = WAITCHECKKEYPAD;
     NEWSCREEN = 1;
-    if(--setupNum < 0) setupNum = 11; 
+    if(--setupNum < 0) setupNum = 12; 
     lcd.clear();
 }
 

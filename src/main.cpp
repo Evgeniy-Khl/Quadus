@@ -155,14 +155,14 @@ void loop(){
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++;
       //--------------- температура -----------------------------------
-      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35);
+      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
         // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
         // printBinary(portOut.value);
       #endif
       //----------------- влажность -----------------------------------
-      HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off);
+      HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
         // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);

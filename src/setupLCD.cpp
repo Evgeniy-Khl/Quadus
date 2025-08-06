@@ -131,8 +131,7 @@ void setFlapProg(){
     lcd.print(displStr);
 }
 
-//---------- Режим выхода --------------
-void setPermissions(){
+void setPermissionsRelay(){
     displStr[0] = 'R';
     displStr[1] = '1';
     displStr[2] = ':';
@@ -157,6 +156,25 @@ void setPermissions(){
     lcd.print(displStr);
 }
 
+void setPermissions(){
+    displStr[0] = 't';
+    displStr[1] = '1';
+    displStr[2] = ':';
+    displStr[3] = '0' + settings.modeHeater;
+    displStr[4] = ' ';
+    displStr[5] = ' ';
+    displStr[6] = 't';
+    displStr[7] = '2';
+    displStr[8] = ':';
+    displStr[9] = '0' + settings.modeHumidi;
+    displStr[10] = '\0';
+
+    lcd.setCursor(0,0);
+    myPrint(set_permissions, sizeof(set_permissions));
+    lcd.setCursor(0,1);
+    lcd.print(displStr);
+}
+
 void setupSwitch(){
     switch (setupNum){
         case 1: setup1(); break;
@@ -167,9 +185,10 @@ void setupSwitch(){
         case 6: setRelay(3); break;
         case 7: setLight(); break;
         case 8: setAlarm(); break;
-        case 9: setPermissions(); break;// установка разрешений
-        case 10: setFlapProg(); break;
-        case 11: setDevSpec(); break;
+        case 9: setPermissionsRelay(); break;   // установка разрешений для реле
+        case 10: setPermissions(); break;        // установка разрешений для температуры
+        case 11: setFlapProg(); break;
+        case 12: setDevSpec(); break;
     }
 }
 

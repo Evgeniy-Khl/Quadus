@@ -7,7 +7,7 @@ void setup2();
 void setRelay(uint8_t item);
 void setLight();
 void setAlarm();
-void setPermissions();
+void setPermissionsRelay();
 void setupSwitch();
 void setFlapProg();
 void setDevSpec();

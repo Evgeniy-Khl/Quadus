@@ -34,36 +34,36 @@ bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour) {
 
 void relaySwitch(uint8_t cn){
   bool state = PCF_OFF, prnBit = false;
-  int16_t val = 0, spOn = 0, spOff = 0, permission = 0;
+  int16_t val = 0, spOn = 0, spOff = 0, permit = 0;
   switch (cn){
     case 1: 
             state = RELAY1; 
             val = pvTimeR1; 
             spOn = settings.water0on; 
             spOff = settings.water0off;
-            permission = settings.modeRelay1 & 3;
+            permit = settings.modeRelay1 & 3;
       break;
     case 2: 
             state = RELAY2; 
             val = pvTimeR2; 
             spOn = settings.water1on; 
             spOff = settings.water1off; 
-            permission = settings.modeRelay2 & 3;
+            permit = settings.modeRelay2 & 3;
       break;
     case 3: 
             state = RELAY3; 
             val = pvTimeR3; 
             spOn = settings.water2on; 
             spOff = settings.water2off; 
-            permission = settings.modeRelay3 & 3;
+            permit = settings.modeRelay3 & 3;
       break;
   }
-  if(permission){ // если permission > 0 то ...
-    if(LIGHT == PCF_OFF && permission == 2) permission = 0;// если permission == 2 разрешена работа только когда свет потушен
-    else if(LIGHT == PCF_ON && permission == 1) permission = 0;// если permission == 1 разрешена работа только когда свет включен
+  if(permit){ // если permission > 0 то ...
+    if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
+    else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
   }
 
-  if(permission == 0){// если permission == 0 разрешена работа всегдa
+  if(permit == 0){// если permission == 0 разрешена работа всегдa
     spOff = transformTimeOff(spOff);
     if(--val <= 0){
       prnBit = true;
@@ -102,18 +102,27 @@ bool check_freeze(uint8_t i){
  return false;
 }
 
-bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp){
-  if (onTemp == offTemp) {
+bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit){
+  if(permit){ // если permission > 0 то ...
+    if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
+    else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+  }
+
+  if(permit == 0){// если permission == 0 разрешена работа всегдa
+    if (onTemp == offTemp) {
+      return PCF_OFF;
+    }
+    if (onTemp < offTemp) { // Режим нагрева
+      if (currentTemp <= onTemp) return PCF_ON;
+      if (currentTemp >= offTemp) return PCF_OFF;
+    } else { // Режим охлаждения
+      if (currentTemp >= onTemp) return PCF_ON;
+      if (currentTemp <= offTemp) return PCF_OFF;
+    }
+    return previousState; // В зоне гистерезиса состояние не меняем
+  } else {
     return PCF_OFF;
   }
-  if (onTemp < offTemp) { // Режим нагрева
-    if (currentTemp <= onTemp) return PCF_ON;
-    if (currentTemp >= offTemp) return PCF_OFF;
-  } else { // Режим охлаждения
-    if (currentTemp >= onTemp) return PCF_ON;
-    if (currentTemp <= offTemp) return PCF_OFF;
-  }
-  return previousState; // В зоне гистерезиса состояние не меняем
 }
 
 void outStatusLed(void){
@@ -138,8 +147,8 @@ uint8_t checkSetpoint(void){
       err = 2 ;
   }
   
-  sources = settings.modeRelay1 >> 4;
-  sources |= settings.modeRelay2;
+  sources = settings.modeRelay1 >> 4; // выбор источника для реле 1
+  sources |= settings.modeRelay2;     // выбор источника для реле 2
   DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
     printSetPoint();
