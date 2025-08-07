@@ -31,9 +31,10 @@ void displ1(){
         snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT0on, settings.spT0off);
         if(ERROR4) displStr[8] = '!';
     } else {
-        for (uint8_t i = 8; i < 16; i++){
+        for (uint8_t i = 0; i < 8; i++){
             displStr[i] = ' ';
         }
+        displStr[8] = '\0';
     }
     lcd.print(displStr);
     //-------------------------------------------------------------------------------------------------------------
@@ -51,9 +52,10 @@ void displ1(){
         snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT1on, settings.spT1off);
         if(ERROR8) displStr[8] = '!';
     } else {
-        for (uint8_t i = 8; i < 16; i++){
+        for (uint8_t i = 0; i < 8; i++){
             displStr[i] = ' ';
         }
+        displStr[8] = '\0';
     }
     lcd.print(displStr);
 }
