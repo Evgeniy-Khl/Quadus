@@ -65,13 +65,13 @@ void setRelay(uint8_t item){
         }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"R%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2u",item,editBuff0);
-    if(mode == 0) strcat(displStr," \x78\xB3\x2E");                 //Rx увімкн.??хвл.
-    else strcat(displStr,"\xDF\x43");                               //Rx увімкн.??°C
+    sprintf(displStr,"T%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2u",item,editBuff0);
+    if(mode == 0) strcat(displStr," \x78\xB3\x2E");                 //Tx увімкн.??хвл.
+    else strcat(displStr,"\xDF\x43");                               //Tx увімкн.??°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(mode == 0) switchTimeOff(item,editBuff1);
-    else sprintf(displStr,"R%u \xB3\xB8\xBC\xBA\xBD\x2E%2u\xDF\x43",item,editBuff1);    //Rx вимкн.??°C
+    else sprintf(displStr,"T%u \xB3\xB8\xBC\xBA\xBD\x2E%2u\xDF\x43",item,editBuff1);    //Tx вимкн.??°C
     lcd.print(displStr);
 }
 
