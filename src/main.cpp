@@ -7,10 +7,11 @@ WiFiClientSecure client;
 MyTelegramBot bot(botToken, client);
 
 RTC_DS3231 rtc;                     // Создаем объект RTC для DS3231
-// DateTime curT;
 
+DHT dht(ONE_WIRE_BUS_PIN, DHT22);
 OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
 DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
+
 LiquidCrystal_I2C lcd(0x20, 16, 2);// Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte writePCF8574(byte data);
@@ -95,11 +96,10 @@ void setup(){
   else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
   initEnvironment();
   //------------------------------------------------------------------------------------------
-  // if(RTCENABLE) data[1] = NUMBER_FONT[1]; //"o1o ooo oo"
   digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
   pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
   
-  delay(3000);
+  delay(3000);  
   lcd.clear();
   displSwitch();
   portOut.value = 0xFF;
@@ -153,22 +153,21 @@ void loop(){
       }
     }
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
-      countSeconds++;
+      countSeconds++; errorsFlag.value = 0;
+      // sensorCheck(); / !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
       //--------------- температура -----------------------------------
-      HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
+      if(pvT0 > 127) ERROR1 = 1;
+      else HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
         if(pvT0 < 0) pvT0 = 0;
-        // DEBUG_PRINT("HEATER:"); DEBUG_PRINTLN(HEATER);
-        // printBinary(portOut.value);
       #endif
       //----------------- влажность -----------------------------------
-      HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
+      if(pvT1 > 127) ERROR2 = 1;
+      else HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
         if(pvT1 < 0) pvT1 = 0;
-        // DEBUG_PRINT("HUMIDI:"); DEBUG_PRINTLN(HUMIDI);
-        // printBinary(portOut.value);
       #endif
       //---------------------------------------------------------------
       if(setupNum == 0) displSwitch(); else setupSwitch();
@@ -177,7 +176,7 @@ void loop(){
       relaySwitch(1);
       relaySwitch(2);
       relaySwitch(3);
-
+      //??????????????????????
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
       halfSecond = 0; countSeconds = 0; minutes++;

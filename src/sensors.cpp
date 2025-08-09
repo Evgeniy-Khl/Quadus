@@ -2,7 +2,74 @@
 
 #define TUNING	170
 
-void temperature_check(void){
+void sensorType(){
+  DEBUG_PRINTLN("Определение типа датчика...");
+  // 1. Пытаемся найти датчик DS18B20. Это более надежная проверка.
+  sensors.begin(); // Инициализируем шину 1-Wire
+  numberOfDevices = sensors.getDeviceCount();
+  if(numberOfDevices > 0) {
+    detectedSensor = SENSOR_DS18B20;
+    if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
+    DEBUG_PRINT("Обнаружен датчик DS18B20:"); DEBUG_PRINT(numberOfDevices, DEC); DEBUG_PRINTLN(" шт.");
+    sensors.setWaitForConversion(false);    // false: функция вернет управление немедленно.
+    sensors.setCheckForConversion(false);   // Часто используется вместе с waitForConversion = false
+    sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
+    sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
+    sensors.requestTemperatures(); // Отправляем команду на измерение
+    #ifdef DEBUG
+      DeviceAddress sensorAddress;
+      DEBUG_PRINTLN("Sensor addresses:");
+      // Выводим адрес каждого найденного устройства
+      for (uint8_t i = 0; i < numberOfDevices; i++) {
+        if (sensors.getAddress(sensorAddress, i)) {
+          DEBUG_PRINT("  Sensor ");
+          DEBUG_PRINT(i);
+          DEBUG_PRINT(": ");
+          printAddress(sensorAddress);
+          DEBUG_PRINTLN();
+        } else {
+          DEBUG_PRINT("Could not get address for sensor ");
+          DEBUG_PRINTLN(i);
+        }
+      }
+    #endif
+  } else {
+    // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
+    dht.begin(); // Инициализируем датчик DHT
+    // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
+    if (!isnan(dht.readTemperature())) {
+      detectedSensor = SENSOR_DHT22;
+      DEBUG_PRINTLN("Обнаружен датчик: DHT22");
+    }
+  }
+
+  // 3. Если ни один датчик не ответил
+  if(detectedSensor == UNKNOWN) {
+    DEBUG_PRINTLN("Датчик не обнаружен! Проверьте подключение.");
+  }
+}
+
+void sensorCheck(){
+  switch (detectedSensor){
+    case SENSOR_DHT22:{ // <--- Открывающая скобка
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+
+      if (isnan(h) || isnan(t)) {
+        DEBUG_PRINTLN("Ошибка чтения с DHT22!");
+      } else {
+        pvT0 = round(t);
+        pvT1 = round(h);
+        DEBUG_PRINT("Влажность: "); DEBUG_PRINT(h); DEBUG_PRINT(" %\t");
+        DEBUG_PRINT("Температура: "); DEBUG_PRINT(t); DEBUG_PRINTLN(" °C");
+      }
+      break;
+    }
+    case SENSOR_DS18B20: checkDs18b20(); break;
+  }
+}
+
+void checkDs18b20(void){
 #ifdef DEBUG
   char buff[100];
 #endif
@@ -36,23 +103,6 @@ void temperature_check(void){
   sensors.requestTemperatures();
 }
 
-#define V_REF   	5 //?????????????????????????????????????????????????????
-#define ADC_RESOLUTION	512 //?????????????????????????????????????????????????????????????????????
-// для HIH-5030
-// Vadc бинарное значение ADC -> в десятичное значение относительной влажности (%)
-int16_t valDcToRH(uint16_t Vadc){
- float tmpRH, tmpK;
-  tmpRH = (float)Vadc/ADC_RESOLUTION; //????????????????????????????????????????????????????????????????
-  tmpRH -= 0.1515; tmpRH /= 0.00636;
-  if(ds[0].pvT<850){tmpK = 0.00216 * ds[0].pvT/10; tmpK = 1.0546 - tmpK;}// корекция по температуре
-  else tmpK=1;      
-  tmpRH /= tmpK;
-  tmpRH *= 10;
-  // tmpRH += settings.sp_structs[0].spRH;             //sp[0].spRH->ПОДСТРОЙКА HIH-5030!!
-  if (tmpRH>1000) tmpRH=1000; else if (tmpRH<0) tmpRH=0;
-  return tmpRH;
-}
-
 /* int16_t lowPassF2(int16_t PV)
 {
 float val;
@@ -61,18 +111,3 @@ float val;
   // PVold1 = val;
   return val;
 }; */
-
-/* case 14:                               // У14 подстройка датчика DS18B20
-if(devices==1)
-{ 
-  try = 0;
-  do {
-    w1_init(); w1_write(0xCC);// 1 Wire Bus initialization; Skip ROM [CCH] command
-    w1_write(0xBE); // Read Scratchpad command [BE]
-    ptr_to_ram = ds_buffer;
-    for (byte=0; byte < 8; byte++){*ptr_to_ram++ = w1_readnew();}
-    crc = w1_readnew(); // Read CRC byte
-    ptr_to_ram = ds_buffer;
-    if(w1_dow_crc8(ptr_to_ram, 8)==crc){try = 2; if(ds_buffer[2]==TUNING) editBuff=(signed char)ds_buffer[3]; else editBuff=0;}
-  } while (++try < 2);
-} else editBuff=999; break;*/

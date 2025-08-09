@@ -1,3 +1,4 @@
+#include "main.h"
 #include "programm.h"
 
 TableBuff unTable;

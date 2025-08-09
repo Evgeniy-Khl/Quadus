@@ -147,8 +147,10 @@ uint8_t checkSetpoint(void){
       err = 2 ;
   }
   
-  sources = settings.modeRelay1 >> 4; // выбор источника для реле 1
-  sources |= settings.modeRelay2;     // выбор источника для реле 2
+  sources = settings.modeRelay1 >> 4;         // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
+  DEBUG_PRINT("Source relay 1:"); DEBUG_PRINT(sources);
+  sources |= settings.modeRelay2 & 0xF0;      // маска 0x0F - разрешения реле 4; маска 0xF0 - источник реле 4
+  DEBUG_PRINT("; Source relay 2:"); DEBUG_PRINTLN(sources >> 4);
   DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
     printSetPoint();
@@ -369,9 +371,6 @@ errors = 0x01   // ОШИБКА ДАТЧИКА 0  199-потерян; 66,0-за�
 errors = 0x02   // ОШИБКА ДАТЧИКА 1  199-потерян; 66,0-завис [E02]
 errors = 0x04   // ОТКЛОНЕНИЕ КАНАЛ 0 [E04]
 errors = 0x08   // ОТКЛОНЕНИЕ КАНАЛ 1 [E08]
-errors = 0x10   // отказ одного из двух датчиков температуры
-errors = 0x20   // отказ вспомогательного датчика температуры
-errors = 0x40   // ПЕРЕГРЕВ СИМИСТОРА ! [ПГ]
 */
 void alarm(uint8_t cn){
   int16_t val, maxVal, minVal, alarm;
@@ -413,8 +412,8 @@ void alarm(uint8_t cn){
 // Вспомогательная функция для печати
 void printBinary(unsigned char byte) {
   for (int i = 7; i >= 0; i--) {
-    if(i > 5) DEBUG_PRINT("x");
-    else DEBUG_PRINT(bitRead(byte, i));
+    if(i > 5) {DEBUG_PRINT("x");}
+    else {DEBUG_PRINT(bitRead(byte, i));}
   }
     DEBUG_PRINTLN("\n-----------------");
 }
@@ -548,47 +547,9 @@ void initEnvironment(void){
     //-----------ТЕСТ AT2432-------------------
     testProgs();              // тест
   } else DEBUG_PRINTLN("Couldn't find RTC!"); 
-  //==============================================================================
 
-  //------------ Инициализация библиотеки DallasTemperature -----------------------------
-  sensors.begin();
-  sensors.setWaitForConversion(false);    // false: функция вернет управление немедленно.
-  sensors.setCheckForConversion(false);   // Часто используется вместе с waitForConversion = false
-  sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
-  sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
-
-  // Поиск устройств на шине 1-Wire
-  numberOfDevices = sensors.getDeviceCount();
-  if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
-  DEBUG_PRINT("Found ");
-  DEBUG_PRINT(numberOfDevices, DEC);
-  DEBUG_PRINTLN(" devices.");
-  
-  #ifdef DEBUG
-    if (numberOfDevices == 0) {
-      DEBUG_PRINTLN("No DS18B20 sensors found! Check wiring and pull-up resistor.");
-      // Можно остановить выполнение, если датчики не найдены
-      // while(true) delay(100);
-    } else {
-      sensors.requestTemperatures(); // Отправляем команду на измерение
-      DeviceAddress sensorAddress;
-      DEBUG_PRINTLN("Sensor addresses:");
-      // Выводим адрес каждого найденного устройства
-      for (uint8_t i = 0; i < numberOfDevices; i++) {
-        if (sensors.getAddress(sensorAddress, i)) {
-          DEBUG_PRINT("  Sensor ");
-          DEBUG_PRINT(i);
-          DEBUG_PRINT(": ");
-          printAddress(sensorAddress);
-          DEBUG_PRINTLN();
-        } else {
-          DEBUG_PRINT("Could not get address for sensor ");
-          DEBUG_PRINTLN(i);
-        }
-      }
-    }
-  #endif
-  //==================================================================================
+  //------- определяем какой датчик подключен -------
+  sensorType();
 }
 
 //------------ ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC ------------

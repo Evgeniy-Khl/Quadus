@@ -41,6 +41,12 @@ void displ1(){
     lcd.setCursor(0,1);
     if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%% ", pvRH);     //Bo=???%_ ([8])
     else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
+    if(detectedSensor == DHT22){
+        displStr[0] = 'B';
+        displStr[1] = 'o';
+        displStr[6] = '%';
+        displStr[7] = ' ';     //Bo=???%
+    }
     lcd.print(displStr);
 
     permit = settings.modeHumidi;
@@ -70,7 +76,7 @@ void displ2(){
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(pvTimeR1 == -1){
-        lcd.print("R1 "); myPrint(no_permissions,sizeof(no_permissions));
+        lcd.print("T1 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
         if(RELAY1){    //-- OFF --
             uint8_t day = pvTimeR1 / 1440;
@@ -87,7 +93,7 @@ void displ2(){
 void displ3(){
     lcd.setCursor(0,0);
     if(pvTimeR2 == -1){
-        lcd.print("R2 "); myPrint(no_permissions,sizeof(no_permissions));
+        lcd.print("T2 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
         if(RELAY2){    //-- OFF --
             uint8_t day = pvTimeR2 / 1440;
@@ -101,7 +107,7 @@ void displ3(){
     } 
     lcd.setCursor(0,1);
     if(pvTimeR3 == -1){
-        lcd.print("R3 "); myPrint(no_permissions,sizeof(no_permissions));
+        lcd.print("T3 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
         if(RELAY3){    //-- OFF --
             uint8_t day = pvTimeR3 / 1440;

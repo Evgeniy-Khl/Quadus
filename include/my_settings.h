@@ -7,6 +7,8 @@ char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this li
 uint8_t dataLed[6]; 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
 
+SensorType detectedSensor = UNKNOWN;    // Переменная для хранения определенного типа датчика
+
 const char* ntpServer = "pool.ntp.org"; // Сервер NTP
 // Строка конфигурации часового пояса для Украины (EET/EEST)
 // EET-2EEST,M3.5.0/3,M10.5.0/4

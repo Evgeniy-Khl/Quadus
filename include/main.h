@@ -17,6 +17,7 @@
 #include <RTClib.h>   // Библиотека для работы с RTC DS3231
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <DHT.h>
 #include "AT24C32.h"
 #include "server.h"
 #include "telegram.h"
@@ -32,8 +33,8 @@
 #ifdef DEBUG
   // Вариативные макросы, принимающие любое количество аргументов
   #define DEBUG_SPRINTF(...)  sprintf(__VA_ARGS__)
-  #define DEBUG_PRINT(...)   Serial.print(__VA_ARGS__)
-  #define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+  // #define DEBUG_PRINT(...)   Serial.print(__VA_ARGS__)
+  // #define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
   #define DEBUG_PRINTF(...) Serial.printf(__VA_ARGS__)
 #else
   // "Пустышки" остаются такими же
@@ -162,9 +163,9 @@ extern union Byte portFlag;
 #define ERROR2	  errorsFlag.bitfield.a1  // ОШИБКА ДАТЧИКА 1  --- потерян; 66,0-завис [E02]
 #define ERROR4	  errorsFlag.bitfield.a2  // ОТКЛОНЕНИЕ КАНАЛ 0 [E04]
 #define ERROR8	  errorsFlag.bitfield.a3  // ОТКЛОНЕНИЕ КАНАЛ 1 [E08]
-#define ERROR10	  errorsFlag.bitfield.a4  // отказ одного из двух датчиков температуры
-#define ERROR20	  errorsFlag.bitfield.a5  // отказ вспомогательного датчика температуры
-#define OVERHEAT  errorsFlag.bitfield.a6  // перегрев симистора
+#define ERROR10	  errorsFlag.bitfield.a4  // 
+#define ERROR20	  errorsFlag.bitfield.a5  // 
+#define OVERHEAT  errorsFlag.bitfield.a6  // 
 #define FROZE	    errorsFlag.bitfield.a7  // завис датчик.
 
 #define REACHED0    portFlag.bitfield.a0  // pvT[0]-ДОСТИГ spT[0]
@@ -231,7 +232,14 @@ extern bool rtcTimeSet;
 
 extern const char* ntpServer;
 extern const char* tzInfo;
+extern DHT dht;
 extern DallasTemperature sensors;
+enum SensorType {                       // Создаем перечисление (enum) для удобного хранения типа датчика
+  UNKNOWN,
+  SENSOR_DHT22,
+  SENSOR_DS18B20
+};
+extern SensorType detectedSensor;
 extern LiquidCrystal_I2C lcd;
 extern int8_t dataOut[6];
 

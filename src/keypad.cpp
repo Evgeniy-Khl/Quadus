@@ -212,7 +212,7 @@ void checkkey(uint8_t key){
             case KEY_6_5_1: reset(); break;//ESP.restart();
             case KEY_6_5_2: settings.special |= 0x04; doSave(); ESP.restart(); break;// syncTime();
             case KEY_6_5_3: settings.special |= 0x08; doSave(); ESP.restart(); break;// wifiManager.resetSettings()
-            case KEY_6_5_4:  break;
+            case KEY_6_5_4: LittleFS.format(); ESP.restart(); break;
         }
       break;
     }
@@ -250,5 +250,4 @@ void doSave(){
   saveSetPoint();   // 5 сек. кнопка не доступна
   setupNum = 0;
   resetDispl = 0;
-  lcd.clear();
 }
