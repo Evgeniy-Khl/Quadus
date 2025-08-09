@@ -33,14 +33,14 @@
 #ifdef DEBUG
   // Вариативные макросы, принимающие любое количество аргументов
   #define DEBUG_SPRINTF(...)  sprintf(__VA_ARGS__)
-  // #define DEBUG_PRINT(...)   Serial.print(__VA_ARGS__)
-  // #define DEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
+  #define MYDEBUG_PRINT(...)   Serial.print(__VA_ARGS__)
+  #define MYDEBUG_PRINTLN(...) Serial.println(__VA_ARGS__)
   #define DEBUG_PRINTF(...) Serial.printf(__VA_ARGS__)
 #else
   // "Пустышки" остаются такими же
   #define DEBUG_SPRINTF(...)
-  #define DEBUG_PRINT(...)
-  #define DEBUG_PRINTLN(...)
+  #define MYDEBUG_PRINT(...)
+  #define MYDEBUG_PRINTLN(...)
 #endif
 // --- Конец блока макросов ---
 

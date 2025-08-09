@@ -29,8 +29,8 @@ void initWiFiManag(void){
     //wifiManager.setMinimumSignalQuality();
     //----------------------------------------------------------
     uint8_t tt =  (settings.special & 0x03) * 60;
-    DEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
-    DEBUG_PRINTLN(tt);
+    MYDEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
+    MYDEBUG_PRINTLN(tt);
     //---- Устанавливаем таймаут для портала конфигурации в секундах ----
     lcd.clear();
     lcd.setCursor(0,0);
@@ -43,7 +43,7 @@ void initWiFiManag(void){
     //-------------------------------------------------------------------
     // Пытаемся подключиться
     if (!wifiManager.autoConnect("AutoConnectAP")) {
-      DEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
+      MYDEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
       lcd.print("Wi-Fi");
@@ -53,8 +53,8 @@ void initWiFiManag(void){
       // Ничего не делаем здесь, чтобы программа просто продолжила выполнение
     } else {
         //------- if you get here you have connected to the WiFi -----------
-        DEBUG_PRINT("Wi-Fi успешно подключен! Local ip:");
-        DEBUG_PRINTLN(WiFi.localIP());	// Print ESP32 Local IP Address
+        MYDEBUG_PRINT("Wi-Fi успешно подключен! Local ip:");
+        MYDEBUG_PRINTLN(WiFi.localIP());	// Print ESP32 Local IP Address
         WIFIENABLE = 1;
         // IPAddress myIP = WiFi.localIP();
         lcd.clear();
@@ -70,10 +70,10 @@ void initWiFiManag(void){
         //------------------ read updated parameters -----------------------
         strcpy(botToken, custom_botToken.getValue());
         strcpy(chatID, custom_chatID.getValue());
-        DEBUG_PRINTLN("----The values in the file are ----");
-        DEBUG_PRINTLN("botToken:" + String(botToken));
-        DEBUG_PRINTLN("chatID:" + String(chatID));
-        DEBUG_PRINTLN();
+        MYDEBUG_PRINTLN("----The values in the file are ----");
+        MYDEBUG_PRINTLN("botToken:" + String(botToken));
+        MYDEBUG_PRINTLN("chatID:" + String(chatID));
+        MYDEBUG_PRINTLN();
         //-------------- Проверяем, что botToken не пустая -----------------
         if (strlen(botToken) > 0) {
             bot.updateToken(botToken);
@@ -90,18 +90,18 @@ void initWiFiManag(void){
         }
         //--------------- save the custom parameters to FS -------------------------
         if(shouldSaveConfig) {
-            DEBUG_PRINTLN("saving config");
+            MYDEBUG_PRINTLN("saving config");
             JsonDocument json;
             json["botToken"] = botToken;
             json["chatID"] = chatID;
             File configFile = LittleFS.open("/config.json", "w");
             if (!configFile) {
-                DEBUG_PRINTLN("failed to open config file for writing");
+                MYDEBUG_PRINTLN("failed to open config file for writing");
             } else {
                 if (serializeJson(json, configFile) == 0) {
-                    DEBUG_PRINTLN("Failed to write to file");
+                    MYDEBUG_PRINTLN("Failed to write to file");
                 } else {
-                    DEBUG_PRINTLN("Config saved successfully");
+                    MYDEBUG_PRINTLN("Config saved successfully");
                 }
                 #ifdef DEBUG
                   serializeJson(json, Serial);
@@ -113,7 +113,7 @@ void initWiFiManag(void){
         server.on("/", HTTP_GET, []() {
           mode = READDEFAULT; interval = INTERVAL_4000; tmrTelegramOff = 300;
           if (!LittleFS.exists("/index.html")) {
-            DEBUG_PRINTLN("index.html not found");
+            MYDEBUG_PRINTLN("index.html not found");
           } else {
             File file = LittleFS.open("/index.html", "r");
             if (!file) {
@@ -152,7 +152,7 @@ void initWiFiManag(void){
         server.onNotFound(notFoundHandler);
         
         server.begin();   // Start server
-        DEBUG_PRINTLN("HTTP server started");
+        MYDEBUG_PRINTLN("HTTP server started");
         
         uint16_t begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
         DEBUG_PRINTF("Free heap size: %d\n", begHeapSize);

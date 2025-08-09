@@ -39,19 +39,19 @@ void setup(){
   }
   delay(1000);
   //----------------------------------- MOUNTING FS ----------------------------------------
-  DEBUG_PRINTLN("mounting FS...");
+  MYDEBUG_PRINTLN("mounting FS...");
   bool lFS = LittleFS.begin();
   if(lFS) {
-    DEBUG_PRINTLN("mounted file system");
+    MYDEBUG_PRINTLN("mounted file system");
     //--------------------------------- clean LittleFS, for testing -----------------------
     // **Здесь вы можете разместить LittleFS.format();  но ОЧЕНЬ ВАЖНО ПОНИМАТЬ КОГДА ЭТО ДЕЛАТЬ!**
     // Например, вы можете отформатировать файловую систему только при первом запуске или при определенном условии.
     // **ВНИМАНИЕ: Раскомментирование следующей строки приведет к форматированию LittleFS при каждом запуске!**
     // Проверка и форматирование, если необходимо
     // if (LittleFS.format()) {
-    //   DEBUG_PRINTLN("LittleFS formatted successfully");
+    //   MYDEBUG_PRINTLN("LittleFS formatted successfully");
     // } else {
-    //   DEBUG_PRINTLN("Failed to format LittleFS");
+    //   MYDEBUG_PRINTLN("Failed to format LittleFS");
     // }
     //-------------------------------------------------------
     temp = checkSetpoint();
@@ -75,7 +75,7 @@ void setup(){
       delay(2000);
     }
   } else {
-    DEBUG_PRINTLN("failed to mount FS");
+    MYDEBUG_PRINTLN("failed to mount FS");
     lcd.clear();
     lcd.setCursor(0,0);
     myPrint(error_,sizeof(error_)); lcd.print("- FS");// ПОМИЛКА - FS
@@ -83,17 +83,9 @@ void setup(){
     myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));// не підключено
     delay(3000);
   }
-  // #ifdef DEBUG
-  //   //---------------------- Получение информации о файловой системе
-  //   FSInfo fs_info;
-  //   LittleFS.info(fs_info);
-  //   DEBUG_PRINTF("Total space: %u bytes\n", fs_info.totalBytes);
-  //   DEBUG_PRINTF("Used space: %u bytes\n", fs_info.usedBytes);
-  //   DEBUG_PRINTF("Free space: %u bytes\n", fs_info.totalBytes - fs_info.usedBytes);
-  // #endif
   //---------------------------- инициализация WiFiManager -----------------------------------
   if(settings.special & 0x03) initWiFiManag();
-  else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
+  else MYDEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
   initEnvironment();
   //----------------------- определяем какой датчик подключен --------------------------------
   sensorType();
@@ -206,21 +198,21 @@ void loop(){
         countSeconds = timeinfo->tm_sec;        // Получаем текущуу секунду
         if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
         #ifdef DEBUG
-        DEBUG_PRINTLN("checkLightState():");
+        MYDEBUG_PRINTLN("checkLightState():");
         printBinary(portOut.value);
         #endif
         // relaySwitch(1);
         // relaySwitch(2);
         // relaySwitch(3);
         /* // Время, которое хранится в RTC (UTC)
-        DEBUG_PRINT("DateTime class from DS3231 (UTC): ");
+        MYDEBUG_PRINT("DateTime class from DS3231 (UTC): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
                       curT.year(), curT.month(),
                       curT.day(), curT.hour(),
                       curT.minute(), curT.second()); */
 
         // Время, сконвертированное для нашего часового пояса
-        DEBUG_PRINT("Converted Local Time  (EET/EEST): ");
+        MYDEBUG_PRINT("Converted Local Time  (EET/EEST): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
                       timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
                       timeinfo->tm_mday, timeinfo->tm_hour,
@@ -235,10 +227,10 @@ void loop(){
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
             if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи
-              DEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
+              MYDEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
               syncTime();                                                     // Запускаем нашу функцию синхронизации
             }
-            DEBUG_PRINT("Update Local Time  (EET/EEST): ");
+            MYDEBUG_PRINT("Update Local Time  (EET/EEST): ");
             DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
                       timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
                       timeinfo->tm_mday, timeinfo->tm_hour,
@@ -256,12 +248,12 @@ byte writePCF8574(byte data) {
   Wire.write(data);
   byte error = Wire.endTransmission();
   if (error == 0) {
-    //DEBUG_PRINT("Data written: 0b");
+    //MYDEBUG_PRINT("Data written: 0b");
     //printBinary(data);
-    //DEBUG_PRINTLN();
+    //MYDEBUG_PRINTLN();
   } else {
-    DEBUG_PRINT("\nError writing to PCF8574. Error code: ");
-    DEBUG_PRINTLN(error);
+    MYDEBUG_PRINT("\nError writing to PCF8574. Error code: ");
+    MYDEBUG_PRINTLN(error);
   }
   return error;
 }

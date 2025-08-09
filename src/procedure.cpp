@@ -69,12 +69,12 @@ void relaySwitch(uint8_t cn){
       prnBit = true;
       if(state){//-- OFF --
         val = spOn; state = PCF_ON;
-        DEBUG_PRINT("spOn="); DEBUG_PRINT(spOn);
-        DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = ON");
+        MYDEBUG_PRINT("spOn="); MYDEBUG_PRINT(spOn);
+        MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = ON");
       } else {//-- ON --
         val = spOff; state = PCF_OFF;
-        DEBUG_PRINT("spOff="); DEBUG_PRINT(spOff);
-        DEBUG_PRINT("; Relay:"); DEBUG_PRINT(cn); DEBUG_PRINTLN(" state = OFF");
+        MYDEBUG_PRINT("spOff="); MYDEBUG_PRINT(spOff);
+        MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = OFF");
       }
     }
     switch (cn){
@@ -137,21 +137,21 @@ uint8_t checkSetpoint(void){
   //--------- Загрузка конфигурации --------------------------------------------
   if(LittleFS.exists("/setpoint.json")){
       if(!loadSetPoint()){
-        DEBUG_PRINTLN("Конфігурація не завантажена!");
+        MYDEBUG_PRINTLN("Конфігурація не завантажена!");
         err = 1 ;
         saveSetPoint();  // значения по умолчанию
       }
   } else {
       saveSetPoint();  // значения по умолчанию
-      DEBUG_PRINTLN("Конфігурація за замовчуванням!");
+      MYDEBUG_PRINTLN("Конфігурація за замовчуванням!");
       err = 2 ;
   }
   
   sources = settings.modeRelay1 >> 4;         // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
-  DEBUG_PRINT("Source relay 1:"); DEBUG_PRINT(sources);
+  MYDEBUG_PRINT("Source relay 1:"); MYDEBUG_PRINT(sources);
   sources |= settings.modeRelay2 & 0xF0;      // маска 0x0F - разрешения реле 4; маска 0xF0 - источник реле 4
-  DEBUG_PRINT("; Source relay 2:"); DEBUG_PRINTLN(sources >> 4);
-  DEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
+  MYDEBUG_PRINT("; Source relay 2:"); MYDEBUG_PRINTLN(sources >> 4);
+  MYDEBUG_PRINTLN("\n>> Итоговые значения после загрузки из FS:");
   #ifdef DEBUG
     printSetPoint();
   #endif
@@ -162,10 +162,10 @@ uint8_t checkConfig(void){
   uint8_t err = 0;
   if(LittleFS.exists("/config.json")){
     //file exists, reading and loading
-    DEBUG_PRINTLN("reading config file");
+    MYDEBUG_PRINTLN("reading config file");
     File configFile = LittleFS.open("/config.json", "r");
     if(configFile){
-      DEBUG_PRINTLN("opened config file");
+      MYDEBUG_PRINTLN("opened config file");
       size_t size = configFile.size();
       // Allocate a buffer to store contents of the file.
       std::unique_ptr<char[]> buf(new char[size]);
@@ -174,20 +174,20 @@ uint8_t checkConfig(void){
       auto deserializeError = deserializeJson(json, buf.get());
       serializeJson(json, Serial);
       if( ! deserializeError ){
-        DEBUG_PRINTLN("\nparsed json");
+        MYDEBUG_PRINTLN("\nparsed json");
         strcpy(botToken, json["botToken"]);
         strcpy(chatID, json["chatID"]);
       } else {
-        DEBUG_PRINTLN("failed to load json config");
+        MYDEBUG_PRINTLN("failed to load json config");
         err = 3;
       }
       configFile.close();
     } else {
-      DEBUG_PRINTLN("failed to open configuration file");
+      MYDEBUG_PRINTLN("failed to open configuration file");
       err = 2;
     }
   } else {
-    DEBUG_PRINTLN("does not exist config.json");
+    MYDEBUG_PRINTLN("does not exist config.json");
     err = 1;
   }
   return err;
@@ -196,7 +196,7 @@ uint8_t checkConfig(void){
 //-------- Функция для печати текущих значений структуры в Serial порт --------
 #ifdef DEBUG
 void printSetPoint() {
-    DEBUG_PRINTLN("--------------------");
+    MYDEBUG_PRINTLN("--------------------");
     DEBUG_PRINTF("  spT0on: %d\n", settings.spT0on);
     DEBUG_PRINTF("  spT0off: %d\n", settings.spT0off);
     DEBUG_PRINTF("  spT1on: %d\n", settings.spT1on);
@@ -220,13 +220,13 @@ void printSetPoint() {
     DEBUG_PRINTF("  modeRelay1: %d\n", settings.modeRelay1);
     DEBUG_PRINTF("  modeRelay2: %d\n", settings.modeRelay2);
     DEBUG_PRINTF("  modeRelay3: %d\n", settings.modeRelay3);
-    DEBUG_PRINTLN("--------------------");
+    MYDEBUG_PRINTLN("--------------------");
 }
 #endif
 
 //----------- Функция сохранения конфигурации в JSON файл ----------------
 void saveSetPoint() {
-    DEBUG_PRINTLN("Сохранение конфигурации...");
+    MYDEBUG_PRINTLN("Сохранение конфигурации...");
     waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
     // Создаем JSON документ
     JsonDocument doc;
@@ -265,7 +265,7 @@ void saveSetPoint() {
     // Открываем файл для записи
     File configFile = LittleFS.open("/setpoint.json", "w");
     if (!configFile) {
-        DEBUG_PRINTLN("Не удалось открыть файл для записи");
+        MYDEBUG_PRINTLN("Не удалось открыть файл для записи");
         myPrint(file_damaged,sizeof(file_damaged));
         return;
     }
@@ -273,10 +273,10 @@ void saveSetPoint() {
     lcd.setCursor(0,1);
     // Сериализуем JSON в файл
     if (serializeJson(doc, configFile) == 0) {
-        DEBUG_PRINTLN("Ошибка записи в файл");
+        MYDEBUG_PRINTLN("Ошибка записи в файл");
         myPrint(no_,sizeof(no_));
     } else {
-        DEBUG_PRINTLN("Конфигурация успешно сохранена.");
+        MYDEBUG_PRINTLN("Конфигурация успешно сохранена.");
         myPrint(saved,sizeof(saved));
     }
     delay(3000);
@@ -286,12 +286,12 @@ void saveSetPoint() {
 
 //------------ Функция загрузки конфигурации из JSON файла -------------
 bool loadSetPoint() {
-    DEBUG_PRINTLN("Загрузка конфигурации...");
+    MYDEBUG_PRINTLN("Загрузка конфигурации...");
 
     // Открываем файл для чтения
     File configFile = LittleFS.open("/setpoint.json", "r");
     if (!configFile) {
-        DEBUG_PRINTLN("Не удалось открыть файл для чтения. Используются значения по умолчанию.");
+        MYDEBUG_PRINTLN("Не удалось открыть файл для чтения. Используются значения по умолчанию.");
         return false;
     }
 
@@ -301,8 +301,8 @@ bool loadSetPoint() {
     // Десериализуем JSON из файла
     DeserializationError error = deserializeJson(doc, configFile);
     if (error) {
-        DEBUG_PRINT("Ошибка десериализации JSON: ");
-        DEBUG_PRINTLN(error.c_str());
+        MYDEBUG_PRINT("Ошибка десериализации JSON: ");
+        MYDEBUG_PRINTLN(error.c_str());
         configFile.close();
         return false;
     }
@@ -337,7 +337,7 @@ bool loadSetPoint() {
     settings.modeRelay2 = obj["modeRelay2"];
     settings.modeRelay3 = obj["modeRelay3"];
   
-    DEBUG_PRINTLN("Конфигурация успешно загружена.");
+    MYDEBUG_PRINTLN("Конфигурация успешно загружена.");
     return true;
 }
 
@@ -345,9 +345,9 @@ bool loadSetPoint() {
 // Вспомогательная функция для вывода адреса датчика
 void printAddress(DeviceAddress deviceAddress) {
   for (uint8_t i = 0; i < 8; i++) {
-    if (deviceAddress[i] < 16) DEBUG_PRINT("0");
-    DEBUG_PRINT(deviceAddress[i], HEX);
-    if (i < 7) DEBUG_PRINT(":");
+    if (deviceAddress[i] < 16) MYDEBUG_PRINT("0");
+    MYDEBUG_PRINT(deviceAddress[i], HEX);
+    if (i < 7) MYDEBUG_PRINT(":");
   }
 }
 #endif
@@ -412,10 +412,10 @@ void alarm(uint8_t cn){
 // Вспомогательная функция для печати
 void printBinary(unsigned char byte) {
   for (int i = 7; i >= 0; i--) {
-    if(i > 5) {DEBUG_PRINT("x");}
-    else {DEBUG_PRINT(bitRead(byte, i));}
+    if(i > 5) {MYDEBUG_PRINT("x");}
+    else {MYDEBUG_PRINT(bitRead(byte, i));}
   }
-    DEBUG_PRINTLN("\n-----------------");
+    MYDEBUG_PRINTLN("\n-----------------");
 }
 
 void reset(void){
@@ -465,7 +465,7 @@ void initEnvironment(void){
 // #endif
   
   //------------------------------------------------------------------------
-  /* DEBUG_PRINTLN("\n");
+  /* MYDEBUG_PRINTLN("\n");
   uint32_t realSize = ESP.getFlashChipRealSize(); // Получаем реальный размер flash
   uint32_t ideSize = ESP.getFlashChipSize();    // Получаем размер, установленный в IDE
   FlashMode_t ideMode = ESP.getFlashChipMode();
@@ -478,11 +478,11 @@ void initEnvironment(void){
   DEBUG_PRINTF("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
 
   if (ideSize != realSize) {
-    DEBUG_PRINTLN("Внимание! Размер Flash, установленный в IDE, не совпадает с реальным!");
+    MYDEBUG_PRINTLN("Внимание! Размер Flash, установленный в IDE, не совпадает с реальным!");
   } else {
-    DEBUG_PRINTLN("Размер Flash в IDE совпадает с реальным.");
+    MYDEBUG_PRINTLN("Размер Flash в IDE совпадает с реальным.");
   }
-  DEBUG_PRINTLN(); */
+  MYDEBUG_PRINTLN(); */
 
 /* 
   //---------- Изменяем яркость светодиода ----------------------------------------
@@ -510,10 +510,10 @@ void initEnvironment(void){
     // Первичная синхронизация времени при запуске
     // Особенно важно, если у RTC села батарейка
     if (rtc.lostPower()) {            // батарейка села.
-        DEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
+        MYDEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
         bool res = syncTime();        // true если неудалась синхронизация
         if(res){
-          DEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
+          MYDEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
           manualTimeSet();
         }
     } else if(settings.special & 0x04){// перенастройка времени 
@@ -521,11 +521,11 @@ void initEnvironment(void){
         saveSetPoint();
         bool res = syncTime();        // true если неудалась синхронизация
         if(res){
-          DEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
+          MYDEBUG_PRINTLN("НАСТРОЙКА времени в ручную.");
           manualTimeSet();
         }
     } else {                          // если батарейка в порядке, функция вернёт false.
-        DEBUG_PRINTLN("RTC has power, time should be valid.");
+        MYDEBUG_PRINTLN("RTC has power, time should be valid.");
         // 1. Устанавливаем системное время из RTC, чтобы оно было верным СРАЗУ
         // rtc.now(): Эта команда обращается к модулю DS3231 по шине I2C 
         // и считывает из него текущие данные: год, месяц, день, час, минуту и секунду. 
@@ -540,37 +540,37 @@ void initEnvironment(void){
         // 2. Включаем применение правил часового пояса И запускаем NTP в фоне
         // Это установит правило TZ и незаметно скорректирует время позже, если нужно
         configTime(tzInfo, ntpServer);
-        DEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
+        MYDEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
     }
     // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
     lastSyncDay = rtc.now().day();
     //-----------ТЕСТ AT2432-------------------
     testProgs();              // тест
-  } else DEBUG_PRINTLN("Couldn't find RTC!"); 
+  } else MYDEBUG_PRINTLN("Couldn't find RTC!"); 
 }
 
 //------------ ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC ------------
 bool syncTime() {
-  DEBUG_PRINTLN("\nStarting time synchronization...");
+  MYDEBUG_PRINTLN("\nStarting time synchronization...");
   // Конфигурируем и запускаем синхронизацию времени
   configTzTime(tzInfo, ntpServer);              // Новый, правильный метод
-  DEBUG_PRINT("Waiting for NTP response");
+  MYDEBUG_PRINT("Waiting for NTP response");
   unsigned long startAttempt = millis();        // Засекаем время начала попытки
   lcd.clear();
   lcd.setCursor(0,0);
   while (time(nullptr) < 1000000000) {          // Ждём, пока время CPU не станет "большим"
     if (millis() - startAttempt > 10000) {      // Проверяем таймаут (например, 10 секунд)
-      DEBUG_PRINTLN("\nFailed to obtain time (timeout).");
+      MYDEBUG_PRINTLN("\nFailed to obtain time (timeout).");
       return true;                                   // <-- ВЫХОД ИЗ ФУНКЦИИ по таймауту
     }
-    DEBUG_PRINT(".");
+    MYDEBUG_PRINT(".");
     lcd.print("!");
     delay(1000);
   }
   // Этот код выполнится только при УСПЕШНОЙ синхронизации
-  DEBUG_PRINTLN("\nTime successfully synchronized.");
+  MYDEBUG_PRINTLN("\nTime successfully synchronized.");
   rtc.adjust(DateTime(time(nullptr)));
-  DEBUG_PRINTLN("RTC time has been updated.");
+  MYDEBUG_PRINTLN("RTC time has been updated.");
   // lastSyncDay = rtc.now().day();
   return false;
 }
@@ -622,7 +622,7 @@ void displayMenu(SetState state, const DateTime& dt){
       #endif
       break;
   }
-  DEBUG_PRINTLN(buffer);
+  MYDEBUG_PRINTLN(buffer);
   lcd.clear();
   lcd.setCursor(0,0);
   if(state == CONFIRM_SAVE) myPrint(save_time, sizeof(save_time));
@@ -633,7 +633,7 @@ void displayMenu(SetState state, const DateTime& dt){
 void manualTimeSet(){
   DateTime tempTime = rtc.now();          // Начинаем с текущего времени из RTC
   SetState currentState = SET_YEAR;       // Начальное состояние - установка года
-  DEBUG_PRINTLN("\n--- Вход в режим настройки времени ---");
+  MYDEBUG_PRINTLN("\n--- Вход в режим настройки времени ---");
   displayMenu(currentState, tempTime);  // Отображаем текущее меню
   while (true) {
     long now = millis();
@@ -643,14 +643,14 @@ void manualTimeSet(){
       if(keys > 0){
         if (keys == KEY_6){                // Обработка кнопки "Выйти" в любой момент
           // rtc.adjust(tempTime);
-          DEBUG_PRINTLN("Время не сохранено!");
+          MYDEBUG_PRINTLN("Время не сохранено!");
           return; // Выходим из функции
         } else if(currentState == CONFIRM_SAVE){
           if (keys == KEY_3) {
               rtc.adjust(tempTime); // Установка нового времени
               lcd.setCursor(0,1);
               myPrint(time_saved,sizeof(time_saved));
-              DEBUG_PRINTLN("Время сохранено!");
+              MYDEBUG_PRINTLN("Время сохранено!");
               delay(1000);
               return; // Выходим из функции
           }

@@ -27,8 +27,8 @@ byte eepromWrBuff(uint16_t memoryAddress, const uint8_t* buffer, uint8_t length)
 
     byte status = Wire.endTransmission();
     if (status != 0) {
-      DEBUG_PRINT("I2C Write Error in buffer (addr "); DEBUG_PRINT(memoryAddress);
-      DEBUG_PRINT("). Status: "); DEBUG_PRINTLN(status);
+      MYDEBUG_PRINT("I2C Write Error in buffer (addr "); MYDEBUG_PRINT(memoryAddress);
+      MYDEBUG_PRINT("). Status: "); MYDEBUG_PRINTLN(status);
       // Прервать дальнейшую запись этого буфера, если есть ошибка
     }
     delay(EEPROM_WRITE_DELAY); // Ожидание завершения цикла записи страницы
@@ -97,56 +97,56 @@ void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_
       byte res = 0;//eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
       UNUSED(memoryAddress);
       UNUSED(res);
-      DEBUG_PRINT("HOUR:"); DEBUG_PRINT(i); 
-      DEBUG_PRINT("; ADD:"); DEBUG_PRINT(memoryAddress);
-      DEBUG_PRINT("; RES:"); DEBUG_PRINTLN(res);
+      MYDEBUG_PRINT("HOUR:"); MYDEBUG_PRINT(i); 
+      MYDEBUG_PRINT("; ADD:"); MYDEBUG_PRINT(memoryAddress);
+      MYDEBUG_PRINT("; RES:"); MYDEBUG_PRINTLN(res);
     }
     
 }
 void prepareProg1(){
-    DEBUG_PRINTLN("PROGRAMM: 1");
+    MYDEBUG_PRINTLN("PROGRAMM: 1");
     prepareTable(1,22,24,18,20);
 }
 
 void prepareProg2(){
-    DEBUG_PRINTLN("PROGRAMM: 2");
+    MYDEBUG_PRINTLN("PROGRAMM: 2");
 }
 
 void prepareProg3(){
-    DEBUG_PRINTLN("PROGRAMM: 3");
+    MYDEBUG_PRINTLN("PROGRAMM: 3");
 }
 
 void prepareProg4(){
-    DEBUG_PRINTLN("PROGRAMM: 4");
+    MYDEBUG_PRINTLN("PROGRAMM: 4");
 }
 
 void testProgs(){
-  DEBUG_PRINTLN("AT24C32 EEPROM Test.");
+  MYDEBUG_PRINTLN("AT24C32 EEPROM Test.");
   uint16_t memoryAddress = eepromMemoryAddressForHour(1, 0);
   eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   if(unTable.spHour.spT0on == -1){
     prepareProg1();
-    DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N1");
-  } else DEBUG_PRINTLN("PROGRAMM N1 Ok");
+    MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N1");
+  } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
 
   // memoryAddress = eepromMemoryAddressForHour(2, 0);
   // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   // if(unTable.spHour.spT0on == -1){
   //   prepareProg2();
-  //   DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N2");
-  // } else DEBUG_PRINTLN("PROGRAMM N2 Ok");
+  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N2");
+  // } else MYDEBUG_PRINTLN("PROGRAMM N2 Ok");
 
   // memoryAddress = eepromMemoryAddressForHour(3, 0);
   // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   // if(unTable.spHour.spT0on == -1){
   //   prepareProg3();
-  //   DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N3");
-  // } else DEBUG_PRINTLN("PROGRAMM N3 Ok");
+  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N3");
+  // } else MYDEBUG_PRINTLN("PROGRAMM N3 Ok");
 
   // memoryAddress = eepromMemoryAddressForHour(4, 0);
   // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   // if(unTable.spHour.spT0on == -1){
   //   prepareProg4();
-  //   DEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N4");
-  // } else DEBUG_PRINTLN("PROGRAMM N4 Ok");
+  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N4");
+  // } else MYDEBUG_PRINTLN("PROGRAMM N4 Ok");
 }
