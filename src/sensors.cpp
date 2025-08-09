@@ -8,44 +8,39 @@ void sensorType(){
   sensors.begin(); // Инициализируем шину 1-Wire
   numberOfDevices = sensors.getDeviceCount();
   if(numberOfDevices > 0) {
-    detectedSensor = SENSOR_DS18B20;
-    if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
-    DEBUG_PRINT("Обнаружен датчик DS18B20:"); DEBUG_PRINT(numberOfDevices, DEC); DEBUG_PRINTLN(" шт.");
-    sensors.setWaitForConversion(false);    // false: функция вернет управление немедленно.
-    sensors.setCheckForConversion(false);   // Часто используется вместе с waitForConversion = false
-    sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
-    sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
-    sensors.requestTemperatures(); // Отправляем команду на измерение
-    #ifdef DEBUG
-      DeviceAddress sensorAddress;
-      DEBUG_PRINTLN("Sensor addresses:");
-      // Выводим адрес каждого найденного устройства
-      for (uint8_t i = 0; i < numberOfDevices; i++) {
-        if (sensors.getAddress(sensorAddress, i)) {
-          DEBUG_PRINT("  Sensor ");
-          DEBUG_PRINT(i);
-          DEBUG_PRINT(": ");
-          printAddress(sensorAddress);
-          DEBUG_PRINTLN();
-        } else {
-          DEBUG_PRINT("Could not get address for sensor ");
-          DEBUG_PRINTLN(i);
+      detectedSensor = SENSOR_DS18B20;
+      if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
+      DEBUG_PRINT("Обнаружен датчик DS18B20:"); DEBUG_PRINT(numberOfDevices, DEC); DEBUG_PRINTLN(" шт.");
+      sensors.setWaitForConversion(false);    // false: функция вернет управление немедленно.
+      sensors.setCheckForConversion(false);   // Часто используется вместе с waitForConversion = false
+      sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
+      sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
+      sensors.requestTemperatures(); // Отправляем команду на измерение
+      #ifdef DEBUG
+        DeviceAddress sensorAddress;
+        DEBUG_PRINTLN("Sensor addresses:");
+        // Выводим адрес каждого найденного устройства
+        for (uint8_t i = 0; i < numberOfDevices; i++) {
+          if (sensors.getAddress(sensorAddress, i)) {
+            DEBUG_PRINT("  Sensor ");
+            DEBUG_PRINT(i);
+            DEBUG_PRINT(": ");
+            printAddress(sensorAddress);
+            DEBUG_PRINTLN();
+          } else {
+            DEBUG_PRINT("Could not get address for sensor ");
+            DEBUG_PRINTLN(i);
+          }
         }
-      }
-    #endif
+      #endif
   } else {
-    // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
-    dht.begin(); // Инициализируем датчик DHT
-    // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
-    if (!isnan(dht.readTemperature())) {
-      detectedSensor = SENSOR_DHT22;
-      DEBUG_PRINTLN("Обнаружен датчик: DHT22");
-    }
-  }
-
-  // 3. Если ни один датчик не ответил
-  if(detectedSensor == UNKNOWN) {
-    DEBUG_PRINTLN("Датчик не обнаружен! Проверьте подключение.");
+      // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
+      dht.begin(); // Инициализируем датчик DHT
+      // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
+      if (!isnan(dht.readTemperature())) {
+        detectedSensor = SENSOR_DHT22;
+        DEBUG_PRINTLN("Обнаружен датчик: DHT22");
+      }
   }
 }
 
@@ -66,6 +61,7 @@ void sensorCheck(){
       break;
     }
     case SENSOR_DS18B20: checkDs18b20(); break;
+    case UNKNOWN: DEBUG_PRINTLN("Датчики не подключены!"); break;
   }
 }
 

@@ -58,6 +58,7 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
 }
 
 // ----- Функция для подготовки стандартной талбицы ----------
+#define UNUSED(x) (void)(x)
 void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_t t1off){
     uint8_t flp = 2;
     uint8_t tmr = 0;
@@ -94,6 +95,8 @@ void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_
       }
       uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
       byte res = 0;//eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+      UNUSED(memoryAddress);
+      UNUSED(res);
       DEBUG_PRINT("HOUR:"); DEBUG_PRINT(i); 
       DEBUG_PRINT("; ADD:"); DEBUG_PRINT(memoryAddress);
       DEBUG_PRINT("; RES:"); DEBUG_PRINTLN(res);

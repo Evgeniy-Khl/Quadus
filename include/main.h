@@ -300,6 +300,7 @@ uint8_t error_[8],          // ПОМИЛКА_
         restored[10],       // відновлена
         save_time[13],      // Зберегти час?
         time_saved[14],     // Час збережено.
-        no_permissions[13]; // немаe дозволу
+        no_permissions[13], // немаe дозволу
+        sensorsWord[7];     // Датчики
 
 #endif /* __MAIN_H */

@@ -95,6 +95,23 @@ void setup(){
   if(settings.special & 0x03) initWiFiManag();
   else DEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
   initEnvironment();
+  //----------------------- определяем какой датчик подключен --------------------------------
+  sensorType();
+  lcd.clear();
+  lcd.setCursor(0,0);
+  myPrint(sensorsWord,sizeof(sensorsWord));
+  lcd.setCursor(0,1);
+  switch (detectedSensor){
+    case SENSOR_DS18B20:
+        lcd.print("DS18B20: "); lcd.print(numberOfDevices); lcd.print("pcs.");
+      break;
+    case SENSOR_DHT22:
+        lcd.print("DHT module.");
+      break;
+    case UNKNOWN:
+        myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
+      break;
+  }
   //------------------------------------------------------------------------------------------
   digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
   pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
