@@ -33,7 +33,7 @@ void sensorType(){
           }
         }
       #endif
-  } else {
+   } else {
       // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
       dht.begin(); // Инициализируем датчик DHT
       // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
@@ -41,7 +41,7 @@ void sensorType(){
         detectedSensor = SENSOR_DHT22;
         MYDEBUG_PRINTLN("Обнаружен датчик: DHT22");
       }
-  }
+   }
 }
 
 void sensorCheck(){

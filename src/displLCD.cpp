@@ -45,13 +45,13 @@ void displ1(){
         lcd.print(displStr);
         //-------------------------------------------------------------------------------------------------------------
         lcd.setCursor(0,1);
-        if(AM2301) snprintf(displStr, sizeof(displStr),"Bo=%3u%% ", pvRH);     //Bo=???%_ ([8])
-        else snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
+        snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
         if(detectedSensor == DHT22){
             displStr[0] = 'B';
             displStr[1] = 'o';
             displStr[6] = '%';
             displStr[7] = ' ';     //Bo=???%
+            displStr[8] = '\0';
         }
         lcd.print(displStr);
 

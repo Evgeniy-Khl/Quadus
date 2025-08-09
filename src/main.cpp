@@ -179,8 +179,9 @@ void loop(){
         if(pvT1 < 0) pvT1 = 0;
       #endif
       //---------------------------------------------------------------
+      ERROR4 = 1; ERROR8 = 1;
       if(setupNum == 0) displSwitch(); else setupSwitch();
-      alarm(0); alarm(1);
+      // alarm(0); alarm(1);
       //??????????????????????
       relaySwitch(1);
       relaySwitch(2);

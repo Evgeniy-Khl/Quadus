@@ -173,7 +173,7 @@ extern union Byte portFlag;
 #define TURNSECOND  portFlag.bitfield.a2  // устанавливается в 1 если отсчет в секундах
 #define RTCENABLE   portFlag.bitfield.a3  // разрешены часы реальеного времени
 #define WIFIENABLE	portFlag.bitfield.a4  // разрешен WiFi
-#define AM2301	    portFlag.bitfield.a5  // exist AM2301 flag
+#define RESERV	    portFlag.bitfield.a5  // резерв
 #define NEWSCREEN   portFlag.bitfield.a6  // новый экран
 #define SAVING      portFlag.bitfield.a7  // проветривание
 
