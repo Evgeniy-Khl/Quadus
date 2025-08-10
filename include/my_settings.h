@@ -70,7 +70,7 @@ int tmrTelegramOff = 30;
 long lastSendTime = 0, allTime = 0; 
 Interval interval = INTERVAL_1000;
 //---------------------------------
-Ds ds[2] = {{15,0,0,0,0},{10,0,0,0,0}};
+Ds ds[4] = {{15,0,0,0,0},{10,0,0,0,0}};
 float dpv0, dpv1;
 //---------------------------------
 

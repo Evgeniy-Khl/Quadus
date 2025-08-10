@@ -17,32 +17,13 @@ void sensorType(){
       sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
       sensors.requestTemperatures(); // Отправляем команду на измерение
       //------- Получаем и сохраняем адреса всех найденных датчиков ------
-        DeviceAddress sensorAddress;
-        // MYDEBUG_PRINTLN("Sensor addresses:");
-        // Выводим адрес каждого найденного устройства
-      for (uint8_t i = 0; i < numberOfDevices; i++) {
-          if (sensors.getAddress(sensorAddress, i)) {
-            MYDEBUG_PRINT("  Sensor ");
-            MYDEBUG_PRINT(i);
-            MYDEBUG_PRINT(": ");
-            printAddress(sensorAddress);
-            MYDEBUG_PRINTLN();
-          } else {
-            MYDEBUG_PRINT("Could not get address for sensor ");
-            printAddress(sensorAddress);
-            MYDEBUG_PRINTLN(i);
-          }
-      }
-      for (int i = 0; i < numberOfDevices; i++) {
-
-        if (sensors.getAddress(sensorAddresses[i], i)) {
-          Serial.printf("  Датчик %d: ", i);
-          for (uint8_t j = 0; j < 8; j++) {
-            Serial.printf("%02X", sensorAddresses[i][j]);
-          }
-          Serial.println();
+      for (int i = 0; i < numberOfDevices; i++){
+        if(sensors.getAddress(sensorAddresses[i], i)){
+          DEBUG_PRINTF("  Датчик %d: ", i);
+          printAddress(sensorAddresses[i]);
+          MYDEBUG_PRINTLN();
         } else {
-          Serial.printf("Не удалось получить адрес для датчика %d\n", i);
+          DEBUG_PRINTF("Не удалось получить адрес для датчика %d\n", i);
         }
       }
    } else {
@@ -90,7 +71,7 @@ void checkDs18b20(void){
   char buff[100];
 #endif
   for (uint8_t i = 0; i < numberOfDevices; i++){
-    float tempC = sensors.getTempC(sensorAddresses[i]);
+    float tempC = sensors.getTempC(sensorAddresses[i],3);
     DEBUG_SPRINTF(buff, "tempC(%i): %5.1f °C; err=%u",i,tempC,ds[i].errDevice);
     MYDEBUG_PRINT(buff);
     if(tempC == DEVICE_DISCONNECTED_C) {
@@ -101,7 +82,7 @@ void checkDs18b20(void){
     }
     else {
       ds[i].pvT = round(tempC);
-      ds[i].errDevice = 0;
+      // ds[i].errDevice = 0;
     }
     //----- Коректировка датчика DS18B20 ---------
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
@@ -130,27 +111,3 @@ float val;
   // PVold1 = val;
   return val;
 }; */
-
-void prSnAdr(uint8_t am){
-    Serial.println("--- Адреса всех индексов ---");
-
-    // Внешний цикл: перебираем датчики от 0 до SENSOR_COUNT-1
-    for (int i = 0; i < am; i++) {
-      Serial.printf("Index %d: ", i); // Печатаем номер датчика
-
-      // Внутренний цикл: перебираем 8 байт адреса для текущего датчика
-      for (int j = 0; j < 8; j++) {
-        // Печатаем каждый байт в 2-значном шестнадцатеричном формате (HEX)
-        // %02X означает: X - HEX в верхнем регистре, 2 - ширина 2 символа, 0 - дополнять нулем слева
-        Serial.printf("%02X", sensorAddresses[i][j]);
-
-        // Для красоты добавляем двоеточие между байтами
-        if (j < 7) {
-          Serial.print(":");
-        }
-      }
-
-      Serial.println(); // Переходим на новую строку для следующего датчика
-    }
-    Serial.println("--------------------------");
-}
