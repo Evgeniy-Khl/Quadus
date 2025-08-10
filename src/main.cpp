@@ -1,27 +1,27 @@
 #include "main.h"
 #include "my_settings.h"
 
-// AsyncWebServer server(80);      // Create AsyncWebServer object on port 80
 ESP8266WebServer server(80);
 WiFiClientSecure client;
 MyTelegramBot bot(botToken, client);
 
-RTC_DS3231 rtc;                     // Создаем объект RTC для DS3231
+RTC_DS3231 rtc;                             // Создаем объект RTC для DS3231
 
 DHT dht(ONE_WIRE_BUS_PIN, DHT22);
-OneWire oneWire(ONE_WIRE_BUS_PIN);  // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
-DallasTemperature sensors(&oneWire);// Передаем ссылку на объект oneWire в конструктор DallasTemperature
+OneWire oneWire(ONE_WIRE_BUS_PIN);          // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
+DallasTemperature sensors(&oneWire);        // Передаем ссылку на объект oneWire в конструктор DallasTemperature
+DeviceAddress sensorAddresses[MAX_DEVICE];  // Массив для хранения уникальных адресов датчиков
 
-LiquidCrystal_I2C lcd(0x20, 16, 2);// Set the LCD address to 0x27 for a 16 chars and 2 line display
+LiquidCrystal_I2C lcd(0x20, 16, 2);         // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte writePCF8574(byte data);
 
-TM1638 module(13, 14, 12);    // Создаем объект module для TM1638
+TM1638 module(13, 14, 12);                  // Создаем объект module для TM1638
 void ledSet(void);
 
 void setup(){
   #ifdef DEBUG
-    Serial.begin(115200);               // Инициализация последовательного порта для отладки
+    Serial.begin(115200);                   // Инициализация последовательного порта для отладки
   #endif
   //--------------------------------- initialize the LCD -----------------------------------
   lcd.begin();  // ВЛОЖЕН > Wire.begin() Инициализация I2C (SDA, SCL по умолчанию для ESP8266 - GPIO4, GPIO5)

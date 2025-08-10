@@ -16,11 +16,11 @@ void sensorType(){
       sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
       sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
       sensors.requestTemperatures(); // Отправляем команду на измерение
-      #ifdef DEBUG
+      //------- Получаем и сохраняем адреса всех найденных датчиков ------
         DeviceAddress sensorAddress;
-        MYDEBUG_PRINTLN("Sensor addresses:");
+        // MYDEBUG_PRINTLN("Sensor addresses:");
         // Выводим адрес каждого найденного устройства
-        for (uint8_t i = 0; i < numberOfDevices; i++) {
+      for (uint8_t i = 0; i < numberOfDevices; i++) {
           if (sensors.getAddress(sensorAddress, i)) {
             MYDEBUG_PRINT("  Sensor ");
             MYDEBUG_PRINT(i);
@@ -29,10 +29,22 @@ void sensorType(){
             MYDEBUG_PRINTLN();
           } else {
             MYDEBUG_PRINT("Could not get address for sensor ");
+            printAddress(sensorAddress);
             MYDEBUG_PRINTLN(i);
           }
+      }
+      for (int i = 0; i < numberOfDevices; i++) {
+
+        if (sensors.getAddress(sensorAddresses[i], i)) {
+          Serial.printf("  Датчик %d: ", i);
+          for (uint8_t j = 0; j < 8; j++) {
+            Serial.printf("%02X", sensorAddresses[i][j]);
+          }
+          Serial.println();
+        } else {
+          Serial.printf("Не удалось получить адрес для датчика %d\n", i);
         }
-      #endif
+      }
    } else {
       // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
       dht.begin(); // Инициализируем датчик DHT
@@ -77,34 +89,36 @@ void checkDs18b20(void){
 #ifdef DEBUG
   char buff[100];
 #endif
-  DeviceAddress sensorAddress;        // Переменная для хранения адреса датчика
   for (uint8_t i = 0; i < numberOfDevices; i++){
-    float tempC = sensors.getTempCByIndex(i);
-    DEBUG_SPRINTF(buff, "tempC(%i): %5.1f °C",i,tempC);
-    MYDEBUG_PRINTLN(buff);
+    float tempC = sensors.getTempC(sensorAddresses[i]);
+    DEBUG_SPRINTF(buff, "tempC(%i): %5.1f °C; err=%u",i,tempC,ds[i].errDevice);
+    MYDEBUG_PRINT(buff);
     if(tempC == DEVICE_DISCONNECTED_C) {
       ds[i].errDevice++;
-      if(ds[i].errDevice > 5) {ds[i].pvT = 126; ds[i].errDevice = 5;}
-      DEBUG_SPRINTF(buff, "pvT(%i): %3i °C; err=%u",i,ds[i].pvT,ds[i].errDevice);
-      MYDEBUG_PRINTLN(buff);
+      // if(ds[i].errDevice > 5) {ds[i].pvT = 126; ds[i].errDevice = 5;}
+      // DEBUG_SPRINTF(buff, "pvT(%i): %3i °C; err=%u",i,ds[i].pvT,ds[i].errDevice);
+      // MYDEBUG_PRINTLN(buff);
     }
     else {
       ds[i].pvT = round(tempC);
       ds[i].errDevice = 0;
     }
     //----- Коректировка датчика DS18B20 ---------
-    sensors.getAddress(sensorAddress, i);
-    uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddress);
-    // DEBUG_SPRINTF(buff, "HighAlarmTemp(%i): %3i",i,alarmH);
-    // MYDEBUG_PRINTLN(buff);
+    uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
+    
     if(alarmH == TUNING){
-      int8_t alarmL = sensors.getLowAlarmTemp(sensorAddress);
+      int8_t alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
+      DEBUG_SPRINTF(buff, "High(%i): %3i; Low:%3i",i,alarmH, alarmL);
+      MYDEBUG_PRINT(buff);
       ds[i].pvT += alarmL;
     }
     if(check_freeze(i, tempC)){
+
       if(i) ERROR2 = 1; else ERROR1 = 1;
     }
+    MYDEBUG_PRINTLN();
   }
+  MYDEBUG_PRINTLN("--------");
   sensors.requestTemperatures();
 }
 
@@ -116,3 +130,27 @@ float val;
   // PVold1 = val;
   return val;
 }; */
+
+void prSnAdr(uint8_t am){
+    Serial.println("--- Адреса всех индексов ---");
+
+    // Внешний цикл: перебираем датчики от 0 до SENSOR_COUNT-1
+    for (int i = 0; i < am; i++) {
+      Serial.printf("Index %d: ", i); // Печатаем номер датчика
+
+      // Внутренний цикл: перебираем 8 байт адреса для текущего датчика
+      for (int j = 0; j < 8; j++) {
+        // Печатаем каждый байт в 2-значном шестнадцатеричном формате (HEX)
+        // %02X означает: X - HEX в верхнем регистре, 2 - ширина 2 символа, 0 - дополнять нулем слева
+        Serial.printf("%02X", sensorAddresses[i][j]);
+
+        // Для красоты добавляем двоеточие между байтами
+        if (j < 7) {
+          Serial.print(":");
+        }
+      }
+
+      Serial.println(); // Переходим на новую строку для следующего датчика
+    }
+    Serial.println("--------------------------");
+}

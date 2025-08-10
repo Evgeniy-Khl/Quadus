@@ -71,7 +71,7 @@ typedef struct {
   int8_t  pvT;              // текущее значение
   int8_t  pvErr;            // текущая ошибка
   float   previousValue;    // предыдущее значение
-  uint8_t errDevice;        // нет ответа датчика
+  uint16_t errDevice;        // нет ответа датчика
   uint8_t deviation;        // отклонение от заданного значения
   uint16_t duration;        // длительность зависания
 } Ds;
@@ -234,6 +234,8 @@ extern const char* ntpServer;
 extern const char* tzInfo;
 extern DHT dht;
 extern DallasTemperature sensors;
+extern DeviceAddress sensorAddresses[MAX_DEVICE];
+
 enum SensorType {                       // Создаем перечисление (enum) для удобного хранения типа датчика
   UNKNOWN,
   SENSOR_DHT22,
