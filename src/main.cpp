@@ -168,26 +168,21 @@ void loop(){
       if(pvT0 > 125) ERROR1 = 1;
       else HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
       #ifdef DEBUG
-        if(HEATER == PCF_ON) pvT0++; else pvT0--;
-        if(pvT0 < 0) pvT0 = 0;
+        // if(HEATER == PCF_ON) pvT0++; else pvT0--;
+        // if(pvT0 < 0) pvT0 = 0;
       #endif
       //----------------- влажность -----------------------------------
       if(pvT1 > 125) ERROR2 = 1;
       else HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
       #ifdef DEBUG
-        if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
-        if(pvT1 < 0) pvT1 = 0;
+        // if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
+        // if(pvT1 < 0) pvT1 = 0;
       #endif
       alarm(0); alarm(1);
       //---------------------------------------------------------------
       // if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
       // else {ERROR2 = 1;  ERROR8 = 1;}
       if(setupNum == 0) displSwitch(); else setupSwitch();
-      //??????????????????????
-      // relaySwitch(1);
-      // relaySwitch(2);
-      // relaySwitch(3);
-      //??????????????????????
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
       halfSecond = 0; countSeconds = 0; minutes++;

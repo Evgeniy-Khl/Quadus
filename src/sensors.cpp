@@ -29,6 +29,7 @@ void sensorType(){
       }
    } else {
       // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
+      delay(1000);
       dht.begin(); // Инициализируем датчик DHT
       // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
       if (!isnan(dht.readTemperature())) {
@@ -49,8 +50,8 @@ void sensorCheck(){
       } else {
         pvT0 = round(t);
         pvT1 = round(h);
-        MYDEBUG_PRINT("Влажность: "); MYDEBUG_PRINT(h); MYDEBUG_PRINT(" %\t");
-        MYDEBUG_PRINT("Температура: "); MYDEBUG_PRINT(t); MYDEBUG_PRINTLN(" °C");
+        MYDEBUG_PRINT("t= "); MYDEBUG_PRINT(t); MYDEBUG_PRINTLN(" °C");
+        MYDEBUG_PRINT("RH= "); MYDEBUG_PRINT(h); MYDEBUG_PRINT(" %\t");
       }
       break;
     }

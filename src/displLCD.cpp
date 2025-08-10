@@ -62,7 +62,7 @@ void displ1(){
             }
         } else {
             snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
-            if(detectedSensor == DHT22){
+            if(detectedSensor == SENSOR_DHT22){
                 displStr[0] = 'B';
                 displStr[1] = 'o';
                 displStr[6] = '%';
