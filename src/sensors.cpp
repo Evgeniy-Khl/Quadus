@@ -85,15 +85,14 @@ void checkDs18b20(void){
     //----- Коректировка датчика DS18B20 ---------
     sensors.getAddress(sensorAddress, i);
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddress);
-    DEBUG_SPRINTF(buff, "HighAlarmTemp(%i): %3i",i,alarmH);
-    MYDEBUG_PRINTLN(buff);
-    if(alarmH==TUNING){
-      uint8_t alarmL = sensors.getLowAlarmTemp(sensorAddress);
+    // DEBUG_SPRINTF(buff, "HighAlarmTemp(%i): %3i",i,alarmH);
+    // MYDEBUG_PRINTLN(buff);
+    if(alarmH == TUNING){
+      int8_t alarmL = sensors.getLowAlarmTemp(sensorAddress);
       ds[i].pvT += alarmL;
     }
     if(check_freeze(i)){
-      ds[i].pvT = 660;    // индикация 66,0 - завис датчик.
-      FROZE = 1;
+      if(i) ERROR2 = 1; else ERROR1 = 1;
     }
   }
   sensors.requestTemperatures();

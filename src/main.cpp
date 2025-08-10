@@ -163,7 +163,7 @@ void loop(){
     }
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++; errorsFlag.value = 0;
-      // sensorCheck(); / !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+      sensorCheck();
       //--------------- температура -----------------------------------
       if(pvT0 > 127) ERROR1 = 1;
       else HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
@@ -179,7 +179,8 @@ void loop(){
         if(pvT1 < 0) pvT1 = 0;
       #endif
       //---------------------------------------------------------------
-      ERROR4 = 1; ERROR8 = 1;
+      if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
+      else {ERROR2 = 1;  ERROR8 = 1;}
       if(setupNum == 0) displSwitch(); else setupSwitch();
       // alarm(0); alarm(1);
       //??????????????????????

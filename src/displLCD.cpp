@@ -18,6 +18,7 @@ void displ0(){
 }
 //---------- Температура датчиков и RH --------------
 void displ1(){
+    uint8_t permit;
     if(detectedSensor == UNKNOWN){
         lcd.setCursor(0,0);
         myPrint(sensorsWord,sizeof(sensorsWord));
@@ -25,51 +26,67 @@ void displ1(){
         myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));
     } else {
         lcd.setCursor(0,0);
-        snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",pvT0);            //t1=???°C ([8])
-        lcd.print(displStr);
-
-        uint8_t permit = settings.modeHeater;
-        if(permit){ // если permission > 0 то ...
-            if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-            else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
-        }
-        if(permit == 0){
-            snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT0on, settings.spT0off);
-            if(ERROR4) displStr[0] = '!';
-        } else {
-            for (uint8_t i = 0; i < 8; i++){
-                displStr[i] = ' ';
+        if(ERROR1){
+            lcd.print("t1 ");
+            myPrint(error_,sizeof(error_));
+            for (uint8_t i = 0; i < 5; i++){
+                lcd.write(' ');
             }
-            displStr[8] = '\0';
+        } else {
+            snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",pvT0);            //t1=???°C ([8])
+            lcd.print(displStr);
+        
+            permit = settings.modeHeater;
+            if(permit){ // если permission > 0 то ...
+                if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
+                else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+            }
+            if(permit == 0){
+                snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT0on, settings.spT0off);
+                if(ERROR4) displStr[0] = '!';
+            } else {
+                for (uint8_t i = 0; i < 8; i++){
+                    displStr[i] = ' ';
+                }
+                displStr[8] = '\0';
+            }
+            lcd.print(displStr);
         }
-        lcd.print(displStr);
         //-------------------------------------------------------------------------------------------------------------
         lcd.setCursor(0,1);
-        snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
-        if(detectedSensor == DHT22){
-            displStr[0] = 'B';
-            displStr[1] = 'o';
-            displStr[6] = '%';
-            displStr[7] = ' ';     //Bo=???%
-            displStr[8] = '\0';
-        }
-        lcd.print(displStr);
-
-        permit = settings.modeHumidi;
-        if(permit){ // если permission > 0 то ...
-            if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-            else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
-        }
-        if(permit == 0){
-            snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT1on, settings.spT1off);
-            if(ERROR8) displStr[0] = '!';
-        } else {
-            for (uint8_t i = 0; i < 8; i++){
-                displStr[i] = ' ';
+        if(ERROR2){
+            lcd.print("t2 ");
+            myPrint(error_,sizeof(error_));
+            for (uint8_t i = 0; i < 5; i++){
+                lcd.write(' ');
             }
-            displStr[8] = '\0';
+        } else {
+            snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
+            if(detectedSensor == DHT22){
+                displStr[0] = 'B';
+                displStr[1] = 'o';
+                displStr[6] = '%';
+                displStr[7] = ' ';     //Bo=???%
+                displStr[8] = '\0';
+            }
+            lcd.print(displStr);
+
+            permit = settings.modeHumidi;
+            if(permit){ // если permission > 0 то ...
+                if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
+                else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+            }
+            if(permit == 0){
+                snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT1on, settings.spT1off);
+                if(ERROR8) displStr[0] = '!';
+            } else {
+                for (uint8_t i = 0; i < 8; i++){
+                    displStr[i] = ' ';
+                }
+                displStr[8] = '\0';
+            }
+            lcd.print(displStr);
         }
-        lcd.print(displStr);
     }
 }
 //---------- Остаток времени до переключения LT, R1 --------------
@@ -127,13 +144,21 @@ void displ3(){
         lcd.print(displStr);
     } 
 }
-//---------- Положение заслонки выполняемая программа --------------
+//---------- Текушие ошибки --------------
 void displ4(){
     lcd.setCursor(0,0);
-    lcd.print("displ4()");
+    myPrint(error_,sizeof(error_));
+    uint8_t er = errorsFlag.value;
+    uint8_t x = 1, i, count = 0;
+    for (i = 0; i < 8; i++){
+        if(er & 1) {lcd.print(x); lcd.print(";"); if(++count == 4) break;}
+        er >>= 1; x <<= 1;
+    }
     lcd.setCursor(0,1);
-    sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
-    lcd.print(displStr);
+    for (;i < 8; i++){
+        er >>= 1; x <<= 1;
+        if(er & 1) {lcd.print(x); lcd.print(";");}
+    }
 }
 
 void displ5(){
