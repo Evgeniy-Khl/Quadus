@@ -178,15 +178,15 @@ void loop(){
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
         if(pvT1 < 0) pvT1 = 0;
       #endif
+      alarm(0); alarm(1);
       //---------------------------------------------------------------
       // if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
       // else {ERROR2 = 1;  ERROR8 = 1;}
       if(setupNum == 0) displSwitch(); else setupSwitch();
-      alarm(0); alarm(1);
       //??????????????????????
-      relaySwitch(1);
-      relaySwitch(2);
-      relaySwitch(3);
+      // relaySwitch(1);
+      // relaySwitch(2);
+      // relaySwitch(3);
       //??????????????????????
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
@@ -203,9 +203,9 @@ void loop(){
         MYDEBUG_PRINTLN("checkLightState():");
         printBinary(portOut.value);
         #endif
-        // relaySwitch(1);
-        // relaySwitch(2);
-        // relaySwitch(3);
+        relaySwitch(1);
+        relaySwitch(2);
+        relaySwitch(3);
         /* // Время, которое хранится в RTC (UTC)
         MYDEBUG_PRINT("DateTime class from DS3231 (UTC): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
