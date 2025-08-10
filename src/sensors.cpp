@@ -65,6 +65,14 @@ void sensorCheck(){
   }
 }
 
+//------------- индикация 66,0 - завис датчик. --------------
+bool check_freeze(uint8_t i, float val){
+ if(val == ds[i].previousValue){
+    if(++ds[i].duration > 600){ds[i].duration = 600; return true;}
+ } else {ds[i].duration = 0; ds[i].previousValue = val;}
+ return false;
+}
+
 void checkDs18b20(void){
 #ifdef DEBUG
   char buff[100];
@@ -72,14 +80,16 @@ void checkDs18b20(void){
   DeviceAddress sensorAddress;        // Переменная для хранения адреса датчика
   for (uint8_t i = 0; i < numberOfDevices; i++){
     float tempC = sensors.getTempCByIndex(i);
-    DEBUG_SPRINTF(buff, "TempCByIndex(%i): %5.1f °C",i,tempC);
+    DEBUG_SPRINTF(buff, "tempC(%i): %5.1f °C",i,tempC);
     MYDEBUG_PRINTLN(buff);
     if(tempC == DEVICE_DISCONNECTED_C) {
       ds[i].errDevice++;
-      if(ds[i].errDevice > 5) {ds[i].pvT = 1990; ds[i].errDevice = 5;}
+      if(ds[i].errDevice > 5) {ds[i].pvT = 126; ds[i].errDevice = 5;}
+      DEBUG_SPRINTF(buff, "pvT(%i): %3i °C; err=%u",i,ds[i].pvT,ds[i].errDevice);
+      MYDEBUG_PRINTLN(buff);
     }
     else {
-      ds[i].pvT = tempC * 10;
+      ds[i].pvT = round(tempC);
       ds[i].errDevice = 0;
     }
     //----- Коректировка датчика DS18B20 ---------
@@ -91,7 +101,7 @@ void checkDs18b20(void){
       int8_t alarmL = sensors.getLowAlarmTemp(sensorAddress);
       ds[i].pvT += alarmL;
     }
-    if(check_freeze(i)){
+    if(check_freeze(i, tempC)){
       if(i) ERROR2 = 1; else ERROR1 = 1;
     }
   }

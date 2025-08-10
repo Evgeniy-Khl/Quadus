@@ -94,14 +94,6 @@ void relaySwitch(uint8_t cn){
   }
 }
 
-//------------- индикация 66,0 - завис датчик. --------------
-bool check_freeze(uint8_t i){
- if(ds[i].pvT == ds[i].previousValue){
-    if(++ds[i].duration > 600){ds[i].duration = 600; return true;}
- } else {ds[i].duration = 0; ds[i].previousValue = ds[i].pvT;}
- return false;
-}
-
 bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit){
   if(permit){ // если permission > 0 то ...
     if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен

@@ -165,14 +165,14 @@ void loop(){
       countSeconds++; errorsFlag.value = 0;
       sensorCheck();
       //--------------- температура -----------------------------------
-      if(pvT0 > 127) ERROR1 = 1;
+      if(pvT0 > 125) ERROR1 = 1;
       else HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
       #ifdef DEBUG
         if(HEATER == PCF_ON) pvT0++; else pvT0--;
         if(pvT0 < 0) pvT0 = 0;
       #endif
       //----------------- влажность -----------------------------------
-      if(pvT1 > 127) ERROR2 = 1;
+      if(pvT1 > 125) ERROR2 = 1;
       else HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
       #ifdef DEBUG
         if(HUMIDI == PCF_ON) pvT1++; else pvT1--;

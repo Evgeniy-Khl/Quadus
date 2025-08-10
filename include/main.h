@@ -68,9 +68,9 @@
 #define SET_PROG4	  0x33    // 51
 
 typedef struct {
-  int16_t pvT;              // текущее значение
-  int16_t pvErr;            // текущая ошибка
-  int16_t previousValue;    // предыдущее значение
+  int8_t  pvT;              // текущее значение
+  int8_t  pvErr;            // текущая ошибка
+  float   previousValue;    // предыдущее значение
   uint8_t errDevice;        // нет ответа датчика
   uint8_t deviation;        // отклонение от заданного значения
   uint16_t duration;        // длительность зависания

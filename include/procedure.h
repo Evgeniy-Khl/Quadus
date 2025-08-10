@@ -17,7 +17,6 @@ extern uint8_t seconds;
 void beeperOn(uint8_t val);
 uint16_t lampUpdate(uint16_t xpos, uint16_t ypos);
 void rotate_trays(void);
-bool check_freeze(uint8_t i);
 bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit);
 uint8_t checkSetpoint(void);
 uint8_t checkConfig(void);
