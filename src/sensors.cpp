@@ -6,7 +6,8 @@ void sensorType(){
   MYDEBUG_PRINTLN("Определение типа датчика...");
   // 1. Пытаемся найти датчик DS18B20. Это более надежная проверка.
   sensors.begin(); // Инициализируем шину 1-Wire
-  numberOfDevices = sensors.getDeviceCount();
+  // numberOfDevices = sensors.getDeviceCount();
+  numberOfDevices = sensors.getDS18Count();
   if(numberOfDevices > 0) {
       detectedSensor = SENSOR_DS18B20;
       if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
