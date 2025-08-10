@@ -6,6 +6,7 @@ char botToken[50] = "";  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
 uint8_t dataLed[6]; 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
+Ds ds[2] = {{15,0,0,0,0},{10,0,0,0,0}};
 
 SensorType detectedSensor = UNKNOWN;    // Переменная для хранения определенного типа датчика
 
@@ -70,7 +71,6 @@ int tmrTelegramOff = 30;
 long lastSendTime = 0, allTime = 0; 
 Interval interval = INTERVAL_1000;
 //---------------------------------
-Ds ds[4] = {{15,0,0,0,0},{10,0,0,0,0}};
 float dpv0, dpv1;
 //---------------------------------
 

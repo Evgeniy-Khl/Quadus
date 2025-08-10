@@ -44,10 +44,10 @@
 #endif
 // --- Конец блока макросов ---
 
-#define LEDPIN 2
-#define ONE_WIRE_BUS_PIN LEDPIN   // используется номер GPIO2
-#define MAX_DEVICE 4              // ограничение количества датчиков
-#define START_MARKER 0xDD	// Начало блока = 221
+#define LEDPIN            2
+#define ONE_WIRE_BUS_PIN  LEDPIN  // используется номер GPIO2
+#define MAX_DEVICE        2       // ограничение количества датчиков
+#define START_MARKER      0xDD	  // Начало блока = 221
 
 #define READDEFAULT 0
 #define READEEPROM  1
