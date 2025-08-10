@@ -73,7 +73,7 @@ typedef struct {
   float   previousValue;    // предыдущее значение
   uint16_t errDevice;        // нет ответа датчика
   uint8_t deviation;        // отклонение от заданного значения
-  uint16_t duration;        // длительность зависания
+  uint16_t froze;           // длительность зависания
 } Ds;
 extern Ds ds[];
 
@@ -259,7 +259,6 @@ uint8_t numberOfDevices,    // число найденых датчиков
         halfSecond,         // счетчик полу-секунд
         pvFlap,             // текущее положение заслонки
         beepOn,             // время звучания бипера
-        disableBeep,        // время запрета включения аварийной сигнализации
         keys,               // текущая кнопка
         keyCount,           // счетчик удержания кнопки
         lastKey,            // предыдущая кнопка
@@ -276,6 +275,7 @@ int16_t pvTimeR1,           // текущее время реле 0
 extern
 uint16_t    pvRH,           // текущая относительная влажность
             pvTimer,        // текущее значение таймера
+            disableBeep,        // время запрета включения аварийной сигнализации
             waitCheckKeyPad;
 
 extern const uint8_t tabRH[];

@@ -179,10 +179,10 @@ void loop(){
         if(pvT1 < 0) pvT1 = 0;
       #endif
       //---------------------------------------------------------------
-      if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
-      else {ERROR2 = 1;  ERROR8 = 1;}
+      // if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
+      // else {ERROR2 = 1;  ERROR8 = 1;}
       if(setupNum == 0) displSwitch(); else setupSwitch();
-      // alarm(0); alarm(1);
+      alarm(0); alarm(1);
       //??????????????????????
       relaySwitch(1);
       relaySwitch(2);

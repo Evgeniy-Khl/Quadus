@@ -196,12 +196,12 @@ void checkkey(uint8_t key){
         NEWSCREEN = 1;
         waitCheckKeyPad = WAITCHECKKEYPAD;
         switch (key){
-            case KEY_1: displNum = 1; lcd.clear(); break;
-            case KEY_2: displNum = 2; lcd.clear(); break;
-            case KEY_3: displNum = 3; lcd.clear(); break;
-            case KEY_4: displNum = 4; lcd.clear(); break;
-            case KEY_5: displNum = 5; lcd.clear(); break;
-            case KEY_6: displNum = 0; lcd.clear(); break;
+            case KEY_1: displNum = 1; lcd.clear(); disableBeep = 600; break;
+            case KEY_2: displNum = 2; lcd.clear(); disableBeep = 600; break;
+            case KEY_3: displNum = 3; lcd.clear(); disableBeep = 600; break;
+            case KEY_4: displNum = 4; lcd.clear(); disableBeep = 600; break;
+            case KEY_5: displNum = 5; lcd.clear(); disableBeep = 600; break;
+            case KEY_6: displNum = 0; lcd.clear(); disableBeep = 600; break;
             case KEY_6_1: displNum = 0; lcd.clear(); break;
             case KEY_6_2: displNum = 0; lcd.clear(); break;
             case KEY_6_3: displNum = 0; lcd.clear(); break;

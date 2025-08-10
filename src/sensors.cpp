@@ -62,8 +62,8 @@ void sensorCheck(){
 //------------- индикация 66,0 - завис датчик. --------------
 bool check_freeze(uint8_t i, float val){
  if(val == ds[i].previousValue){
-    if(++ds[i].duration > 600){ds[i].duration = 600; return true;}
- } else {ds[i].duration = 0; ds[i].previousValue = val;}
+    if(++ds[i].froze> 600){ds[i].froze = 600; return true;}
+ } else {ds[i].froze = 0; ds[i].previousValue = val;}
  return false;
 }
 
@@ -73,7 +73,7 @@ void checkDs18b20(void){
 #endif
   for (uint8_t i = 0; i < numberOfDevices; i++){
     float tempC = sensors.getTempC(sensorAddresses[i],3);
-    DEBUG_SPRINTF(buff, "tempC(%i): %5.1f °C; err=%u",i,tempC,ds[i].errDevice);
+    DEBUG_SPRINTF(buff, "tempC(%i): %7.3f °C; ERR=%u; FROZE=%u",i,tempC,ds[i].errDevice,ds[i].froze);
     MYDEBUG_PRINT(buff);
     if(tempC == DEVICE_DISCONNECTED_C) {
       ds[i].errDevice++;

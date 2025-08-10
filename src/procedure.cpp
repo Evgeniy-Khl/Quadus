@@ -365,40 +365,50 @@ errors = 0x04   // ОТКЛОНЕНИЕ КАНАЛ 0 [E04]
 errors = 0x08   // ОТКЛОНЕНИЕ КАНАЛ 1 [E08]
 */
 void alarm(uint8_t cn){
-  int16_t val, maxVal, minVal, alarm;
+  int16_t val, maxVal, minVal, alarm, permit;
   bool reched, beep = false;
   if(cn){
     val = pvT1;
     maxVal = max(settings.spT1on, settings.spT1off);
     minVal = min(settings.spT1on, settings.spT1off);
     alarm = settings.alarm1;
+    permit = settings.modeHumidi;
     reched = REACHED1;
   } else {
     val = pvT0;
     maxVal = max(settings.spT0on, settings.spT0off);
     minVal = min(settings.spT0on, settings.spT0off);
     alarm = settings.alarm0;
+    permit = settings.modeHeater;
     reched = REACHED0;
   }
 
-  if(reched){
-    if(val <= (minVal - alarm) || val >= (maxVal + alarm)) beep = true;
-  } 
-  else if(val >= minVal && val <= maxVal) reched = true;      // вышли на заданную температуру
+  
+  if(permit){ // если permission > 0 то ...
+      if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
+      else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+  }
+  if(permit == 0){
+      if(reched){
+        if(val <= (minVal - alarm) || val >= (maxVal + alarm)) beep = true;
+      } 
+      else if(val >= minVal && val <= maxVal) reched = true;      // вышли на заданную температуру
 
-  if(cn){
-    REACHED1 = reched;
-    ERROR8 = beep;
-  } else {
-    REACHED0 = reched;
-    ERROR4 = beep;
+      if(cn){
+        REACHED1 = reched;
+        ERROR8 = beep;
+      } else {
+        REACHED0 = reched;
+        ERROR4 = beep;
+      }
+      if(errorsFlag.value){
+        if(errorsFlag.value == 0x03) alarm = 100;
+        else alarm = 50;
+        if(disableBeep==0) beeperOn(alarm);// длительность звукового сигнала и включить канал 4 (6 А)
+        else disableBeep--;
+      }
+      else disableBeep = 0;
   }
-  if(errorsFlag.value){
-    if(errorsFlag.value == 0x03) alarm = 100;
-    else alarm = 50;
-    if(disableBeep==0) beeperOn(alarm);// длительность звукового сигнала и включить канал 4 (6 А)
-  }
-  else disableBeep = 0;
 }
 
 // Вспомогательная функция для печати
@@ -575,7 +585,7 @@ bool syncTime() {
 // }
 
 // Функция вывода текущего меню в Serial Port
-void displayMenu(SetState state, const DateTime& dt){
+void displTimeSetting(SetState state, const DateTime& dt){
   char buffer[40];
   switch (state) {
     case SET_YEAR:
@@ -626,7 +636,7 @@ void manualTimeSet(){
   DateTime tempTime = rtc.now();          // Начинаем с текущего времени из RTC
   SetState currentState = SET_YEAR;       // Начальное состояние - установка года
   MYDEBUG_PRINTLN("\n--- Вход в режим настройки времени ---");
-  displayMenu(currentState, tempTime);  // Отображаем текущее меню
+  displTimeSetting(currentState, tempTime);  // Отображаем текущее меню
   while (true) {
     long now = millis();
     if(now - counterWait > waitCheckKeyPad){
@@ -647,8 +657,8 @@ void manualTimeSet(){
               return; // Выходим из функции
           }
         } else {
-          keycheck(currentState, keys, tempTime);
-          displayMenu(currentState, tempTime);  // Отображаем текущее меню
+          keyTimeSetting(currentState, keys, tempTime);
+          displTimeSetting(currentState, tempTime);  // Отображаем текущее меню
         }
       } else waitCheckKeyPad = MINWAIT;
     }
@@ -656,7 +666,7 @@ void manualTimeSet(){
   }
 }
 
-void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime){
+void keyTimeSetting(SetState& currentState, uint8_t key, DateTime& tempTime){
     waitCheckKeyPad = WAITCHECKKEYPAD/2;  // 0.5 сек. кнопка не доступна
     switch (currentState) {
       case SET_YEAR:
@@ -678,7 +688,7 @@ void keycheck(SetState& currentState, uint8_t key, DateTime& tempTime){
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(0, 1, 0, 0);
         if (keys == KEY_2) tempTime = tempTime - TimeSpan(0, 1, 0, 0);
         if (keys == KEY_3) {currentState = SET_MINUTE; 
-                            tempTime = tempTime - TimeSpan(0, 3, 0, 0);
+                            tempTime = tempTime;  // - TimeSpan(0, 3, 0, 0);
                            waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
                            }
         break;
