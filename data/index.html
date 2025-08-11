@@ -86,7 +86,7 @@
       border-radius: 20px;
       padding: 8px;
       text-align: center;
-      background-color: #6e6e6e;
+      background-color: #595959;
     }
   </style>
 </head>
@@ -119,24 +119,25 @@
     <p></p>
     <table id="ledsTable">
       <tr>
-        <td id="led0">&#127774;</td>
-        <td id="led1">&#128167;</td>
-        <td id="led2">&#128260;</td>
-        <td id="led3">&#127744;</td>
-        <td id="led4">&#128170;</td>
-        <td id="led5">&#128680;</td>
+        <td id="led0">&#128161;</td>
+        <td id="led1">&#127774;</td>
+        <td id="led2">&#128167;</td>
+        <td id="led3">&#9200;</td>
+        <td id="led4">&#9200;</td>
+        <td id="led5">&#9200;</td>
+        <td id="led6">&#128680;</td>
       </tr>
     </table>
     <p></p>
     <div class="container">
       <span class="sensor-labels">Освітлення</span>
-      <span style="font-size:1.2em; color:#000000" id="light">00:00[0-00]</span>
+      <span style="font-size:1.2em; color:#000000" id="light">↑ 15:36 [07-19]</span>
       <span class="sensor-labels">Таймер 1</span>
-      <span style="font-size:1.2em; color:#000000" id="timer1">↓Tx 0дiб. 00:00</span>
+      <span style="font-size:1.2em; color:#000000" id="timer1">↑увімкн.19 хвл.</span>
       <span class="sensor-labels">Таймер 2</span>
-      <span style="font-size:1.2em; color:#000000" id="timer2">↓Tx 0дiб. 00:00</span>
+      <span style="font-size:1.2em; color:#000000" id="timer2">↓вимкн. 0д.06г.37х.</span>
       <span class="sensor-labels">Таймер 3</span>
-      <span style="font-size:1.2em; color:#000000" id="timer3">↓Tx 0дiб. 00:00</span>
+      <span style="font-size:1.2em; color:#000000" id="timer3">↓вимкн.0 дiб. 00:00</span>
       <span class="sensor-labels">Заслінка</span>
       <span style="font-size:2.0em; color:#000000" id="flap">--- %</span>
       <span class="sensor-labels">Програма</span>
@@ -162,18 +163,24 @@ function fetchData() {
             document.getElementById("settemp0").innerHTML = jsonResponse.settemp0;
 			
 			// Преобразование строковых значений в числа
-            const temp0 = parseFloat(jsonResponse.temperature0);
-            const setTemp0on = parseFloat(jsonResponse.settemp0on);
-            const setTemp0off = parseFloat(jsonResponse.settemp0off);
-			const setTemp1on = parseFloat(jsonResponse.settemp1on);
-            const setTemp1off = parseFloat(jsonResponse.settemp1off);
+            const error1 = jsonResponse.error1;
+            const error2 = jsonResponse.error2;
+            const error4 = jsonResponse.error4;
+            const error8 = jsonResponse.error8;
 			
 			// Изменение цвета блока #rcorners0
-            if (temp0 > setTemp0off || temp0 < setTemp0on) {
+            if (error1 == 1) {
                 document.getElementById("rcorners0").style.background = "#fc5d70";
             } else {
                 document.getElementById("rcorners0").style.background = "#89f594";
             }
+			if (error4 == 1) {
+                document.getElementById("rcorners0").style.background = "#fcfa5d";
+            } else {
+                document.getElementById("rcorners0").style.background = "#89f594";
+            }
+			
+			
 			
 			// Проверка наличия temperature1
             if (jsonResponse.temperature1 === undefined) {
@@ -181,10 +188,14 @@ function fetchData() {
             } else {
                 document.getElementById("temperature1").innerHTML = jsonResponse.temperature1;
                 document.getElementById("settemp1").innerHTML = jsonResponse.settemp1;
-				const temp1 = parseFloat(jsonResponse.temperature1);
 				// Изменение цвета блока #rcorners1
-				if (temp1 > setTemp1off || temp1 < setTemp1on) {
+				if (error2 == 1) {
 					document.getElementById("rcorners1").style.background = "#fc5d70";
+				} else {
+					document.getElementById("rcorners1").style.background = "#89f594";
+				}
+				if (error8 == 1) {
+					document.getElementById("rcorners1").style.background = "#fcfa5d";
 				} else {
 					document.getElementById("rcorners1").style.background = "#89f594";
 				}
@@ -196,10 +207,14 @@ function fetchData() {
             } else {
                 document.getElementById("humidity").innerHTML = jsonResponse.humidity;
                 document.getElementById("sethum").innerHTML = jsonResponse.sethum;
-				const temp1 = parseFloat(jsonResponse.temperature1);
 				// Изменение цвета блока #rcorners2
-				if (temp1 > setTemp1off || temp1 < setTemp1on) {
+				if (error2 == 1) {
 					document.getElementById("rcorners2").style.background = "#fc5d70";
+				} else {
+					document.getElementById("rcorners2").style.background = "#bbdff2";
+				}
+				if (error8 == 1) {
+					document.getElementById("rcorners2").style.background = "#fcfa5d";
 				} else {
 					document.getElementById("rcorners2").style.background = "#bbdff2";
 				}
@@ -214,12 +229,13 @@ function fetchData() {
             document.getElementById("currDay").innerHTML = jsonResponse.currDay;
 
             // Обновление цвета LED
-            document.getElementById('led0').style.backgroundColor = jsonResponse.led0 === "ON" ? "#ffdd00" : "transparent";
-            document.getElementById('led1').style.backgroundColor = jsonResponse.led1 === "ON" ? "#00aaff" : "transparent";
-            document.getElementById('led2').style.backgroundColor = jsonResponse.led2 === "ON" ? "#00ff00" : "transparent";
-            document.getElementById('led3').style.backgroundColor = jsonResponse.led3 === "ON" ? "#00ff00" : "transparent";
-            document.getElementById('led4').style.backgroundColor = jsonResponse.led4 === "ON" ? "#ff0000" : "transparent";
-            document.getElementById('led5').style.backgroundColor = jsonResponse.led5 === "ON" ? "#ff0000" : "transparent";
+            document.getElementById('led0').style.backgroundColor = jsonResponse.led0 === "ON" ? "#ffdd00" : "#595959";
+            document.getElementById('led1').style.backgroundColor = jsonResponse.led1 === "ON" ? "#ffdd00" : "#595959";
+            document.getElementById('led2').style.backgroundColor = jsonResponse.led2 === "ON" ? "#00aaff" : "#595959";
+            document.getElementById('led3').style.backgroundColor = jsonResponse.led3 === "ON" ? "#12fc29" : "#595959";
+            document.getElementById('led4').style.backgroundColor = jsonResponse.led4 === "ON" ? "#12fc29" : "#595959";
+            document.getElementById('led5').style.backgroundColor = jsonResponse.led5 === "ON" ? "#12fc29" : "#595959";
+            document.getElementById('led6').style.backgroundColor = jsonResponse.led6 === "ON" ? "#ff0000" : "#595959";
 			
             // Управление кнопкой "Програма"
             const programButton = document.getElementById("programButton");

@@ -127,6 +127,7 @@ void setup(){
 
 void loop(){
 	long now = millis();
+  server.handleClient(); // Обработка входящих запросов
   //-------------------------------------------- 10 mSec. --------------------------------------
   if(now - counter10 > 10){
     counter10 = now;
@@ -173,6 +174,7 @@ void loop(){
       else HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, 5, settings.spT1off, settings.modeHumidi);
       alarm(1);
       //---------------------------------------------------------------
+      outStatusLed();
       if(setupNum == 0) displSwitch(); else setupSwitch();
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------

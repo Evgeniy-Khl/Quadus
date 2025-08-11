@@ -27,6 +27,7 @@ void printAddress(DeviceAddress deviceAddress);
 void printBinary(unsigned char byte);
 uint8_t tableRH(int16_t maxT, int16_t minT);
 void alarm(uint8_t cn);
+void outStatusLed(void);
 void reset(void);
 void initEnvironment(void);
 bool syncTime();

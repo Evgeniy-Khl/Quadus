@@ -122,6 +122,7 @@ void outStatusLed(void){
       uint8_t numBit = 1 << i;
       dataLed[i] = (~portOut.value) & numBit;
     }
+    dataLed[6] = errorsFlag.value;
 }
 
 uint8_t checkSetpoint(void){

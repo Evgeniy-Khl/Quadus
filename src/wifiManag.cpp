@@ -79,13 +79,16 @@ void initWiFiManag(void){
             bot.updateToken(botToken);
             // if(botSetup()) Serial.println("The command list was updated successfully.");
             bot.sendMessage(chatID, version, "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+            MYDEBUG_PRINTLN("bot.updateToken!");
         }
         else {
+            MYDEBUG_PRINTLN("botToken = 0");
             lcd.clear();
             lcd.setCursor(0,0);
-            myPrint(invalid,sizeof(invalid));
-            lcd.setCursor(0,1);
             lcd.print("botToken!");
+            lcd.setCursor(0,1);
+            myPrint(no_,sizeof(no_));
+            myPrint(connect,sizeof(connect));
             delay(3000);
         }
         //--------------- save the custom parameters to FS -------------------------

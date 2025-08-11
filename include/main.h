@@ -276,7 +276,7 @@ uint16_t    pvTimer,        // текущее значение таймера
             waitCheckKeyPad;
 
 extern const uint8_t tabRH[];
-extern uint8_t dataLed[6];
+extern uint8_t dataLed[7];
 
 byte writePCF8574(byte data);
 byte readPCF8574();
@@ -293,7 +293,7 @@ uint8_t error_[8],          // ПОМИЛКА_
         file_damaged[15],   // Файл пошкоджено
         wordSet[12],        // Встановлений
         timeout_[9],        // тайм-аут_
-        invalid[12],        // неправильний
+        // invalid[12],        // неправильний
         manual_control[15], // Ручне керування
         set_permissions[16],// Встанов.дозволів
         restored[10],       // відновлена

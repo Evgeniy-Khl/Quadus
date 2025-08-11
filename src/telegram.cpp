@@ -17,7 +17,6 @@ https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 
 extern char botToken[], chatID [];
 extern MyTelegramBot bot;
-extern bool shouldSaveConfig;
 
 bool botSetup(){
   return bot.setMyCommands(MAIN_MENU);

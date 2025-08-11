@@ -16,24 +16,23 @@ void respondsValues() {
     uint8_t num = settings.deviceNum & 0x0F;
     tmrTelegramOff = 300;
     JsonDocument data;
-    data["model"] = "Квадус&nbsp;&nbsp;&nbsp;&nbsp;№:" + String(num);
+    data["model"] = "Квадус&nbsp;&nbsp;&nbsp;&nbsp;№ "+String(num);
     data["temperature0"] = String(ds[0].pvT);
-    data["settemp0"] = "[" + String(settings.spT0on) + " - " + String(settings.spT0off) + "]";
-    data["settemp0on"] = String(settings.spT0on);
-    data["settemp0off"] = String(settings.spT0off);
+    data["settemp0"] = "["+String(settings.spT0on)+" - "+String(settings.spT0off)+"]";
 
     if(detectedSensor == SENSOR_DHT22){
         data["humidity"] = String(ds[1].pvT);
-        data["sethum"] = "[" + String(settings.spT1on) + " - " + String(settings.spT1off) + "]";
+        data["sethum"] = "["+String(settings.spT1on)+" - "+String(settings.spT1off)+"]";
     }
     else {
         data["temperature1"] = String(ds[1].pvT);
-        data["settemp1"] = "[" + String(settings.spT1on) + " - " + String(settings.spT1off) + "]";
+        data["settemp1"] = "["+String(settings.spT1on)+" - "+String(settings.spT1off)+"]";
     }
-    data["settemp1on"] = String(settings.spT1on);
-    data["settemp1off"] = String(settings.spT1off);
-    snprintf(txt, sizeof(txt),"%02u:%02u[%u-%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-    data["light"] = txt;
+    
+    snprintf(txt, sizeof(txt),"%02u:%02u [%02u - %02u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
+    if(LIGHT) data["light"] = "↓ " + String(txt);
+    else data["light"] = "↑ " + String(txt);
+    // data["light"] = txt;
     if(pvTimeR1 == -1){
         data["timer1"] = "T1 немає дозволу";
     } else {
@@ -41,11 +40,11 @@ void respondsValues() {
             uint8_t day = pvTimeR1 / 1440;
             uint8_t hour = (pvTimeR1 % 1440) / 60;
             uint8_t min = pvTimeR1 % 60;
-            snprintf(txt, sizeof(txt),"↓T1 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            data["timer1"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
         } else {      //-- ON --
-            snprintf(txt, sizeof(txt),"↑T1 увiм.%2uхвл.",pvTimeR1); // Tx увiм.00хвл.
+            data["timer1"] = "↑ увімкн. "+String(pvTimeR1)+" хвл."; // ↑увімкн.19 хвл.
         }
-        data["timer1"] = txt; 
+        
     } 
     if(pvTimeR2 == -1){
         data["timer2"] = "T2 немає дозволу";
@@ -54,11 +53,10 @@ void respondsValues() {
             uint8_t day = pvTimeR2 / 1440;
             uint8_t hour = (pvTimeR2 % 1440) / 60;
             uint8_t min = pvTimeR2 % 60;
-            snprintf(txt, sizeof(txt),"↓T2 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            data["timer2"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
         } else {      //-- ON --
-            snprintf(txt, sizeof(txt),"↑T2 увiм.%2uхвл.",pvTimeR2); // Tx увiм.00хвл.
+            data["timer2"] = "↑ увімкн. "+String(pvTimeR2)+" хвл."; // ↑увімкн.19 хвл.             
         }
-        data["timer2"] = txt; 
     } 
     if(pvTimeR3 == -1){
         data["timer3"] = "T3 немає дозволу";
@@ -67,13 +65,15 @@ void respondsValues() {
             uint8_t day = pvTimeR3 / 1440;
             uint8_t hour = (pvTimeR3 % 1440) / 60;
             uint8_t min = pvTimeR3 % 60;
-            snprintf(txt, sizeof(txt),"↓DAT3 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            data["timer3"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
         } else {      //-- ON --
-            snprintf(txt, sizeof(txt),"↑T3 увiм.%2uхвл.",pvTimeR1); // Tx увiм.00хвл.
+            data["timer3"] = "↑ увімкн. "+String(pvTimeR3)+" хвл."; // ↑увімкн.19 хвл. 
         }
-        data["timer3"] = txt; 
     } 
-    
+    data["error1"] = ERROR1;
+    data["error2"] = ERROR2;
+    data["error4"] = ERROR4;
+    data["error8"] = ERROR8;
     data["flap"] = String(pvFlap) + "%";
     if((settings.program & 0xF) == 0) string = "немає";
     else string = "№" + String(settings.program & 0xF);
@@ -83,12 +83,13 @@ void respondsValues() {
                       timeinfo->tm_mday, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
     data["currDay"] = txt;
-    data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // НАГРЕВАТЕЛЬ
-    data["led1"] = dataLed[1] ? "ON" : "OFF" ;  // УВЛАЖНИТЕЛЬ
-    data["led2"] = dataLed[2] ? "ON" : "OFF" ;  // Поворот лотков
-    data["led3"] = dataLed[3] ? "ON" : "OFF" ;  // Заслонка/вентилятор охлаждения
-    data["led4"] = dataLed[4] ? "ON" : "OFF" ;  // Вспомогательный нагреватель
-    data["led5"] = dataLed[5] ? "ON" : "OFF" ;  // Авария
+    data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // Освещение
+    data["led1"] = dataLed[1] ? "ON" : "OFF" ;  // НАГРЕВАТЕЛЬ
+    data["led2"] = dataLed[2] ? "ON" : "OFF" ;  // УВЛАЖНИТЕЛЬ
+    data["led3"] = dataLed[3] ? "ON" : "OFF" ;  // Таймер 1
+    data["led4"] = dataLed[4] ? "ON" : "OFF" ;  // Таймер 2
+    data["led5"] = dataLed[5] ? "ON" : "OFF" ;  // Таймер 3
+    data["led6"] = dataLed[6] ? "ON" : "OFF" ;  // Авария
     
     serializeJson(data, jsonResponse);
     // DEBUG_PRINTF("SERVER responds to the client with VALUES: %d,%ld\n",seconds,millis()-lastSendTime);

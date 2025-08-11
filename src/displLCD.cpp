@@ -95,8 +95,8 @@ void displ2(){
     // timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr)," CB %02u:%02u[%u\x2D%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-    if(LIGHT) displStr[0] = '\xEE';
-    else displStr[0] = '\xEF';
+    if(LIGHT) displStr[0] = '\xDA'; // ↓
+    else displStr[0] = '\xD9';      // ↑
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(pvTimeR1 == -1){
@@ -106,9 +106,9 @@ void displ2(){
             uint8_t day = pvTimeR1 / 1440;
             uint8_t hour = (pvTimeR1 % 1440) / 60;
             uint8_t min = pvTimeR1 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT1 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT1 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1); // Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1); // ↑Tx увiм.00хвл.
         }
         lcd.print(displStr); 
     } 
@@ -123,9 +123,9 @@ void displ3(){
             uint8_t day = pvTimeR2 / 1440;
             uint8_t hour = (pvTimeR2 % 1440) / 60;
             uint8_t min = pvTimeR2 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT2 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT2 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2); // Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2); // ↑Tx увiм.00хвл.
         }
         lcd.print(displStr);
     } 
@@ -137,9 +137,9 @@ void displ3(){
             uint8_t day = pvTimeR3 / 1440;
             uint8_t hour = (pvTimeR3 % 1440) / 60;
             uint8_t min = pvTimeR3 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT3 %u\xE3\x69\xB2\x2E %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT3 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3); // Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3); // ↑Tx увiм.00хвл.
         }
         lcd.print(displStr);
     } 
