@@ -13,7 +13,7 @@ void displ0(){
       lcd.print(displStr);
     } else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" TC");}
     lcd.setCursor(0,1);
-    if(WIFIENABLE) {lcd.print("IP "); lcd.print(WiFi.localIP());}
+    if(WIFIENABLE) lcd.print(WiFi.localIP());
     else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" WF");}
 }
 //---------- Температура датчиков и RH --------------

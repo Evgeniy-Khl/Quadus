@@ -78,9 +78,9 @@ void respondsValues() {
     if((settings.program & 0xF) == 0) string = "немає";
     else string = "№" + String(settings.program & 0xF);
     data["program"] = string;
-    snprintf(txt,sizeof(txt),"%04d-%02d-%02d %02d:%02d:%02d",
-                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
-                      timeinfo->tm_mday, timeinfo->tm_hour,
+    snprintf(txt,sizeof(txt),"%02d.%02d.%04d %02d:%02d:%02d",
+                      timeinfo->tm_mday, timeinfo->tm_mon + 1,
+                      timeinfo->tm_year + 1900, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
     data["currDay"] = txt;
     data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // Освещение
