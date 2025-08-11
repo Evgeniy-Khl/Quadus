@@ -165,23 +165,14 @@ void loop(){
       countSeconds++; errorsFlag.value = 0;
       sensorCheck();
       //--------------- температура -----------------------------------
-      if(pvT0 > 125) ERROR1 = 1;
-      else HEATER = checkDeviceState(HEATER, pvT0, settings.spT0on, 35, settings.modeHeater);
-      #ifdef DEBUG
-        // if(HEATER == PCF_ON) pvT0++; else pvT0--;
-        // if(pvT0 < 0) pvT0 = 0;
-      #endif
+      if(ds[0].pvT > 125) ERROR1 = 1;
+      else HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, 35, settings.modeHeater);
+      alarm(0);
       //----------------- влажность -----------------------------------
-      if(pvT1 > 125) ERROR2 = 1;
-      else HUMIDI = checkDeviceState(HUMIDI, pvT1, 5, settings.spT1off, settings.modeHumidi);
-      #ifdef DEBUG
-        // if(HUMIDI == PCF_ON) pvT1++; else pvT1--;
-        // if(pvT1 < 0) pvT1 = 0;
-      #endif
-      alarm(0); alarm(1);
+      if(ds[1].pvT > 125) ERROR2 = 1;
+      else HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, 5, settings.spT1off, settings.modeHumidi);
+      alarm(1);
       //---------------------------------------------------------------
-      // if(countSeconds & 4) {ERROR1 = 1; ERROR4 = 1;}
-      // else {ERROR2 = 1;  ERROR8 = 1;}
       if(setupNum == 0) displSwitch(); else setupSwitch();
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
@@ -219,8 +210,8 @@ void loop(){
       if(++minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          time_t utc_time = rtc.now().unixtime();                             // Получаем текущее время с модуля DS3231
-          timeinfo = localtime(&utc_time);                                    // Преобразуем utc_time в структуру с локальным временем
+          // time_t utc_time = rtc.now().unixtime();                             // Получаем текущее время с модуля DS3231
+          // timeinfo = localtime(&utc_time);                                    // Преобразуем utc_time в структуру с локальным временем
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
             if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи

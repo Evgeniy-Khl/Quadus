@@ -48,8 +48,8 @@ void sensorCheck(){
       if (isnan(h) || isnan(t)) {
         MYDEBUG_PRINTLN("Ошибка чтения с DHT22!");
       } else {
-        pvT0 = round(t);
-        pvT1 = round(h);
+        ds[0].pvT = round(t);
+        ds[1].pvT = round(h);
         MYDEBUG_PRINT("t= "); MYDEBUG_PRINT(t); MYDEBUG_PRINTLN(" °C");
         MYDEBUG_PRINT("RH= "); MYDEBUG_PRINT(h); MYDEBUG_PRINT(" %\t");
       }

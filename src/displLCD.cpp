@@ -33,7 +33,7 @@ void displ1(){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",pvT0);            //t1=???°C ([8])
+            snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",ds[0].pvT);            //t1=???°C
             lcd.print(displStr);
         
             permit = settings.modeHeater;
@@ -61,7 +61,7 @@ void displ1(){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",pvT1);       //t2=???°C ([8])
+            snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",ds[1].pvT);       //t2=???°C ([8])
             if(detectedSensor == SENSOR_DHT22){
                 displStr[0] = 'B';
                 displStr[1] = 'o';
@@ -91,8 +91,8 @@ void displ1(){
 }
 //---------- Остаток времени до переключения LT, R1 --------------
 void displ2(){
-    time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
-    timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
+    // time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
+    // timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr)," CB %02u:%02u[%u\x2D%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
     if(LIGHT) displStr[0] = '\xEE';

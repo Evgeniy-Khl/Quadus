@@ -249,9 +249,7 @@ extern bool newDispl;
 extern long counterWait, counter10, counter1s;
 extern
 int8_t  displNum,           // вариант дисплея
-        setupNum,           // пунк выбора установки
-        pvT0,               // температура t1
-        pvT1;               // температура t2
+        setupNum;           // пунк выбора установки
 
 extern 
 uint8_t numberOfDevices,    // число найденых датчиков
@@ -273,8 +271,7 @@ int16_t pvTimeR1,           // текущее время реле 0
         editBuff0,          // временное хранилище редактируемой установки
         editBuff1;          // временное хранилище редактируемой установки
 extern
-uint16_t    pvRH,           // текущая относительная влажность
-            pvTimer,        // текущее значение таймера
+uint16_t    pvTimer,        // текущее значение таймера
             disableBeep,        // время запрета включения аварийной сигнализации
             waitCheckKeyPad;
 

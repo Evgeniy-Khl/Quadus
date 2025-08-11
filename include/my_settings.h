@@ -29,9 +29,7 @@ struct tm* timeinfo;
 bool shouldSaveConfig = false;//flag for saving data
 bool enabledListen = false;
 int8_t  displNum,           // вариант дисплея
-        setupNum,           // пунк выбора установки
-        pvT0,               // температура t1
-        pvT1;               // температура t2
+        setupNum;           // пунк выбора установки
 
 uint8_t numberOfDevices,    // число найденых датчиков
         resetDispl,         // время ожидания до возврата главного диплея
@@ -52,8 +50,7 @@ int16_t pvTimeR1,           // текущее время реле 0
         editBuff0,          // временное хранилище редактируемой установки
         editBuff1;          // временное хранилище редактируемой установки
 
-uint16_t    pvRH,           // текущая относительная влажность
-            pvTimer,        // текущее значение таймера
+uint16_t    pvTimer,        // текущее значение таймера
             disableBeep,    // время запрета включения аварийной сигнализации
             waitCheckKeyPad = WAITCHECKKEYPAD;
 
@@ -70,9 +67,6 @@ uint8_t earlyMode = 0, mode = READEEPROM, tmrResetMode = 0, quarter = GET_PROG1,
 int tmrTelegramOff = 30;
 long lastSendTime = 0, allTime = 0; 
 Interval interval = INTERVAL_1000;
-//---------------------------------
-float dpv0, dpv1;
-//---------------------------------
 
 union Byte portOut;
 union Byte errorsFlag;

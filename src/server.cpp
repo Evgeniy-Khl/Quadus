@@ -10,67 +10,79 @@ void notFoundHandler() {
   server.send(404, "text/plain", "Not found");
 }
 
-String getFloat(float val, uint8_t brackets) {
-  char buffer[8];
-  if(brackets) snprintf(buffer, sizeof(buffer), "[%.1f]", val);
-  else snprintf(buffer, sizeof(buffer), "%.1f", val);
-  for (unsigned int i = 0; i < sizeof(buffer); i++) {
-    if (buffer[i] == '.') {
-      buffer[i] = ',';
-      break;
-    }
-  }
-  return String(buffer); // Возвращаем отформатированную строку
-}
-
 void respondsValues() {
+    char txt[20];
     String string, jsonResponse;
     uint8_t num = settings.deviceNum & 0x0F;
     tmrTelegramOff = 300;
     JsonDocument data;
     data["model"] = "Квадус&nbsp;&nbsp;&nbsp;&nbsp;№:" + String(num);
-    data["temperature0"] = getFloat((float)ds[0].pvT/10,0);
-    data["temperature1"] = getFloat((float)ds[1].pvT/10,0);
-    data["settemp0"] = getFloat(settings.spT0on,1);
-    data["settemp1"] = getFloat(settings.spT1on,1);
-    if(pvRH == 255) data["humidity"] = "***";
-    else data["humidity"] = String(pvRH);
-    if(AM2301) data["sethum"] = "[" + String(settings.spT1on) + "]";
-    else  data["sethum"] = "[--]";
-    
-    // switch (settings.extendMode){
-    //   case 1: string = "охолодження"; break;
-    //   case 2: string = "осущення"; break;
-    //   case 3: string = "охол. и осуш."; break;
-    //   default: string = ""; break;
-    //   }
-    // data["ventmode"] = string;
+    data["temperature0"] = String(ds[0].pvT);
+    data["settemp0"] = "[" + String(settings.spT0on) + " - " + String(settings.spT0off) + "]";
+    data["settemp0on"] = String(settings.spT0on);
+    data["settemp0off"] = String(settings.spT0off);
 
-    // switch (settings.extendMode){
-    //   case 0: string = "сирена"; break;
-    //   case 1: string = "відключення"; break;
-    //   default: string = ""; break;
-    // }
-    // data["extmode"] = string;
+    if(detectedSensor == SENSOR_DHT22){
+        data["humidity"] = String(ds[1].pvT);
+        data["sethum"] = "[" + String(settings.spT1on) + " - " + String(settings.spT1off) + "]";
+    }
+    else {
+        data["temperature1"] = String(ds[1].pvT);
+        data["settemp1"] = "[" + String(settings.spT1on) + " - " + String(settings.spT1off) + "]";
+    }
+    data["settemp1on"] = String(settings.spT1on);
+    data["settemp1off"] = String(settings.spT1off);
+    snprintf(txt, sizeof(txt),"%02u:%02u[%u-%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
+    data["light"] = txt;
+    if(pvTimeR1 == -1){
+        data["timer1"] = "T1 немає дозволу";
+    } else {
+        if(RELAY1){    //-- OFF --
+            uint8_t day = pvTimeR1 / 1440;
+            uint8_t hour = (pvTimeR1 % 1440) / 60;
+            uint8_t min = pvTimeR1 % 60;
+            snprintf(txt, sizeof(txt),"↓T1 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+        } else {      //-- ON --
+            snprintf(txt, sizeof(txt),"↑T1 увiм.%2uхвл.",pvTimeR1); // Tx увiм.00хвл.
+        }
+        data["timer1"] = txt; 
+    } 
+    if(pvTimeR2 == -1){
+        data["timer2"] = "T2 немає дозволу";
+    } else {
+        if(RELAY2){    //-- OFF --
+            uint8_t day = pvTimeR2 / 1440;
+            uint8_t hour = (pvTimeR2 % 1440) / 60;
+            uint8_t min = pvTimeR2 % 60;
+            snprintf(txt, sizeof(txt),"↓T2 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+        } else {      //-- ON --
+            snprintf(txt, sizeof(txt),"↑T2 увiм.%2uхвл.",pvTimeR2); // Tx увiм.00хвл.
+        }
+        data["timer2"] = txt; 
+    } 
+    if(pvTimeR3 == -1){
+        data["timer3"] = "T3 немає дозволу";
+    } else {
+        if(RELAY3){    //-- OFF --
+            uint8_t day = pvTimeR3 / 1440;
+            uint8_t hour = (pvTimeR3 % 1440) / 60;
+            uint8_t min = pvTimeR3 % 60;
+            snprintf(txt, sizeof(txt),"↓DAT3 %u дiб. %02u:%02u ",day,hour,min);       // Tx 0дiб. 00:00
+        } else {      //-- ON --
+            snprintf(txt, sizeof(txt),"↑T3 увiм.%2uхвл.",pvTimeR1); // Tx увiм.00хвл.
+        }
+        data["timer3"] = txt; 
+    } 
     
-    // switch (settings.mode){
-    //   case 0: string = "немає"; break;
-    //   case 1: string = "канал №1"; break;
-    //   case 2: string = "канал №2"; break;
-    //   case 3: string = "№1 и №2"; break;
-    //   case 4: string = "імпульс"; break;
-    //   default: string = ""; break;
-    // }
-    // data["relaymode"] = string;
-    // data["checkDry"] = (settings.mode) ? "встановлене" : "немає";
-    // data["rotation"] = String(pvTimer) + (TURNSECOND ? " сек." : " хвл.");
-
-    // data["power"] = String(pctHeater) + "%";
-    // data["flap"] = String(pvFlap) + "%";
+    data["flap"] = String(pvFlap) + "%";
     if((settings.program & 0xF) == 0) string = "немає";
     else string = "№" + String(settings.program & 0xF);
     data["program"] = string;
-    data["currDay"] = "0 діб.";//String(upv.pv.currDay) + "діб.";
+    snprintf(txt,sizeof(txt),"%04d-%02d-%02d %02d:%02d:%02d",
+                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
+                      timeinfo->tm_mday, timeinfo->tm_hour,
+                      timeinfo->tm_min, timeinfo->tm_sec);
+    data["currDay"] = txt;
     data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // НАГРЕВАТЕЛЬ
     data["led1"] = dataLed[1] ? "ON" : "OFF" ;  // УВЛАЖНИТЕЛЬ
     data["led2"] = dataLed[2] ? "ON" : "OFF" ;  // Поворот лотков

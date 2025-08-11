@@ -367,15 +367,14 @@ errors = 0x08   // ОТКЛОНЕНИЕ КАНАЛ 1 [E08]
 void alarm(uint8_t cn){
   int16_t val, maxVal, minVal, alarm, permit;
   bool reched, beep = false;
+  val = ds[cn].pvT;
   if(cn){
-    val = pvT1;
     maxVal = max(settings.spT1on, settings.spT1off);
     minVal = min(settings.spT1on, settings.spT1off);
     alarm = settings.alarm1;
     permit = settings.modeHumidi;
     reched = REACHED1;
   } else {
-    val = pvT0;
     maxVal = max(settings.spT0on, settings.spT0off);
     minVal = min(settings.spT0on, settings.spT0off);
     alarm = settings.alarm0;
