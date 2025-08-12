@@ -42,7 +42,7 @@ void initWiFiManag(void){
     wifiManager.setConfigPortalTimeout(tt);  
     //-------------------------------------------------------------------
     // Пытаемся подключиться
-    if (!wifiManager.autoConnect("AutoConnectAP")) {
+    if (!wifiManager.autoConnect("GravitonAP")) {
       MYDEBUG_PRINTLN("Не удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
       lcd.setCursor(0,0);
@@ -70,6 +70,9 @@ void initWiFiManag(void){
         //------------------ read updated parameters -----------------------
         strcpy(botToken, custom_botToken.getValue());
         strcpy(chatID, custom_chatID.getValue());
+        // strcpy(botToken, "7793816236:AAEZdUe3lGD-1-fT3eiSbWgmE2Ur_9mRBno");
+        // strcpy(chatID, "1699762091");
+        // shouldSaveConfig = true;
         MYDEBUG_PRINTLN("----The values in the file are ----");
         MYDEBUG_PRINTLN("botToken:" + String(botToken));
         MYDEBUG_PRINTLN("chatID:" + String(chatID));
@@ -78,11 +81,13 @@ void initWiFiManag(void){
         if (strlen(botToken) > 0) {
             bot.updateToken(botToken);
             // if(botSetup()) Serial.println("The command list was updated successfully.");
-            bot.sendMessage(chatID, version, "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+            bot.sendMessage(chatID, WORD_TITLE + String(version), "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+            BOTENABLE = 1;
             MYDEBUG_PRINTLN("bot.updateToken!");
         }
         else {
             MYDEBUG_PRINTLN("botToken = 0");
+            BOTENABLE = 0;
             lcd.clear();
             lcd.setCursor(0,0);
             lcd.print("botToken!");
@@ -93,18 +98,18 @@ void initWiFiManag(void){
         }
         //--------------- save the custom parameters to FS -------------------------
         if(shouldSaveConfig) {
-            MYDEBUG_PRINTLN("saving config");
+            MYDEBUG_PRINTLN("--------Saving config----------");
             JsonDocument json;
             json["botToken"] = botToken;
             json["chatID"] = chatID;
             File configFile = LittleFS.open("/config.json", "w");
             if (!configFile) {
-                MYDEBUG_PRINTLN("failed to open config file for writing");
+                MYDEBUG_PRINTLN("Failed to open config file for writing");
             } else {
                 if (serializeJson(json, configFile) == 0) {
                     MYDEBUG_PRINTLN("Failed to write to file");
                 } else {
-                    MYDEBUG_PRINTLN("Config saved successfully");
+                    MYDEBUG_PRINTLN("------Config saved successfully-------");
                 }
                 #ifdef DEBUG
                   serializeJson(json, Serial);

@@ -10,7 +10,7 @@
     {\"command\":\"status\",\"description\":\"Поточний стан пристрою.\"} \
     ]")
 #define WORD_TITLE          F("```\n КВАДУС")
-#define ID_TITLE            F("  ID:")
+#define ID_TITLE            F(" № ")
 #define WORD_T1             F("- t1: ")
 #define WORD_T2             F("- t2: ")
 #define WORD_HUMIDITY       F("- вологість: ")

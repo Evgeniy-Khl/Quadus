@@ -155,10 +155,8 @@ uint8_t checkConfig(void){
   uint8_t err = 0;
   if(LittleFS.exists("/config.json")){
     //file exists, reading and loading
-    MYDEBUG_PRINTLN("reading config file");
     File configFile = LittleFS.open("/config.json", "r");
     if(configFile){
-      MYDEBUG_PRINTLN("opened config file");
       size_t size = configFile.size();
       // Allocate a buffer to store contents of the file.
       std::unique_ptr<char[]> buf(new char[size]);
@@ -166,12 +164,12 @@ uint8_t checkConfig(void){
       JsonDocument json;
       auto deserializeError = deserializeJson(json, buf.get());
       serializeJson(json, Serial);
-      if( ! deserializeError ){
+      if(!deserializeError){
         MYDEBUG_PRINTLN("\nparsed json");
         strcpy(botToken, json["botToken"]);
         strcpy(chatID, json["chatID"]);
       } else {
-        MYDEBUG_PRINTLN("failed to load json config");
+        MYDEBUG_PRINTLN("failed to deserialize json config");
         err = 3;
       }
       configFile.close();

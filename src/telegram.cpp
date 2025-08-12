@@ -5,15 +5,6 @@ https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 #include <main.h>
 #include <MyTelegramBot.h>
 #include "server.h"
-// Определите язык
-//#define LANGUAGE_EN  // Для английского
-#define LANGUAGE_UA  // Для русского
-
-#ifdef LANGUAGE_EN
-#include "strings_en.h"
-#elif defined(LANGUAGE_UA)
-#include "strings_ua.h"
-#endif
 
 extern char botToken[], chatID [];
 extern MyTelegramBot bot;
@@ -50,67 +41,67 @@ void sendStatus(){
   char txt[20];
   String string;
   uint8_t num = settings.deviceNum & 0x0F;
-  String welcome = WORD_TITLE + String(" № ") + ID_TITLE + String(num) + NEW_STR + NEW_STR;
+  String welcome = WORD_TITLE + String(version) + ID_TITLE + String(num) + NEW_STR + NEW_STR;
   welcome += WORD_T1 + String(ds[0].pvT) + NEW_STR;
-  if(detectedSensor == SENSOR_DHT22) welcome += WORD_HUMIDITY + String(ds[1].pvT) + "%" + NEW_STR;
-  else welcome += WORD_T2 + String(ds[1].pvT) + NEW_STR;
-  snprintf(txt, sizeof(txt),"%02u:%02u [%02u - %02u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-  if(LIGHT) welcome += WORD_LIGHT + String("↓ ") + String(txt) + NEW_STR;
-  else welcome += WORD_LIGHT + String("↑ ") + String(txt) + NEW_STR;
-  if(pvTimeR1 == -1){
-      welcome += WORD_TIMER1 + String("немає дозволу");
-  } else {
-      if(RELAY1){    //-- OFF --
-          uint8_t day = pvTimeR1 / 1440;
-          uint8_t hour = (pvTimeR1 % 1440) / 60;
-          uint8_t min = pvTimeR1 % 60;
-          welcome += WORD_TIMER1 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-      } else {      //-- ON --
-          welcome += WORD_TIMER1+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-      }
-  } 
-  welcome += NEW_STR;
-  if(pvTimeR2 == -1){
-      welcome += WORD_TIMER2 + String("немає дозволу");
-  } else {
-      if(RELAY2){    //-- OFF --
-          uint8_t day = pvTimeR2 / 1440;
-          uint8_t hour = (pvTimeR2 % 1440) / 60;
-          uint8_t min = pvTimeR2 % 60;
-          welcome += WORD_TIMER2 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-      } else {      //-- ON --
-          welcome += WORD_TIMER2+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-      }
-  } 
-  welcome += NEW_STR;
-  if(pvTimeR3 == -1){
-      welcome += WORD_TIMER3 + String("немає дозволу");
-  } else {
-      if(RELAY3){    //-- OFF --
-          uint8_t day = pvTimeR3 / 1440;
-          uint8_t hour = (pvTimeR3 % 1440) / 60;
-          uint8_t min = pvTimeR3 % 60;
-          welcome += WORD_TIMER3 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-      } else {      //-- ON --
-          welcome += WORD_TIMER3+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-      }
-  } 
-  welcome += NEW_STR;
-  welcome += WORD_DAMPER + String(pvFlap) + "%" + NEW_STR;
-  if((settings.program & 0xF) == 0) string = "немає";
-    else string = "№" + String(settings.program & 0xF);
-  welcome += WORD_PROGRAM + string + NEW_STR;
-  snprintf(txt,sizeof(txt),"%02d.%02d.%04d %02d:%02d:%02d",
-                      timeinfo->tm_mday, timeinfo->tm_mon + 1,
-                      timeinfo->tm_year + 1900, timeinfo->tm_hour,
-                      timeinfo->tm_min, timeinfo->tm_sec);
-  welcome += WORD_DATE + String(txt) + NEW_STR;
-  if(errorsFlag.value){
-      if(ERROR1) welcome += WORD_ERROR1 + String(errorsFlag.value) + NEW_STR;
-      if(ERROR2) welcome += WORD_ERROR2 + String(errorsFlag.value) + NEW_STR;
-      if(ERROR4) welcome += WORD_ERROR4 + String(errorsFlag.value) + NEW_STR;
-      if(ERROR8) welcome += WORD_ERROR8 + String(errorsFlag.value) + NEW_STR;
-  }
+  // if(detectedSensor == SENSOR_DHT22) welcome += WORD_HUMIDITY + String(ds[1].pvT) + "%" + NEW_STR;
+  // else welcome += WORD_T2 + String(ds[1].pvT) + NEW_STR;
+  // snprintf(txt, sizeof(txt),"%02u:%02u [%02u - %02u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
+  // if(LIGHT) welcome += WORD_LIGHT + String("↓ ") + String(txt) + NEW_STR;
+  // else welcome += WORD_LIGHT + String("↑ ") + String(txt) + NEW_STR;
+  // if(pvTimeR1 == -1){
+  //     welcome += WORD_TIMER1 + String("немає дозволу");
+  // } else {
+  //     if(RELAY1){    //-- OFF --
+  //         uint8_t day = pvTimeR1 / 1440;
+  //         uint8_t hour = (pvTimeR1 % 1440) / 60;
+  //         uint8_t min = pvTimeR1 % 60;
+  //         welcome += WORD_TIMER1 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
+  //     } else {      //-- ON --
+  //         welcome += WORD_TIMER1+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
+  //     }
+  // } 
+  // welcome += NEW_STR;
+  // if(pvTimeR2 == -1){
+  //     welcome += WORD_TIMER2 + String("немає дозволу");
+  // } else {
+  //     if(RELAY2){    //-- OFF --
+  //         uint8_t day = pvTimeR2 / 1440;
+  //         uint8_t hour = (pvTimeR2 % 1440) / 60;
+  //         uint8_t min = pvTimeR2 % 60;
+  //         welcome += WORD_TIMER2 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
+  //     } else {      //-- ON --
+  //         welcome += WORD_TIMER2+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
+  //     }
+  // } 
+  // welcome += NEW_STR;
+  // if(pvTimeR3 == -1){
+  //     welcome += WORD_TIMER3 + String("немає дозволу");
+  // } else {
+  //     if(RELAY3){    //-- OFF --
+  //         uint8_t day = pvTimeR3 / 1440;
+  //         uint8_t hour = (pvTimeR3 % 1440) / 60;
+  //         uint8_t min = pvTimeR3 % 60;
+  //         welcome += WORD_TIMER3 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
+  //     } else {      //-- ON --
+  //         welcome += WORD_TIMER3+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
+  //     }
+  // } 
+  // welcome += NEW_STR;
+  // welcome += WORD_DAMPER + String(pvFlap) + "%" + NEW_STR;
+  // if((settings.program & 0xF) == 0) string = "немає";
+  //   else string = "№" + String(settings.program & 0xF);
+  // welcome += WORD_PROGRAM + string + NEW_STR;
+  // snprintf(txt,sizeof(txt),"%02d.%02d.%04d %02d:%02d:%02d",
+  //                     timeinfo->tm_mday, timeinfo->tm_mon + 1,
+  //                     timeinfo->tm_year + 1900, timeinfo->tm_hour,
+  //                     timeinfo->tm_min, timeinfo->tm_sec);
+  // welcome += WORD_DATE + String(txt) + NEW_STR;
+  // if(errorsFlag.value){
+  //     if(ERROR1) welcome += WORD_ERROR1 + String(errorsFlag.value) + NEW_STR;
+  //     if(ERROR2) welcome += WORD_ERROR2 + String(errorsFlag.value) + NEW_STR;
+  //     if(ERROR4) welcome += WORD_ERROR4 + String(errorsFlag.value) + NEW_STR;
+  //     if(ERROR8) welcome += WORD_ERROR8 + String(errorsFlag.value) + NEW_STR;
+  // }
   
   welcome += "```";
   bot.sendMessage(chatID, welcome, "Markdown");
