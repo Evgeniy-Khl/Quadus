@@ -44,7 +44,6 @@ void respondsValues() {
         } else {      //-- ON --
             data["timer1"] = "↑ увімкн. "+String(pvTimeR1)+" хвл."; // ↑увімкн.19 хвл.
         }
-        
     } 
     if(pvTimeR2 == -1){
         data["timer2"] = "T2 немає дозволу";

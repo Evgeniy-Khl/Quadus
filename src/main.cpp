@@ -216,8 +216,8 @@ void loop(){
           // timeinfo = localtime(&utc_time);                                    // Преобразуем utc_time в структуру с локальным временем
           if(WIFIENABLE){
             // ------------- Логика ежедневной синхронизации --------------
-            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи
-              MYDEBUG_PRINTLN("\nIt's 3 AM, time for daily sync!");
+            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 15) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи
+              MYDEBUG_PRINTLN("\nIt's 15:00 , time for daily sync!");
               syncTime();                                                     // Запускаем нашу функцию синхронизации
             }
             MYDEBUG_PRINT("Update Local Time  (EET/EEST): ");

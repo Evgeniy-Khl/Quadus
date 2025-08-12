@@ -545,7 +545,7 @@ void initEnvironment(void){
         MYDEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
     }
     // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
-    lastSyncDay = rtc.now().day();
+    // lastSyncDay = rtc.now().day();
     //-----------ТЕСТ AT2432-------------------
     testProgs();              // тест
   } else MYDEBUG_PRINTLN("Couldn't find RTC!"); 
@@ -573,7 +573,7 @@ bool syncTime() {
   MYDEBUG_PRINTLN("\nTime successfully synchronized.");
   rtc.adjust(DateTime(time(nullptr)));
   MYDEBUG_PRINTLN("RTC time has been updated.");
-  // lastSyncDay = rtc.now().day();
+  lastSyncDay = rtc.now().day();
   return false;
 }
 

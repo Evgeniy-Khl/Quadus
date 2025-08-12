@@ -7,7 +7,7 @@ https://github.com/witnessmenow/Universal-Arduino-Telegram-Bot
 
 bool botSetup();
 void sendStatus();
-void sendErrMessages(int err);
+// void sendErrMessages(int err);
 void saveConfigCallback();
 void handleNewMessages(int numNewMessages);
 #endif /* TELEGRAM_H */
