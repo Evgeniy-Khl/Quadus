@@ -2,8 +2,8 @@
 #include "my_settings.h"
 
 ESP8266WebServer server(80);
-WiFiClientSecure client;
-MyTelegramBot bot(botToken, client);
+// WiFiClientSecure client;
+// MyTelegramBot bot(botToken, client);
 
 RTC_DS3231 rtc;                             // Создаем объект RTC для DS3231
 
@@ -64,16 +64,16 @@ void setup(){
       lcd.print("setpoint.json");
       delay(2000);
     }
-    temp = checkConfig();
-    if(temp){
-      lcd.clear();
-      lcd.setCursor(0,0);
-      myPrint(error_,sizeof(error_));// ПОМИЛКА 
-      lcd.print(temp);
-      lcd.setCursor(0,1);
-      lcd.print("config.json");
-      delay(2000);
-    }
+    // temp = checkConfig();
+    // if(temp){
+    //   lcd.clear();
+    //   lcd.setCursor(0,0);
+    //   myPrint(error_,sizeof(error_));// ПОМИЛКА 
+    //   lcd.print(temp);
+    //   lcd.setCursor(0,1);
+    //   lcd.print("config.json");
+    //   delay(2000);
+    // }
   } else {
     MYDEBUG_PRINTLN("failed to mount FS");
     lcd.clear();
@@ -215,10 +215,12 @@ void loop(){
                       timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
                       timeinfo->tm_mday, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
+        uint16_t begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
+        DEBUG_PRINTF("Free heap size: %d\n", begHeapSize);
       }
-      if(BOTENABLE){
-        sendStatus();
-      }
+      // if(BOTENABLE){
+      //   sendStatus();
+      // }
       //---------------------------- новый час ----------------------------------
       if(++minutes > 59){
         minutes = 0;

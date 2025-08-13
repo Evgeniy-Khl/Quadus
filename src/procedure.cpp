@@ -151,39 +151,6 @@ uint8_t checkSetpoint(void){
   return err;
 }
 
-uint8_t checkConfig(void){
-  uint8_t err = 0;
-  if(LittleFS.exists("/config.json")){
-    //file exists, reading and loading
-    File configFile = LittleFS.open("/config.json", "r");
-    if(configFile){
-      size_t size = configFile.size();
-      // Allocate a buffer to store contents of the file.
-      std::unique_ptr<char[]> buf(new char[size]);
-      configFile.readBytes(buf.get(), size);
-      JsonDocument json;
-      auto deserializeError = deserializeJson(json, buf.get());
-      serializeJson(json, Serial);
-      if(!deserializeError){
-        MYDEBUG_PRINTLN("\nparsed json");
-        strcpy(botToken, json["botToken"]);
-        strcpy(chatID, json["chatID"]);
-      } else {
-        MYDEBUG_PRINTLN("failed to deserialize json config");
-        err = 3;
-      }
-      configFile.close();
-    } else {
-      MYDEBUG_PRINTLN("failed to open configuration file");
-      err = 2;
-    }
-  } else {
-    MYDEBUG_PRINTLN("does not exist config.json");
-    err = 1;
-  }
-  return err;
-}
-
 //-------- Функция для печати текущих значений структуры в Serial порт --------
 #ifdef DEBUG
 void printSetPoint() {
@@ -460,50 +427,6 @@ void reset(void){
 
 //============================== Config ========================================
 void initEnvironment(void){
-// #ifdef DEBUG
-//   char displStr[65];
-// #endif
-  
-  //------------------------------------------------------------------------
-  /* MYDEBUG_PRINTLN("\n");
-  uint32_t realSize = ESP.getFlashChipRealSize(); // Получаем реальный размер flash
-  uint32_t ideSize = ESP.getFlashChipSize();    // Получаем размер, установленный в IDE
-  FlashMode_t ideMode = ESP.getFlashChipMode();
-
-  DEBUG_PRINTF("Flash real id:   %08X\n", ESP.getFlashChipId());
-  DEBUG_PRINTF("Flash real size: %u bytes\n\n", realSize);
-
-  DEBUG_PRINTF("Flash ide  size: %u bytes\n", ideSize);
-  DEBUG_PRINTF("Flash ide speed: %u Hz\n", ESP.getFlashChipSpeed());
-  DEBUG_PRINTF("Flash ide mode:  %s\n", (ideMode == FM_QIO ? "QIO" : ideMode == FM_QOUT ? "QOUT" : ideMode == FM_DIO ? "DIO" : ideMode == FM_DOUT ? "DOUT" : "UNKNOWN"));
-
-  if (ideSize != realSize) {
-    MYDEBUG_PRINTLN("Внимание! Размер Flash, установленный в IDE, не совпадает с реальным!");
-  } else {
-    MYDEBUG_PRINTLN("Размер Flash в IDE совпадает с реальным.");
-  }
-  MYDEBUG_PRINTLN(); */
-
-/* 
-  //---------- Изменяем яркость светодиода ----------------------------------------
-  // Пин, к которому подключен светодиод (GPIO2)
-  pinMode(LEDPIN, OUTPUT);    // Устанавливаем пин светодиода как выход
-  // Можно установить желаемую частоту ШИМ (опционально)
-  // analogWriteFreq(1000);   // По умолчанию и так 1000 Гц
-  // Можно установить желаемый диапазон (опционально)
-  analogWriteRange(255);      // Если хотите диапазон 0-255
-  //===============================================================================
- */
-
-  
-  // Wire.begin(D2, D1);      // Если вы хотите использовать другие пины для I2C (например, D2 для SDA, D1 для SCL)
-  //--------------------- Инициализация PCF8574 ----------------------------------
-  /* Пример: Установить все пины PCF8574 как выходы и выключить их (записать 0)
-            Для PCF8574, чтобы использовать пин как "выход", мы просто записываем в него значение.
-            Чтобы использовать пин как "вход", мы записываем в него '1' (высокий уровень),
-            а затем читаем состояние. Внутренние подтягивающие резисторы слабые. 
-  */
-
   //---------- Инициализация DS3231 ----------------------------------------
   if(rtc.begin()){
     RTCENABLE = 1;
@@ -574,13 +497,6 @@ bool syncTime() {
   lastSyncDay = rtc.now().day();
   return false;
 }
-
-// Функция для установки системного времени из RTC
-// void setSystemTimeFromRTC() {
-//   time_t t = rtc.now().unixtime();
-//   timeval tv = {(long)t, 0};
-//   settimeofday(==tv, nullptr);
-// }
 
 // Функция вывода текущего меню в Serial Port
 void displTimeSetting(SetState state, const DateTime& dt){

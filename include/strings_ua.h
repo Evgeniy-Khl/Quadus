@@ -11,7 +11,7 @@
     ]")
 #define WORD_QUADUS         F("КВАДУС № ")
 #define WORD_TITLE          F("```\n КВАДУС № ")
-#define WORD_T1             F("- температура 1: ")
+#define WORD_T1             F("- температура: ")
 #define WORD_T2             F("- температура 2: ")
 #define WORD_HUMIDITY       F("- вологість: ")
 #define WORD_LIGHT          F("- освітлення: ")

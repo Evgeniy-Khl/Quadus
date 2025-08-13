@@ -11,7 +11,7 @@
     ]")
 #define WORD_QUADUS         F("QUADUS ID ")
 #define WORD_TITLE          F("```\n QUADUS ID ")
-#define WORD_T1             F("- temperature 1: ")
+#define WORD_T1             F("- temperature: ")
 #define WORD_T2             F("- temperature 2: ")
 #define WORD_HUMIDITY       F("- humidity: ")
 #define WORD_LIGHT          F("- lighting: ")

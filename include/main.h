@@ -4,7 +4,7 @@
 #define LED_DISPLAY
 
 #include <Arduino.h>
-#include <MyTelegramBot.h>  // Universal Telegram Bot Library written by Brian Lough: 
+// #include <MyTelegramBot.h>  // Universal Telegram Bot Library written by Brian Lough: 
 #include <WiFiManager.h>    //https://github.com/tzapu/WiFiManager
 #include <ArduinoJson.h>
 #include <FS.h>
@@ -20,7 +20,7 @@
 #include <DHT.h>
 #include "AT24C32.h"
 #include "server.h"
-#include "telegram.h"
+// #include "telegram.h"
 #include "programm.h"
 #include "procedure.h"
 #include "keypad.h"
@@ -226,8 +226,8 @@ extern const char* version;
 extern char displStr[18];
 extern char botToken[50];
 extern char chatID [15];
-extern WiFiClientSecure client;
-extern MyTelegramBot bot;
+// extern WiFiClientSecure client;
+// extern MyTelegramBot bot;
 extern bool shouldSaveConfig;
 //-------------
 extern uint8_t earlyMode, mode, tmrResetMode, quarter, errors, seconds;
