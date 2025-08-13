@@ -64,12 +64,17 @@ void initWiFiManag(void){
         lcd.print(WiFi.localIP());
         #ifdef ESP8266
           X509List cert(TELEGRAM_CERTIFICATE_ROOT);
+          configTime(0, 0, "pool.ntp.org");      // get UTC time via NTP
           client.setTrustAnchors(&cert);      // Add root certificate for api.telegram.org
         #endif
+        // --- БЕЗОПАСНОЕ КОПИРОВАНИЕ ДАННЫХ ---
+        // Копируем не более 49 символов, чтобы гарантировать место для нуль-терминатора
+        strncpy(botToken, custom_botToken.getValue(), sizeof(botToken) - 1);
+        botToken[sizeof(botToken) - 1] = '\0'; // Гарантируем, что строка всегда заканчивается нуль-терминатором
+
+        strncpy(chatID, custom_chatID.getValue(), sizeof(chatID) - 1);
+        chatID[sizeof(chatID) - 1] = '\0'; // Гарантируем, что строка всегда заканчивается нуль-терминатором
         
-        //------------------ read updated parameters -----------------------
-        strcpy(botToken, custom_botToken.getValue());
-        strcpy(chatID, custom_chatID.getValue());
         // strcpy(botToken, "7793816236:AAEZdUe3lGD-1-fT3eiSbWgmE2Ur_9mRBno");
         // strcpy(chatID, "1699762091");
         // shouldSaveConfig = true;
@@ -81,7 +86,8 @@ void initWiFiManag(void){
         if (strlen(botToken) > 0) {
             bot.updateToken(botToken);
             // if(botSetup()) Serial.println("The command list was updated successfully.");
-            bot.sendMessage(chatID, WORD_TITLE + String(version), "");//bot.sendMessage("25235518", "Hola amigo!", "Markdown");
+            uint8_t num = settings.deviceNum & 0x0F;
+            bot.sendMessage(chatID, WORD_QUADUS + String(num), "");//bot.sendMessage("chat_id":"1699762091","text":"```\n КВАДУС v.0.0");
             BOTENABLE = 1;
             MYDEBUG_PRINTLN("bot.updateToken!");
         }

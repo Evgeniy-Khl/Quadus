@@ -37,74 +37,149 @@ bool botSetup(){
 //   // bot.sendMessageWithInlineKeyboard(chatID, errMess, "Markdown", keyboardJson);
 // }
 
-void sendStatus(){
-  char txt[20];
-  String string;
-  uint8_t num = settings.deviceNum & 0x0F;
-  String welcome = WORD_TITLE + String(version) + ID_TITLE + String(num) + NEW_STR + NEW_STR;
-  welcome += WORD_T1 + String(ds[0].pvT) + NEW_STR;
-  // if(detectedSensor == SENSOR_DHT22) welcome += WORD_HUMIDITY + String(ds[1].pvT) + "%" + NEW_STR;
-  // else welcome += WORD_T2 + String(ds[1].pvT) + NEW_STR;
-  // snprintf(txt, sizeof(txt),"%02u:%02u [%02u - %02u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-  // if(LIGHT) welcome += WORD_LIGHT + String("↓ ") + String(txt) + NEW_STR;
-  // else welcome += WORD_LIGHT + String("↑ ") + String(txt) + NEW_STR;
-  // if(pvTimeR1 == -1){
-  //     welcome += WORD_TIMER1 + String("немає дозволу");
-  // } else {
-  //     if(RELAY1){    //-- OFF --
-  //         uint8_t day = pvTimeR1 / 1440;
-  //         uint8_t hour = (pvTimeR1 % 1440) / 60;
-  //         uint8_t min = pvTimeR1 % 60;
-  //         welcome += WORD_TIMER1 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-  //     } else {      //-- ON --
-  //         welcome += WORD_TIMER1+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-  //     }
-  // } 
-  // welcome += NEW_STR;
-  // if(pvTimeR2 == -1){
-  //     welcome += WORD_TIMER2 + String("немає дозволу");
-  // } else {
-  //     if(RELAY2){    //-- OFF --
-  //         uint8_t day = pvTimeR2 / 1440;
-  //         uint8_t hour = (pvTimeR2 % 1440) / 60;
-  //         uint8_t min = pvTimeR2 % 60;
-  //         welcome += WORD_TIMER2 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-  //     } else {      //-- ON --
-  //         welcome += WORD_TIMER2+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-  //     }
-  // } 
-  // welcome += NEW_STR;
-  // if(pvTimeR3 == -1){
-  //     welcome += WORD_TIMER3 + String("немає дозволу");
-  // } else {
-  //     if(RELAY3){    //-- OFF --
-  //         uint8_t day = pvTimeR3 / 1440;
-  //         uint8_t hour = (pvTimeR3 % 1440) / 60;
-  //         uint8_t min = pvTimeR3 % 60;
-  //         welcome += WORD_TIMER3 + String("↓ вимкн. ")+String(day)+String("д.")+String(hour)+String("г.")+String(min)+String("х."); // ↓вимкн.0 дiб. 00:00
-  //     } else {      //-- ON --
-  //         welcome += WORD_TIMER3+String("↑ увімкн. ")+String(pvTimeR1)+String(" хвл."); // ↑увімкн.19 хвл.
-  //     }
-  // } 
-  // welcome += NEW_STR;
-  // welcome += WORD_DAMPER + String(pvFlap) + "%" + NEW_STR;
-  // if((settings.program & 0xF) == 0) string = "немає";
-  //   else string = "№" + String(settings.program & 0xF);
-  // welcome += WORD_PROGRAM + string + NEW_STR;
-  // snprintf(txt,sizeof(txt),"%02d.%02d.%04d %02d:%02d:%02d",
-  //                     timeinfo->tm_mday, timeinfo->tm_mon + 1,
-  //                     timeinfo->tm_year + 1900, timeinfo->tm_hour,
-  //                     timeinfo->tm_min, timeinfo->tm_sec);
-  // welcome += WORD_DATE + String(txt) + NEW_STR;
-  // if(errorsFlag.value){
-  //     if(ERROR1) welcome += WORD_ERROR1 + String(errorsFlag.value) + NEW_STR;
-  //     if(ERROR2) welcome += WORD_ERROR2 + String(errorsFlag.value) + NEW_STR;
-  //     if(ERROR4) welcome += WORD_ERROR4 + String(errorsFlag.value) + NEW_STR;
-  //     if(ERROR8) welcome += WORD_ERROR8 + String(errorsFlag.value) + NEW_STR;
-  // }
-  
-  welcome += "```";
-  bot.sendMessage(chatID, welcome, "Markdown");
+void sendStatus() {
+    // 1. Выделяем ОДИН большой буфер на стеке с запасом для всего сообщения.
+    char welcomeMsg[1024];
+    // 2. Вспомогательный буфер для форматирования и копирования.
+    char tempBuffer[128];
+    // 3. ОДИН временный объект String для всех операций конвертации из Flash.
+    String tempString;
+
+    // Безопасно получаем текущее время в начале функции.
+    struct tm timeinfo;
+    if (!getLocalTime(&timeinfo)) {
+        MYDEBUG_PRINTLN("sendStatus: Failed to obtain time");
+        bot.sendMessage(chatID, "Не вдалося отримати точний час.", "");
+        // return;
+    }
+
+    uint8_t num = settings.deviceNum & 0x0F;
+
+    // Используем указатели для безопасного и эффективного заполнения буфера.
+    char* p = welcomeMsg;
+    const char* end = welcomeMsg + sizeof(welcomeMsg); // Граница буфера
+
+    // --- Формируем заголовок ---
+    tempString = WORD_TITLE; // Присваиваем значение
+    strcpy(tempBuffer, tempString.c_str());
+    p += snprintf(p, end - p, "%s%u\n\n", tempBuffer, num);
+
+    // --- Датчики ---
+    tempString = WORD_T1; // Переиспользуем тот же объект
+    strcpy(tempBuffer, tempString.c_str());
+    p += snprintf(p, end - p, "%s%d °C\n", tempBuffer, ds[0].pvT);
+
+    if (detectedSensor == SENSOR_DHT22) {
+        tempString = WORD_HUMIDITY;
+        strcpy(tempBuffer, tempString.c_str());
+        p += snprintf(p, end - p, "%s%d%%\n", tempBuffer, ds[1].pvT);
+    } else {
+        tempString = WORD_T2;
+        strcpy(tempBuffer, tempString.c_str());
+        p += snprintf(p, end - p, "%s%d °C\n", tempBuffer, ds[1].pvT);
+    }
+
+    // --- Освещение ---
+    snprintf(tempBuffer, sizeof(tempBuffer), "%02u:%02u [%02u - %02u]", timeinfo.tm_hour, timeinfo.tm_min, settings.timerOn, settings.timerOff);
+    tempString = WORD_LIGHT;
+    p += snprintf(p, end - p, "%s%s %s\n", tempString.c_str(), (LIGHT ? "↓" : "↑"), tempBuffer);
+    
+    // --- Таймер 1 ---
+    // p += snprintf(p, end - p, "\n");
+    tempString = WORD_TIMER1;
+    strcpy(tempBuffer, tempString.c_str());
+    if (pvTimeR1 == -1) {
+        p += snprintf(p, end - p, "%sнемає дозволу", tempBuffer);
+    } else {
+        if (RELAY1) { //-- OFF --
+            uint8_t day = pvTimeR1 / 1440;
+            uint8_t hour = (pvTimeR1 % 1440) / 60;
+            uint8_t min = pvTimeR1 % 60;
+            p += snprintf(p, end - p, "%s↓ вимкн. %uд.%uг.%uх.", tempBuffer, day, hour, min);
+        } else { //-- ON --
+            p += snprintf(p, end - p, "%s↑ увімкн. %d хвл.", tempBuffer, pvTimeR1);
+        }
+    }
+
+    // --- Таймер 2 ---
+    p += snprintf(p, end - p, "\n");
+    tempString = WORD_TIMER2;
+    strcpy(tempBuffer, tempString.c_str());
+    if (pvTimeR2 == -1) {
+        p += snprintf(p, end - p, "%sнемає дозволу", tempBuffer);
+    } else {
+        if (RELAY2) { //-- OFF --
+            uint8_t day = pvTimeR2 / 1440;
+            uint8_t hour = (pvTimeR2 % 1440) / 60;
+            uint8_t min = pvTimeR2 % 60;
+            p += snprintf(p, end - p, "%s↓ вимкн. %uд.%uг.%uх.", tempBuffer, day, hour, min);
+        } else { //-- ON --
+            p += snprintf(p, end - p, "%s↑ увімкн. %d хвл.", tempBuffer, pvTimeR2);
+        }
+    }
+    
+    // --- Таймер 3 ---
+    p += snprintf(p, end - p, "\n");
+    tempString = WORD_TIMER3;
+    strcpy(tempBuffer, tempString.c_str());
+    if (pvTimeR3 == -1) {
+        p += snprintf(p, end - p, "%sнемає дозволу", tempBuffer);
+    } else {
+        if (RELAY3) { //-- OFF --
+            uint8_t day = pvTimeR3 / 1440;
+            uint8_t hour = (pvTimeR3 % 1440) / 60;
+            uint8_t min = pvTimeR3 % 60;
+            p += snprintf(p, end - p, "%s↓ вимкн. %uд.%uг.%uх.", tempBuffer, day, hour, min);
+        } else { //-- ON --
+            p += snprintf(p, end - p, "%s↑ увімкн. %d хвл.", tempBuffer, pvTimeR3);
+        }
+    }
+    
+    p += snprintf(p, end - p, "\n");
+
+    // --- Заслонка и Программа ---
+    tempString = WORD_DAMPER;
+    p += snprintf(p, end - p, "%s%d%%\n", tempString.c_str(), pvFlap);
+    
+    tempString = WORD_PROGRAM;
+    if ((settings.program & 0x0F) == 0) {
+        p += snprintf(p, end - p, "%sнемає\n", tempString.c_str());
+    } else {
+        p += snprintf(p, end - p, "%s№%d\n", tempString.c_str(), (settings.program & 0x0F));
+    }
+
+    // --- Дата и Время ---
+    tempString = WORD_DATE;
+    snprintf(tempBuffer, sizeof(tempBuffer), "%02d.%02d.%04d %02d:%02d:%02d",
+             timeinfo.tm_mday, timeinfo.tm_mon + 1, timeinfo.tm_year + 1900,
+             timeinfo.tm_hour, timeinfo.tm_min, timeinfo.tm_sec);
+    p += snprintf(p, end - p, "%s%s\n", tempString.c_str(), tempBuffer);
+
+    // --- Ошибки ---
+    if (errorsFlag.value) {
+        if (ERROR1) {
+            tempString = WORD_ERROR1;
+            p += snprintf(p, end - p, "%s\n", tempString.c_str());
+        }
+        if (ERROR2) {
+            tempString = WORD_ERROR2;
+            p += snprintf(p, end - p, "%s\n", tempString.c_str());
+        }
+        if (ERROR4) {
+            tempString = WORD_ERROR4;
+            p += snprintf(p, end - p, "%s\n", tempString.c_str());
+        }
+        if (ERROR8) {
+            tempString = WORD_ERROR8;
+            p += snprintf(p, end - p, "%s\n", tempString.c_str());
+        }
+    }
+
+    // --- Завершаем Markdown блок ---
+    strncat(welcomeMsg, "```", end - p - 1);
+
+    // 5. Отправляем готовое, безопасно сформированное сообщение.
+    bot.sendMessage(chatID, welcomeMsg, "Markdown");
 }
 
 // Handle what happens when you receive new messages

@@ -9,10 +9,10 @@
     {\"command\":\"start\", \"description\":\"Повідомлення яке надсилається, коли ви відкриваєте чат із ботом\"}, \
     {\"command\":\"status\",\"description\":\"Поточний стан пристрою.\"} \
     ]")
-#define WORD_TITLE          F("```\n КВАДУС")
-#define ID_TITLE            F(" № ")
-#define WORD_T1             F("- t1: ")
-#define WORD_T2             F("- t2: ")
+#define WORD_QUADUS         F("КВАДУС № ")
+#define WORD_TITLE          F("```\n КВАДУС № ")
+#define WORD_T1             F("- температура 1: ")
+#define WORD_T2             F("- температура 2: ")
 #define WORD_HUMIDITY       F("- вологість: ")
 #define WORD_LIGHT          F("- освітлення: ")
 #define WORD_TIMER1         F("- таймер 1: ")

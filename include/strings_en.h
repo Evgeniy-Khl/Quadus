@@ -9,10 +9,10 @@
     {\"command\":\"start\", \"description\":\"A message is sent when you open a chat with a bot\"}, \
     {\"command\":\"status\",\"description\":\"Current device status.\"} \
     ]")
-#define WORD_TITLE          F("```\n QUADUS")
-#define ID_TITLE            F(" ID ")
-#define WORD_T1             F("- t1: ")
-#define WORD_T2             F("- t2: ")
+#define WORD_QUADUS         F("QUADUS ID ")
+#define WORD_TITLE          F("```\n QUADUS ID ")
+#define WORD_T1             F("- temperature 1: ")
+#define WORD_T2             F("- temperature 2: ")
 #define WORD_HUMIDITY       F("- humidity: ")
 #define WORD_LIGHT          F("- lighting: ")
 #define WORD_TIMER1         F("- timer 1: ")
