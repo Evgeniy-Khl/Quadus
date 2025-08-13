@@ -28,17 +28,6 @@
 #include "displLCD.h"
 #include "setupLCD.h"
 
-// Определите язык
-//#define LANGUAGE_EN  // Для английского
-#define LANGUAGE_UA  // Для русского
-
-#ifdef LANGUAGE_EN
-#include "strings_en.h"
-#elif defined(LANGUAGE_UA)
-#include "strings_ua.h"
-#endif
-
-
 #define DEBUG
 
 #ifdef DEBUG
