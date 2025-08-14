@@ -115,8 +115,8 @@ void respondsEeprom(){
         doc["timerOff"] = settings.timerOff;
         doc["alarm0"] = settings.alarm0;
         doc["alarm1"] = settings.alarm1;
-        doc["identif"] = settings.deviceNum & 0x0F;
-        doc["status"] = 1;
+        doc["deviceNum"] = settings.deviceNum;
+        doc["program"] = settings.program;
 
         serializeJson(doc, jsonResponse); // Сериализуем JSON
         DEBUG_PRINTF("SERVER responds to the client with EEPROM: %d,%ld\n",seconds,millis()-lastSendTime);
@@ -147,9 +147,13 @@ void acceptEeprom() {
       else if (paramName == "water1off") settings.water1off = paramValue.toInt();
       else if (paramName == "water2on") settings.water2on = paramValue.toInt();
       else if (paramName == "water2off") settings.water2off = paramValue.toInt();
+      else if (paramName == "flap") settings.flap = paramValue.toInt();
+      else if (paramName == "timerOn") settings.timerOn = paramValue.toInt();
+      else if (paramName == "timerOff") settings.timerOff = paramValue.toInt();
       else if (paramName == "alarm0") settings.alarm0 = paramValue.toInt();
       else if (paramName == "alarm1") settings.alarm1 = paramValue.toInt();
-      else if (paramName == "identif") settings.deviceNum  = paramValue.toInt();
+      else if (paramName == "deviceNum") settings.deviceNum  = paramValue.toInt();
+      else if (paramName == "program") settings.program  = paramValue.toInt();
   }
 
   server.send(200); // Отправляем только статус 200
