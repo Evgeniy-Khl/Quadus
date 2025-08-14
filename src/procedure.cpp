@@ -171,6 +171,7 @@ void printSetPoint() {
     DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
     DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
     DEBUG_PRINTF("  special: %d\n", settings.special);
+    DEBUG_PRINTF("  deviceNum: %d\n", settings.deviceNum);
     DEBUG_PRINTF("  program: %d\n", settings.program);
     DEBUG_PRINTF("  modeLight: %d\n", settings.modeLight);
     DEBUG_PRINTF("  modeHeater: %d\n", settings.modeHeater);
@@ -240,6 +241,9 @@ void saveSetPoint() {
     delay(3000);
     lcd.clear();
     configFile.close();
+    relaySwitch(1);
+    relaySwitch(2);
+    relaySwitch(3);
 }
 
 //------------ Функция загрузки конфигурации из JSON файла -------------

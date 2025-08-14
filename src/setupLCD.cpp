@@ -198,9 +198,9 @@ void setupSwitch(){
         case 7: setLight(); break;
         case 8: setAlarm(); break;
         case 9: setPermissionsRelay(); break;   // установка разрешений для реле
-        case 10: setPermissions(); break;        // установка разрешений для температуры
-        case 11: setFlapProg(); break;
-        case 12: setDevSpec(); break;
+        case 10: setPermissions(); break;       // установка разрешений для температуры
+        case 11: setFlapProg(); break;          // положение заслонки и программа
+        case 12: setDevSpec(); break;           // номер прибора и ожидание подключения
     }
 }
 

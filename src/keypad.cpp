@@ -162,9 +162,9 @@ void checkkey(uint8_t key){
       break;
     case 11:
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,99); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0,100); break;
             case KEY_2: editBuff0 = decrVal(editBuff0, 0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1,99); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 4); break;
             case KEY_4: editBuff1 = decrVal(editBuff1, 0); break;
             case KEY_5: editBuff0 = settings.flap; editBuff1 = settings.program; break;
             case KEY_6:

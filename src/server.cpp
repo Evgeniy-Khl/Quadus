@@ -110,13 +110,19 @@ void respondsEeprom(){
         doc["water1off"] = settings.water1off;
         doc["water2on"] = settings.water2on;
         doc["water2off"] = settings.water2off;
-        doc["flap"] = settings.flap;
+        doc["flpNow"] = settings.flap;
         doc["timerOn"] = settings.timerOn;
         doc["timerOff"] = settings.timerOff;
         doc["alarm0"] = settings.alarm0;
         doc["alarm1"] = settings.alarm1;
         doc["deviceNum"] = settings.deviceNum;
         doc["program"] = settings.program;
+        doc["modeHeater"] = settings.modeHeater & 0x0F;
+        doc["modeHumidi"] = settings.modeHumidi & 0x0F;
+        doc["modeRelay1"] = settings.modeRelay1 & 0x0F;
+        doc["modeRelay2"] = settings.modeRelay2 & 0x0F;
+        doc["modeRelay3"] = settings.modeRelay3 & 0x0F;
+        doc["status"] = 1;
 
         serializeJson(doc, jsonResponse); // Сериализуем JSON
         DEBUG_PRINTF("SERVER responds to the client with EEPROM: %d,%ld\n",seconds,millis()-lastSendTime);
@@ -147,13 +153,18 @@ void acceptEeprom() {
       else if (paramName == "water1off") settings.water1off = paramValue.toInt();
       else if (paramName == "water2on") settings.water2on = paramValue.toInt();
       else if (paramName == "water2off") settings.water2off = paramValue.toInt();
-      else if (paramName == "flap") settings.flap = paramValue.toInt();
+      else if (paramName == "flpNow") settings.flap = paramValue.toInt();
       else if (paramName == "timerOn") settings.timerOn = paramValue.toInt();
       else if (paramName == "timerOff") settings.timerOff = paramValue.toInt();
       else if (paramName == "alarm0") settings.alarm0 = paramValue.toInt();
       else if (paramName == "alarm1") settings.alarm1 = paramValue.toInt();
       else if (paramName == "deviceNum") settings.deviceNum  = paramValue.toInt();
       else if (paramName == "program") settings.program  = paramValue.toInt();
+      else if (paramName == "modeHeater") settings.modeHeater  = paramValue.toInt();
+      else if (paramName == "modeHumidi") settings.modeHumidi  = paramValue.toInt();
+      else if (paramName == "modeRelay1") settings.modeRelay1  = paramValue.toInt();
+      else if (paramName == "modeRelay2") settings.modeRelay2  = paramValue.toInt();
+      else if (paramName == "modeRelay3") settings.modeRelay3  = paramValue.toInt();
   }
 
   server.send(200); // Отправляем только статус 200
