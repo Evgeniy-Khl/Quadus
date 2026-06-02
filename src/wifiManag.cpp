@@ -88,8 +88,8 @@ void initWiFiManag(void){
         server.begin();   // Start server
         MYDEBUG_PRINTLN("HTTP server started");
         
-        uint16_t begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
-        DEBUG_PRINTF("Free heap size: %d\n", begHeapSize);
+        uint16_t heapSize = ESP.getFreeHeap();    // Проверка доступной памяти
+        DEBUG_PRINTF("Free heap size: %d\n", heapSize);
     }
 }
 

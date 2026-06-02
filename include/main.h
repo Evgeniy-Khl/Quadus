@@ -182,15 +182,13 @@ extern union Byte portFlag;
 #define OFF         0
 #define PCF_OFF     1
 
-#ifdef LED_DISPLAY
-  #define BEEP_PIN        0
-  #define PWMOUT_PIN      15
-  #define RESETDISPLAY    40  // 20/2=20 Sec.
-  #define MINWAIT         100
-  #define WAITCHECKKEYPAD 1000	// mSec. максимальная пауза перед реакцией на кнопку
-  extern TM1638 module;
-  // extern uint8_t data[8];
-#else
+#define BEEP_PIN        0
+#define PWMOUT_PIN      15
+#define RESETDISPLAY    40  // 20/2=20 Sec.
+#define MINWAIT         100
+#define WAITCHECKKEYPAD 1000	// mSec. максимальная пауза перед реакцией на кнопку
+extern TM1638 module;
+// extern uint8_t data[8];
 
 #endif
 //******************************************************** */

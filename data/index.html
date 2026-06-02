@@ -8,7 +8,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:,">
-  <title>Клімат-5</title>
+  <title>Квадус</title>
   <style>
     html {
       font-family: Arial;
@@ -17,7 +17,7 @@
       text-align: center;
     }
     #grad1 {
-      height: auto;
+      height: 0px auto;
       background-color: #9d9e9b; /* For browsers that do not support gradients */
       background-image: linear-gradient(to bottom, #2389fc, #f4fc58);
     }
@@ -32,7 +32,7 @@
       border-radius: 15px;
       padding: 5px;
       width: 300px;
-      height: auto;
+      height: 0px auto;
       margin: 0px auto;
     }
     #rcorners0 { background: #89f594; }
@@ -41,12 +41,12 @@
     
     .container {
       display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
+      grid-template-columns: 1fr auto; /* Первый элемент занимает доступное пространство, второй — по содержимому */
+	  align-items: center; /* Выравнивает элементы по вертикали */
       border-radius: 10px;
       padding: 5px;
-      width: 300px;
-      height: auto;
+      width: 300px; /* Занимает всю доступную ширину */
+      height: 0px auto;
       margin: 0px auto;
       background: LightGray;
     }
@@ -76,7 +76,7 @@
 
     #ledsTable {
       width: 300px;
-      height: auto;
+      height: 0px auto;
       margin: 0px auto;
       border: 0px solid black;
       border-radius: 10px;       
@@ -119,13 +119,13 @@
     <p></p>
     <table id="ledsTable">
       <tr>
-        <td id="led0">&#128161;</td>
-        <td id="led1">&#127774;</td>
-        <td id="led2">&#128167;</td>
-        <td id="led3">&#9200;</td>
-        <td id="led4">&#9200;</td>
-        <td id="led5">&#9200;</td>
-        <td id="led6">&#128680;</td>
+        <td id="led0">&#128161; <!-- Лампа накаливания --></td>
+        <td id="led1">&#127774; <!-- Солнце с лицом --></td>
+        <td id="led2">&#128167; <!-- Капля воды --></td>
+        <td id="led3">&#9200;   <!-- Циферблат часов --></td>
+        <td id="led4">&#9200;   <!-- Циферблат часов --></td>
+        <td id="led5">&#9200;   <!-- Циферблат часов --></td>
+        <td id="led6">&#128680; <!-- Вращающийся маячок --></td>
       </tr>
     </table>
     <p></p>
@@ -151,6 +151,7 @@
 </body>
 <script>
 function fetchData() {
+    // Запрос данных о температуре и влажности
     var xhttp = new XMLHttpRequest();
     
     xhttp.onreadystatechange = function() {
@@ -179,8 +180,6 @@ function fetchData() {
             } else {
                 document.getElementById("rcorners0").style.background = "#89f594";
             }
-			
-			
 			
 			// Проверка наличия temperature1
             if (jsonResponse.temperature1 === undefined) {
@@ -240,11 +239,11 @@ function fetchData() {
             // Управление кнопкой "Програма"
             const programButton = document.getElementById("programButton");
             if (jsonResponse.program == "немає") {
-                programButton.disabled = true;
-                programButton.innerText = "Програми немає";
+                programButton.disabled = true; // Деактивировать кнопку
+                programButton.innerText = "Програми немає"; // Изменить текст (по желанию)
             } else {
-                programButton.disabled = false;
-                programButton.innerText = "Програма";
+                programButton.disabled = false; // Активировать кнопку
+                programButton.innerText = "Програма"; // Вернуть текст
             }
         }
     };
@@ -256,8 +255,8 @@ function fetchData() {
 
 // Первичное заполнение данных при загрузке страницы
 window.onload = function() {
-    fetchData();
-    setInterval(fetchData, 2000);
+    fetchData(); // Первоначальный запрос
+    setInterval(fetchData, 2000); // Периодические обновления
 };
 </script>
 </html>

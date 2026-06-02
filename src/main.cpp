@@ -51,7 +51,7 @@ void setup(){
     // } else {
     //   MYDEBUG_PRINTLN("Failed to format LittleFS");
     // }
-    //-------------------------------------------------------
+    //--------------------- checkSetpoint ----------------------------------
     temp = checkSetpoint();
     if(temp){
       lcd.clear();
@@ -195,8 +195,8 @@ void loop(){
                       timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
                       timeinfo->tm_mday, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
-        uint16_t begHeapSize = ESP.getFreeHeap();    // Проверка доступной памяти
-        DEBUG_PRINTF("Free heap size: %d\n", begHeapSize);
+        uint16_t heapSize = ESP.getFreeHeap();    // Проверка доступной памяти
+        DEBUG_PRINTF("Free heap size: %d\n", heapSize);
       }
       //---------------------------- новый час ----------------------------------
       if(++minutes > 59){
