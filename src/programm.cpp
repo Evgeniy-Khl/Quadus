@@ -10,31 +10,43 @@ TableBuff unTable;
  */
 uint16_t eepromMemoryAddressForHour(uint8_t prg, uint8_t hour){
     // Calculation: 1 page per day, 1 prog = 30 pages. Total 30*4 = 120 pages plus 8 pages reserve.
+    // Each hour record is 8 bytes.
     uint16_t addressPage = (hour) * 8 + (prg - 1) * (8 * 24);  
 	return addressPage;
 }
 
 /**
- * @brief Write buffer to EEPROM.
+ * @brief Write buffer to EEPROM with page boundary safety.
+ * AT24C32 has a 32-byte page size. Writes crossing this boundary will wrap around.
  */
 byte eepromWrBuff(uint16_t memoryAddress, const uint8_t* buffer, uint8_t length) {
-    uint8_t currentBufferIndex = 0;
- 
-    Wire.beginTransmission(EEPROM_I2C_ADDRESS);
-    Wire.write((uint8_t)(memoryAddress >> 8));   // High byte of address
-    Wire.write((uint8_t)(memoryAddress & 0xFF)); // Low byte of address
+    uint8_t bytesWritten = 0;
+    while (bytesWritten < length) {
+        // Calculate how many bytes can be written before hitting the next 32-byte page boundary
+        uint8_t bytesToPageBoundary = 32 - (memoryAddress % 32);
+        uint8_t chunkLength = min((uint8_t)(length - bytesWritten), bytesToPageBoundary);
 
-    for (uint8_t i = 0; i < length; ++i) {
-      Wire.write(buffer[currentBufferIndex + i]);
-    }
+        Wire.beginTransmission(EEPROM_I2C_ADDRESS);
+        Wire.write((uint8_t)(memoryAddress >> 8));   // High byte of address
+        Wire.write((uint8_t)(memoryAddress & 0xFF)); // Low byte of address
 
-    byte status = Wire.endTransmission();
-    if (status != 0) {
-      MYDEBUG_PRINT("I2C Write Error in buffer (addr "); MYDEBUG_PRINT(memoryAddress);
-      MYDEBUG_PRINT("). Status: "); MYDEBUG_PRINTLN(status);
+        for (uint8_t i = 0; i < chunkLength; ++i) {
+            Wire.write(buffer[bytesWritten + i]);
+        }
+
+        byte status = Wire.endTransmission();
+        if (status != 0) {
+            MYDEBUG_PRINT("I2C Write Error at addr "); MYDEBUG_PRINT(memoryAddress);
+            MYDEBUG_PRINT(". Status: "); MYDEBUG_PRINTLN(status);
+            return status;
+        }
+        
+        delay(EEPROM_WRITE_DELAY); // Wait for page write cycle completion (usually 5-10ms)
+        
+        memoryAddress += chunkLength;
+        bytesWritten += chunkLength;
     }
-    delay(EEPROM_WRITE_DELAY); // Wait for page write cycle completion
-    return status; 
+    return 0; 
 }
 
 /**
