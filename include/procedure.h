@@ -17,7 +17,6 @@ extern uint8_t seconds;
 void beeperOn(uint8_t val);
 uint16_t lampUpdate(uint16_t xpos, uint16_t ypos);
 void rotate_trays(void);
-bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit);
 uint8_t checkSetpoint(void);
 uint8_t checkConfig(void);
 void printSetPoint();
@@ -26,17 +25,12 @@ bool loadSetPoint();
 void printAddress(DeviceAddress deviceAddress);
 void printBinary(unsigned char byte);
 uint8_t tableRH(int16_t maxT, int16_t minT);
-void alarm(uint8_t cn);
-void outStatusLed(void);
 void reset(void);
 void initEnvironment(void);
 bool syncTime();
 void displTimeSetting(SetState state, const DateTime& dt);
 void manualTimeSet();
 void keyTimeSetting(SetState& currentState, uint8_t key, DateTime& tempTime);
-bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour);
-void relaySwitch(uint8_t cn);
-uint16_t transformTimeOff(uint8_t point);
 void setSystemTimeFromRTC();
 
 #endif /* _PROCEDURE_H */

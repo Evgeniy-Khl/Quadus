@@ -3,100 +3,73 @@
 const char* version = "v.0.0";
 char displStr[18];
 char botToken[50] = "";  // your Bot Token (Get from Botfather);
-char chatID [15] = "";   // your Chat ID (search for “IDBot” or open this link t.me/myidbot in your smartphone.)
-uint8_t dataLed[7]; 
-int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
-Ds ds[2] = {{15,0,0,0,0},{10,0,0,0,0}};
+char chatID [15] = "";   // your Chat ID
 
-SensorType detectedSensor = UNKNOWN;    // Переменная для хранения определенного типа датчика
+int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};
 
 const char* ntpServer = "pool.ntp.org"; // Сервер NTP
-// Строка конфигурации часового пояса для Украины (EET/EEST)
-// EET-2EEST,M3.5.0/3,M10.5.0/4
-// EET-2: Стандартное время UTC+2
-// EEST: Летнее время
-// M3.5.0/3: Переход на летнее время в 3:00 в последнее воскресенье марта
-// M10.5.0/4: Переход на зимнее время в 4:00 в последнее воскресенье октября
 const char* tzInfo = "EET-2EEST,M3.5.0/3,M10.5.0/4";
-// Конфигурируем и запускаем синхронизацию времени
-// configTime(0, 0, "pool.ntp.org");   // get UTC time via NTP
-// configTime(смещение_в_секундах, смещение_для_летнего_времени, ntp_сервер) - устаревший метод
-// Новый, правильный метод использует строку часового пояса:
 
-bool rtcTimeSet = false;// Флаг, чтобы убедиться, что мы устанавливаем время на RTC только один раз
+bool rtcTimeSet = false;
 struct tm* timeinfo;
 
-bool shouldSaveConfig = false;//flag for saving data
+bool shouldSaveConfig = false;
 bool enabledListen = false;
-int8_t  displNum,           // вариант дисплея
-        setupNum;           // пунк выбора установки
+int8_t  displNum, setupNum;
 
-uint8_t numberOfDevices,    // число найденых датчиков
-        resetDispl,         // время ожидания до возврата главного диплея
-        halfSecond,         // счетчик полу-секунд
-        pvFlap,             // текущее положение заслонки
-        beepOn,             // время звучания бипера
-        keys,               // текущая кнопка
-        keyCount,           // счетчик удержания кнопки
-        lastKey,            // предыдущая кнопка
-        countSeconds,       // счетчик секунд
-        minutes,            // счетчик минут
-        lastSyncDay,        // Переменная для хранения дня последней синхронизации
-        sources;            // источники для реле 3 и реле 4
+uint8_t resetDispl,
+        halfSecond,
+        beepOn,
+        keys,
+        keyCount,
+        lastKey,
+        countSeconds,
+        minutes,
+        lastSyncDay,
+        sources;
 
-int16_t pvTimeR1,           // текущее время реле 0
-        pvTimeR2,           // текущее время реле 1
-        pvTimeR3,           // текущее время реле 2
-        editBuff0,          // временное хранилище редактируемой установки
-        editBuff1;          // временное хранилище редактируемой установки
+int16_t editBuff0, editBuff1;
 
-uint16_t    pvTimer,        // текущее значение таймера
-            disableBeep,    // время запрета включения аварийной сигнализации
+uint16_t    pvTimer,
+            disableBeep,
             waitCheckKeyPad = WAITCHECKKEYPAD;
 
-long counterWait,           // опорный интервал опроса кнопок
-        counter10,          // опорный интервал 10 милисекунд 
-        counter1s;          // опорный интервал 500 милисекунд
+long counterWait,
+        counter10,
+        counter1s;
 
-// Адрес PCF8574. Может быть разным в зависимости от конфигурации A0, A1, A2.
-// Стандартные адреса: 0x20-0x27 для PCF8574 и 0x38-0x3F для PCF8574A.
-// Уточните адрес вашего модуля. Часто по умолчанию 0x27 или 0x3F.
-#define PCF8574_ADDRESS 0x27 // Замените на ваш адрес, если необходимо
-//---------------------------------
+#define PCF8574_ADDRESS 0x27
+
 uint8_t earlyMode = 0, mode = READEEPROM, tmrResetMode = 0, quarter = GET_PROG1, errors, seconds = 0;
 int tmrTelegramOff = 30;
 long lastSendTime = 0, allTime = 0; 
 Interval interval = INTERVAL_1000;
 
-union Byte portOut;
-union Byte errorsFlag;
-union Byte portFlag;
-
 Settings settings = {
-    .spT0on = T0ON, 	    // 0-120 Уставка температуры T0 ON
-    .spT0off = T0OFF, 	    // 0-120 Уставка температуры T0 OFF
-    .spT1on = T1ON, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
-    .spT1off = T1OFF, 	    // 0-120 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
-    .water0on = WT0ON,      // 0-120 мин. Длительность включ.состояниe полива № 1
-    .water0off = WT0OFF,    // 0-15 пункт. Длительность отвключ.состояниe полива № 1
-    .water1on = WT1ON,      // 0-120 мин. Длительность включ.состояниe полива № 2
-    .water1off = WT1OFF,    // 0-15 пункт. Длительность отвключ.состояниe полива № 2
-    .water2on = WT2ON,      // 0-120 мин. Длительность включ.состояниe полива № 3
-    .water2off = WT2OFF,    // 0-15 пункт. Длительность отвключ.состояниe полива № 3
-    .flap = 0,              // 0-100 Заслонка текущее положение
-    .timerOn = TIMERON,     // 0-24
-    .timerOff = TIMEROFF,   // 0-24
-    .alarm0 = ALARM0,       // 0-120 отклонение температуры T0
-    .alarm1 = ALARM1,       // 0-120 отклонение температуры T1
-    .special = 0,           // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
-    .deviceNum = 0,         // маска 0x0F - номер прибора; маска 0xF0 - версия;
-    .program = 0,           // исполняемая программа;
-    .modeLight = 0,        // маска 0x0F - разрешения реле освещения;
-    .modeHeater = 0,        // маска 0x0F - разрешения реле температуры;
-    .modeHumidi = 0,        // маска 0x0F - разрешения реле влажности;
-    .modeRelay1 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
-    .modeRelay2 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 4
-    .modeRelay3 = 0x00,     // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 5
+    .spT0on = T0ON,
+    .spT0off = T0OFF,
+    .spT1on = T1ON,
+    .spT1off = T1OFF,
+    .water0on = WT0ON,
+    .water0off = WT0OFF,
+    .water1on = WT1ON,
+    .water1off = WT1OFF,
+    .water2on = WT2ON,
+    .water2off = WT2OFF,
+    .flap = 0,
+    .timerOn = TIMERON,
+    .timerOff = TIMEROFF,
+    .alarm0 = ALARM0,
+    .alarm1 = ALARM1,
+    .special = 0,
+    .deviceNum = 0,
+    .program = 0,
+    .modeLight = 0,
+    .modeHeater = 0,
+    .modeHumidi = 0,
+    .modeRelay1 = 0x00,
+    .modeRelay2 = 0x00,
+    .modeRelay3 = 0x00,
 };
 
 const uint8_t tabRH[420]={
@@ -123,20 +96,18 @@ const uint8_t tabRH[420]={
 97,94,91,88,85,82,79,76,73,71,68,65,63,60,58,56,53,51,49,46
 };
 
-//------------------------------------------------------------
-const uint8_t error_[8]          = {0xA8, 0x4F, 0x4D, 0xA5, 0xA7, 0x4B, 0x41, 0x20};// ПОМИЛКА_
-const uint8_t connect[10]        = {0xBE, 0x69, 0xE3, 0xBA, 0xBB, 0xC6, 0xC0, 0x65, 0xBD, 0x6F};// підключено
-const uint8_t config[12]         = {0x4B, 0x6F, 0xBD, 0xE4, 0x69, 0xB4, 0x79, 0x70, 0x61, 0xE5, 0x69, 0xC6};// Конфігурацію
-const uint8_t no_[3]             = {0xBD, 0x65, 0x20};// не_ 
-const uint8_t saved[10]          = {0xB7, 0xB2, 0x65, 0x70, 0x65, 0xB6, 0x65, 0xBD, 0x6F, 0x21};// збережено!
-const uint8_t file_damaged[15]   = {0xAA, 0x61, 0xB9, 0xBB, 0x20, 0xBE, 0x6F, 0xC1, 0xBA, 0x6F, 0xE3, 0xB6, 0x65, 0xBD, 0x6F};// Файл пошкоджено
-const uint8_t wordSet[12]        = {0x42, 0x63, 0xBF, 0x61, 0xBD, 0x6F, 0xB3, 0xBB, 0x65, 0xBD, 0xB8, 0xB9};// Встановлений
-const uint8_t timeout_[9]        = {0xBF, 0x61, 0xB9, 0xBC, 0x2D, 0x61, 0x79, 0xBF, 0x20};// тайм-аут_
-// const uint8_t invalid[12]        = {0x48, 0x45, 0xA8, 0x50, 0x41, 0x42, 0xA5, 0xA7, 0x62, 0x48, 0xA5, 0xA6};// неправильний
-const uint8_t manual_control[15] = {0x50, 0x79, 0xC0, 0xBD, 0x65, 0x20, 0xBA, 0x65, 0x70, 0x79, 0xB3, 0x61, 0xBD, 0xBD, 0xC7};// Ручне керування
-const uint8_t set_permissions[16]= {0x42, 0x63, 0xBF, 0x61, 0xBD, 0x6F, 0xB3, 0x2E, 0xE3, 0x6F, 0xB7, 0xB3, 0x6F, 0xBB, 0x69, 0xB3};// Встанов.дозволів
-const uint8_t restored[10]       = {0xB3, 0x69, 0xE3, 0xBD, 0x6F, 0xB3, 0xBB, 0x65, 0xBD, 0x61};// відновлена
-const uint8_t save_time[13]      = {0xA4, 0xB2, 0x65, 0x70, 0x65, 0xB4, 0xBF, 0xB8, 0x20, 0xC0, 0x61, 0x63, 0x3F};// Зберегти час?
-const uint8_t time_saved[14]     = {0xAB, 0x61, 0x63, 0x20, 0xB7, 0xB2, 0x65, 0x70, 0x65, 0xB6, 0x65, 0xBD, 0x6F, 0x21};// Час збережено!
-const uint8_t no_permissions[13] = {0xBD, 0x65, 0xBC, 0x61, 0x65, 0x20, 0xE3, 0x6F, 0xB7, 0xB3, 0x6F, 0xBB, 0x79};// немаe дозволу
-const uint8_t sensorsWord[7]      = {0xE0, 0x61, 0xBF, 0xC0, 0xB8, 0xBA, 0xB8};// Датчики
+const uint8_t error_[8]          = {0xA8, 0x4F, 0x4D, 0xA5, 0xA7, 0x4B, 0x41, 0x20};
+const uint8_t connect[10]        = {0xBE, 0x69, 0xE3, 0xBA, 0xBB, 0xC6, 0xC0, 0x65, 0xBD, 0x6F};
+const uint8_t config[12]         = {0x4B, 0x6F, 0xBD, 0xE4, 0x69, 0xB4, 0x79, 0x70, 0x61, 0xE5, 0x69, 0xC6};
+const uint8_t no_[3]             = {0xBD, 0x65, 0x20};
+const uint8_t saved[10]          = {0xB7, 0xB2, 0x65, 0x70, 0x65, 0xB6, 0x65, 0xBD, 0x6F, 0x21};
+const uint8_t file_damaged[15]   = {0xAA, 0x61, 0xB9, 0xBB, 0x20, 0xBE, 0x6F, 0xC1, 0xBA, 0x6F, 0xE3, 0xB6, 0x65, 0xBD, 0x6F};
+const uint8_t wordSet[12]        = {0x42, 0x63, 0xBF, 0x61, 0xBD, 0x6F, 0xB3, 0xBB, 0x65, 0xBD, 0xB8, 0xB9};
+const uint8_t timeout_[9]        = {0xBF, 0x61, 0xB9, 0xBC, 0x2D, 0x61, 0x79, 0xBF, 0x20};
+const uint8_t manual_control[15] = {0x50, 0x79, 0xC0, 0xBD, 0x65, 0x20, 0xBA, 0x65, 0x70, 0x79, 0xB3, 0x61, 0xBD, 0xBD, 0xC7};
+const uint8_t set_permissions[16]= {0x42, 0x63, 0xBF, 0x61, 0xBD, 0x6F, 0xB3, 0x2E, 0xE3, 0x6F, 0xB7, 0xB3, 0x6F, 0xBB, 0x69, 0xB3};
+const uint8_t restored[10]       = {0xB3, 0x69, 0xE3, 0xBD, 0x6F, 0xB3, 0xBB, 0x65, 0xBD, 0x61};
+const uint8_t save_time[13]      = {0xA4, 0xB2, 0x65, 0x70, 0x65, 0xB4, 0xBF, 0xB8, 0x20, 0xC0, 0x61, 0x63, 0x3F};
+const uint8_t time_saved[14]     = {0xAB, 0x61, 0x63, 0x20, 0xB7, 0xB2, 0x65, 0x70, 0x65, 0xB6, 0x65, 0xBD, 0x6F, 0x21};
+const uint8_t no_permissions[13] = {0xBD, 0x65, 0xBC, 0x61, 0x65, 0x20, 0xE3, 0x6F, 0xB7, 0xB3, 0x6F, 0xBB, 0x79};
+const uint8_t sensorsWord[7]      = {0xE0, 0x61, 0xBF, 0xC0, 0xB8, 0xBA, 0xB8};

@@ -5,126 +5,6 @@ void beeperOn(uint8_t val){
   digitalWrite(BEEP_PIN, LOW); // Включаем бипер
 }
 
-// 1-1час.;2-2час.;3-3час.;4-4час.;5-6час.;6-8час.;7-10час.;8-12час.;9-24час.;10-2сут.;11-3сут.;12-4сут.;13-5сут.;14-6сут.;15-7сут.;
-uint16_t transformTimeOff(uint8_t point){
-    uint16_t val = point;
-    switch (point){
-        case 5: val = 6; break;
-        case 6: val = 8; break;
-        case 7: val = 10; break;
-        case 8: val = 12; break;
-        case 9: val = 24; break;
-        case 10: val = 2; break;
-        case 11: val = 3; break;
-        case 12: val = 4; break;
-        case 13: val = 5; break;
-        case 14: val = 6; break;
-        case 15: val = 7; break;
-    }
-    if(point < 10) val *= 60;
-    else val *= (60*24);
-    return val; // max val = 10080 мин.
-}
-
-bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour) {
-  if (onHour == offHour) return false;
-  if (onHour < offHour) return (currentHour >= onHour && currentHour < offHour);
-  else return (currentHour >= onHour || currentHour < offHour);
-}
-
-void relaySwitch(uint8_t cn){
-  bool state = PCF_OFF, prnBit = false;
-  int16_t val = 0, spOn = 0, spOff = 0, permit = 0;
-  switch (cn){
-    case 1: 
-            state = RELAY1; 
-            val = pvTimeR1; 
-            spOn = settings.water0on; 
-            spOff = settings.water0off;
-            permit = settings.modeRelay1 & 3;
-      break;
-    case 2: 
-            state = RELAY2; 
-            val = pvTimeR2; 
-            spOn = settings.water1on; 
-            spOff = settings.water1off; 
-            permit = settings.modeRelay2 & 3;
-      break;
-    case 3: 
-            state = RELAY3; 
-            val = pvTimeR3; 
-            spOn = settings.water2on; 
-            spOff = settings.water2off; 
-            permit = settings.modeRelay3 & 3;
-      break;
-  }
-  if(permit){ // если permission > 0 то ...
-    if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-    else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
-  }
-
-  if(permit == 0){// если permission == 0 разрешена работа всегдa
-    spOff = transformTimeOff(spOff);
-    if(--val <= 0){
-      prnBit = true;
-      if(state){//-- OFF --
-        val = spOn; state = PCF_ON;
-        MYDEBUG_PRINT("spOn="); MYDEBUG_PRINT(spOn);
-        MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = ON");
-      } else {//-- ON --
-        val = spOff; state = PCF_OFF;
-        MYDEBUG_PRINT("spOff="); MYDEBUG_PRINT(spOff);
-        MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = OFF");
-      }
-    }
-    switch (cn){
-      case 1: RELAY1 = state; pvTimeR1 = val; break;
-      case 2: RELAY2 = state; pvTimeR2 = val; break;
-      case 3: RELAY3 = state; pvTimeR3 = val; break;
-    }
-    #ifdef DEBUG
-    if(prnBit) printBinary(portOut.value);
-    #endif
-  } else {  // иначе отключаем
-    switch (cn){
-      case 1: RELAY1 = PCF_OFF; pvTimeR1 = -1; break;
-      case 2: RELAY2 = PCF_OFF; pvTimeR2 = -1; break;
-      case 3: RELAY3 = PCF_OFF; pvTimeR3 = -1; break;
-    }
-  }
-}
-
-bool checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit){
-  if(permit){ // если permission > 0 то ...
-    if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-    else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
-  }
-
-  if(permit == 0){// если permission == 0 разрешена работа всегдa
-    if (onTemp == offTemp) {
-      return PCF_OFF;
-    }
-    if (onTemp < offTemp) { // Режим нагрева
-      if (currentTemp <= onTemp) return PCF_ON;
-      if (currentTemp >= offTemp) return PCF_OFF;
-    } else { // Режим охлаждения
-      if (currentTemp >= onTemp) return PCF_ON;
-      if (currentTemp <= offTemp) return PCF_OFF;
-    }
-    return previousState; // В зоне гистерезиса состояние не меняем
-  } else {
-    return PCF_OFF;
-  }
-}
-
-void outStatusLed(void){
-    for(uint8_t i = 0; i < 6; i++){
-      uint8_t numBit = 1 << i;
-      dataLed[i] = (~portOut.value) & numBit;
-    }
-    dataLed[6] = errorsFlag.value;
-}
-
 uint8_t checkSetpoint(void){
   uint8_t err = 0;
   //--------- Загрузка конфигурации --------------------------------------------
@@ -241,9 +121,9 @@ void saveSetPoint() {
     delay(3000);
     lcd.clear();
     configFile.close();
-    relaySwitch(1);
-    relaySwitch(2);
-    relaySwitch(3);
+    logicManager.relaySwitch(1);
+    logicManager.relaySwitch(2);
+    logicManager.relaySwitch(3);
 }
 
 //------------ Функция загрузки конфигурации из JSON файла -------------
@@ -328,58 +208,6 @@ uint8_t tableRH(int16_t maxT, int16_t minT){
   return dT;
 }
 
-/*
-errors = 0x01   // ОШИБКА ДАТЧИКА 0  199-потерян; 66,0-завис [E01]
-errors = 0x02   // ОШИБКА ДАТЧИКА 1  199-потерян; 66,0-завис [E02]
-errors = 0x04   // ОТКЛОНЕНИЕ КАНАЛ 0 [E04]
-errors = 0x08   // ОТКЛОНЕНИЕ КАНАЛ 1 [E08]
-*/
-void alarm(uint8_t cn){
-  int16_t val, maxVal, minVal, alarm, permit;
-  bool reched, beep = false;
-  val = ds[cn].pvT;
-  if(cn){
-    maxVal = max(settings.spT1on, settings.spT1off);
-    minVal = min(settings.spT1on, settings.spT1off);
-    alarm = settings.alarm1;
-    permit = settings.modeHumidi;
-    reched = REACHED1;
-  } else {
-    maxVal = max(settings.spT0on, settings.spT0off);
-    minVal = min(settings.spT0on, settings.spT0off);
-    alarm = settings.alarm0;
-    permit = settings.modeHeater;
-    reched = REACHED0;
-  }
-
-  
-  if(permit){ // если permission > 0 то ...
-      if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-      else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
-  }
-  if(permit == 0){
-      if(reched){
-        if(val <= (minVal - alarm) || val >= (maxVal + alarm)) beep = true;
-      } 
-      else if(val >= minVal && val <= maxVal) reched = true;      // вышли на заданную температуру
-
-      if(cn){
-        REACHED1 = reched;
-        ERROR8 = beep;
-      } else {
-        REACHED0 = reched;
-        ERROR4 = beep;
-      }
-      if(errorsFlag.value){
-        if(errorsFlag.value == 0x03) alarm = 100;
-        else alarm = 50;
-        if(disableBeep==0) beeperOn(alarm);// длительность звукового сигнала и включить канал 4 (6 А)
-        else disableBeep--;
-      }
-      else disableBeep = 0;
-  }
-}
-
 // Вспомогательная функция для печати
 void printBinary(unsigned char byte) {
   for (int i = 7; i >= 0; i--) {
@@ -453,24 +281,14 @@ void initEnvironment(void){
         }
     } else {                          // если батарейка в порядке, функция вернёт false.
         MYDEBUG_PRINTLN("RTC has power, time should be valid.");
-        // 1. Устанавливаем системное время из RTC, чтобы оно было верным СРАЗУ
-        // rtc.now(): Эта команда обращается к модулю DS3231 по шине I2C 
-        // и считывает из него текущие данные: год, месяц, день, час, минуту и секунду. 
-        // Она возвращает специальный объект типа DateTime.
-        // .unixtime(): Это метод объекта DateTime, который конвертирует полученную дату и время в формат Unix-времени. 
-        // Это одно большое число, представляющее собой количество секунд, прошедших с полуночи 1 января 1970 года по Гринвичу (UTC).
         time_t t = rtc.now().unixtime();      // сохраняем это число (Unix-время) в переменную t
         timeval tv = {(long)t, 0};            // специальная структура для этой функции, которая хранит секунды (tv_sec) и микросекунды (tv_usec).
-        // создаем структуру tv, помещаем в неё наше время t (в секунды) и 0 (в микросекунды), а затем передаем её в settimeofday().
         settimeofday(&tv, nullptr);           // системная функция, которая устанавливает внутренние часы CPU.
 
         // 2. Включаем применение правил часового пояса И запускаем NTP в фоне
-        // Это установит правило TZ и незаметно скорректирует время позже, если нужно
         configTime(tzInfo, ntpServer);
         MYDEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
     }
-    // Сохраняем текущий день, чтобы не синхронизироваться снова в этот же день
-    // lastSyncDay = rtc.now().day();
     //-----------ТЕСТ AT2432-------------------
     testProgs();              // тест
   } else MYDEBUG_PRINTLN("Couldn't find RTC!"); 
@@ -479,7 +297,6 @@ void initEnvironment(void){
 //------------ ФУНКЦИЯ СИНХРОНИЗАЦИИ ВРЕМЕНИ С NTP И ЗАПИСИ В RTC ------------
 bool syncTime() {
   MYDEBUG_PRINTLN("\nStarting time synchronization...");
-  // Конфигурируем и запускаем синхронизацию времени
   configTzTime(tzInfo, ntpServer);              // Новый, правильный метод
   MYDEBUG_PRINT("Waiting for NTP response");
   unsigned long startAttempt = millis();        // Засекаем время начала попытки
@@ -562,7 +379,6 @@ void manualTimeSet(){
       keys = module.getButtons();             // Считываем состояние кнопок
       if(keys > 0){
         if (keys == KEY_6){                // Обработка кнопки "Выйти" в любой момент
-          // rtc.adjust(tempTime);
           MYDEBUG_PRINTLN("Время не сохранено!");
           return; // Выходим из функции
         } else if(currentState == CONFIRM_SAVE){
@@ -590,30 +406,27 @@ void keyTimeSetting(SetState& currentState, uint8_t key, DateTime& tempTime){
       case SET_YEAR:
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(365, 0, 0, 0);
         if (keys == KEY_2) tempTime = tempTime - TimeSpan(365, 0, 0, 0);
-        if (keys == KEY_3) {currentState = SET_MONTH; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        if (keys == KEY_3) {currentState = SET_MONTH; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}
         break;
       case SET_MONTH:
-        if (keys == KEY_1) tempTime = tempTime + TimeSpan(30, 0, 0, 0); // Упрощенно
-        if (keys == KEY_2) tempTime = tempTime - TimeSpan(30, 0, 0, 0); // Упрощенно
-        if (keys == KEY_3) {currentState = SET_DAY; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        if (keys == KEY_1) tempTime = tempTime + TimeSpan(30, 0, 0, 0);
+        if (keys == KEY_2) tempTime = tempTime - TimeSpan(30, 0, 0, 0);
+        if (keys == KEY_3) {currentState = SET_DAY; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}
         break;
       case SET_DAY:
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(1, 0, 0, 0);
         if (keys == KEY_2) tempTime = tempTime - TimeSpan(1, 0, 0, 0);
-        if (keys == KEY_3) {currentState = SET_HOUR; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        if (keys == KEY_3) {currentState = SET_HOUR; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}
         break;
       case SET_HOUR:
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(0, 1, 0, 0);
         if (keys == KEY_2) tempTime = tempTime - TimeSpan(0, 1, 0, 0);
-        if (keys == KEY_3) {currentState = SET_MINUTE; 
-                            tempTime = tempTime;  // - TimeSpan(0, 3, 0, 0);
-                           waitCheckKeyPad = WAITCHECKKEYPAD * 5;  // 5 сек. кнопка не доступна
-                           }
+        if (keys == KEY_3) {currentState = SET_MINUTE; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}
         break;
       case SET_MINUTE:
         if (keys == KEY_1) tempTime = tempTime + TimeSpan(0, 0, 1, 0);
         if (keys == KEY_2) tempTime = tempTime - TimeSpan(0, 0, 1, 0);
-        if (keys == KEY_3) {currentState = CONFIRM_SAVE; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}  // 5 сек. кнопка не доступна
+        if (keys == KEY_3) {currentState = CONFIRM_SAVE; waitCheckKeyPad = WAITCHECKKEYPAD * 5;}
         break;
       case CONFIRM_SAVE: break;
     }

@@ -1,6 +1,8 @@
 #include "main.h"
 #include "my_settings.h"
 
+SystemState state;
+
 ESP8266WebServer server(80);
 
 RTC_DS3231 rtc;                             // Создаем объект RTC для DS3231
@@ -101,15 +103,10 @@ void setup(){
   displSwitch();
   portOut.value = 0xFF;
   if(RTCENABLE){
-    relaySwitch(1);
-    relaySwitch(2);
-    relaySwitch(3);
+    logicManager.processIrrigation();
     time_t utc_time = rtc.now().unixtime();
     timeinfo = localtime(&utc_time);
-    uint8_t currentHour = timeinfo->tm_hour;// Получаем текущий час
-    minutes = timeinfo->tm_min;             // Получаем текущуу минуту
-    countSeconds = timeinfo->tm_sec;        // Получаем текущуу секунду
-    if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
+    logicManager.processLighting();
   }
 }
 
@@ -153,35 +150,26 @@ void loop(){
     if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
       countSeconds++; errorsFlag.value = 0;
       sensorCheck();
-      //--------------- температура -----------------------------------
-      if(ds[0].pvT > 125) ERROR1 = 1;
-      else HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, 35, settings.modeHeater);
-      alarm(0);
-      //----------------- влажность -----------------------------------
-      if(ds[1].pvT > 125) ERROR2 = 1;
-      else HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, 5, settings.spT1off, settings.modeHumidi);
-      alarm(1);
-      //---------------------------------------------------------------
-      outStatusLed();
+      
+      logicManager.processClimate();
+      logicManager.processAlarms();
+      logicManager.updateStatusLeds();
+
       if(setupNum == 0) displSwitch(); else setupSwitch();
     } //---------------------------------------------------------------
     if(halfSecond > 119){//------ новая минута ------------------------
       halfSecond = 0; countSeconds = 0; minutes++;
       if(RTCENABLE){
-        // curT = rtc.now();
         time_t utc_time = rtc.now().unixtime();
         timeinfo = localtime(&utc_time);
-        uint8_t currentHour = timeinfo->tm_hour;// Получаем текущий час
-        minutes = timeinfo->tm_min;             // Получаем текущуу минуту
-        countSeconds = timeinfo->tm_sec;        // Получаем текущуу секунду
-        if(checkLightState(currentHour, settings.timerOn, settings.timerOff)) LIGHT = PCF_ON; else LIGHT = PCF_OFF;
+        
+        logicManager.processLighting();
+        logicManager.processIrrigation();
+
         #ifdef DEBUG
-        MYDEBUG_PRINTLN("checkLightState():");
+        MYDEBUG_PRINTLN("processLighting():");
         printBinary(portOut.value);
         #endif
-        relaySwitch(1);
-        relaySwitch(2);
-        relaySwitch(3);
         /* // Время, которое хранится в RTC (UTC)
         MYDEBUG_PRINT("DateTime class from DS3231 (UTC): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
