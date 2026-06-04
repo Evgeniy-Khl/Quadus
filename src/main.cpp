@@ -20,6 +20,7 @@ TM1638 module(13, 14, 12);                  // Create module object for TM1638
 void ledSet(void);
 
 void setup(){
+  ESP.wdtEnable(5000); // Enable hardware watchdog with 5-second timeout
   #ifdef DEBUG
     Serial.begin(115200);                   // Initialize serial for debugging
   #endif
@@ -101,6 +102,7 @@ void setup(){
 }
 
 void loop(){
+  ESP.wdtFeed(); // Feed the hardware watchdog
 	long now = millis();
   server.handleClient(); // Handle incoming requests
   //-------------------------------------------- 10 mSec. --------------------------------------
