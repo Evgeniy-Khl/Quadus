@@ -92,9 +92,20 @@ void initWiFiManag(void){
                 server.send(404, "text/plain", "switch.html not found");
             }
         });
+        server.on("/view_logs", HTTP_GET, []() {
+            File file = LittleFS.open("/logs.html", "r");
+            if (file) {
+                server.streamFile(file, "text/html");
+                file.close();
+            } else {
+                server.send(404, "text/plain", "logs.html not found");
+            }
+        });
         server.on("/get_relays", HTTP_GET, handleGetRelayStates);
         server.on("/set_relay", HTTP_POST, handleManualControl);
         server.on("/reset_auto", HTTP_POST, resetAutoControl);
+        server.on("/logs", HTTP_GET, handleGetLogs);
+        server.on("/clear_logs", HTTP_POST, handleClearLogs);
 
         server.onNotFound(notFoundHandler);
         

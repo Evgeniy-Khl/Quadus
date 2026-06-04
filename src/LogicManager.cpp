@@ -26,6 +26,7 @@ void LogicManager::processClimate() {
     if (state.isManualOverride) return;
     // Heater processing
     if (ds[0].pvT > 1250) { // 125.0°C
+        if (!ERROR1) sysLogger.log("ALARM: Heater sensor error!");
         ERROR1 = 1;
     } else {
         HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
@@ -33,6 +34,7 @@ void LogicManager::processClimate() {
 
     // Humidifier processing
     if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
+        if (!ERROR2) sysLogger.log("ALARM: Humidity sensor error!");
         ERROR2 = 1;
     } else {
         HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
@@ -185,10 +187,14 @@ void LogicManager::processAlarm(uint8_t cn) {
         }
 
         if (cn) {
+            if (!REACHED1 && reached) sysLogger.log("Climate T2/RH target reached.");
             REACHED1 = reached;
+            if (!ERROR8 && beep) sysLogger.log("ALARM: T2/RH out of range!");
             ERROR8 = beep;
         } else {
+            if (!REACHED0 && reached) sysLogger.log("Climate T1 target reached.");
             REACHED0 = reached;
+            if (!ERROR4 && beep) sysLogger.log("ALARM: T1 temperature out of range!");
             ERROR4 = beep;
         }
 

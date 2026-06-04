@@ -42,6 +42,8 @@ void respondsValues();
 void handleManualControl();
 void resetAutoControl();
 void handleGetRelayStates();
+void handleGetLogs();
+void handleClearLogs();
 String getFloat(float val, uint8_t brackets);
 byte calculateChecksum(byte* data, int length);
 void OutStatusLed();  // // для HTML страницы

@@ -39,6 +39,7 @@ void setup(){
     delay(3000);
   }
   delay(1000);
+  sysLogger.log("System startup. Version: " + String(version));
   //----------------------------------- MOUNTING FS ----------------------------------------
   MYDEBUG_PRINTLN("mounting FS...");
   bool lFS = LittleFS.begin();
@@ -74,17 +75,20 @@ void setup(){
   lcd.setCursor(0,0);
   myPrint(sensorsWord,sizeof(sensorsWord));
   lcd.setCursor(0,1);
-  switch (detectedSensor){
-    case SENSOR_DS18B20:
-        lcd.print("DS18B20: "); lcd.print(numberOfDevices); lcd.print("pcs.");
-      break;
-    case SENSOR_DHT22:
-        lcd.print("DHT module.");
-      break;
-    case UNKNOWN:
-        myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
-      break;
+  
+  if (hasDHT22) {
+      lcd.print("DHT22 ");
+      sysLogger.log("Sensors: DHT22 detected");
   }
+  if (numberOfDS18 > 0) {
+      lcd.print("DS:"); lcd.print(numberOfDS18);
+      sysLogger.log("Sensors: " + String(numberOfDS18) + "x DS18B20 detected");
+  }
+  if (!hasDHT22 && numberOfDS18 == 0) {
+      myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
+      sysLogger.log("Sensors: NONE found");
+  }
+
   //------------------------------------------------------------------------------------------
   digitalWrite(BEEP_PIN, HIGH); // Turn off beeper
   pinMode(BEEP_PIN, OUTPUT);    // Set beeper pin as output for LED only
@@ -189,6 +193,7 @@ void loop(){
               if (now_t > 1000000000) { // If system time is valid
                 rtc.adjust(DateTime(now_t));
                 lastSyncDay = timeinfo->tm_mday;
+                sysLogger.log("Daily RTC sync successful.");
                 MYDEBUG_PRINTLN("RTC updated successfully.");
               }
             }

@@ -26,6 +26,7 @@
 #include "displLCD.h"
 #include "setupLCD.h"
 #include "LogicManager.h"
+#include "Logger.h"
 
 #define DEBUG
 

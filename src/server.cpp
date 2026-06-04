@@ -283,12 +283,13 @@ void handleManualControl() {
         DeserializationError error = deserializeJson(doc, server.arg("plain"));
         if (!error) {
             state.isManualOverride = true;
-            if (doc.containsKey("rel1")) LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF;
-            if (doc.containsKey("rel2")) HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF;
-            if (doc.containsKey("rel3")) HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF;
-            if (doc.containsKey("rel4")) RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF;
-            if (doc.containsKey("rel5")) RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF;
-            if (doc.containsKey("rel6")) RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF;
+            sysLogger.log("Manual override activated.");
+            if (doc.containsKey("rel1")) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Light " + String(LIGHT == PCF_ON ? "ON" : "OFF")); }
+            if (doc.containsKey("rel2")) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Heater " + String(HEATER == PCF_ON ? "ON" : "OFF")); }
+            if (doc.containsKey("rel3")) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Humidi " + String(HUMIDI == PCF_ON ? "ON" : "OFF")); }
+            if (doc.containsKey("rel4")) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay1 " + String(RELAY1 == PCF_ON ? "ON" : "OFF")); }
+            if (doc.containsKey("rel5")) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay2 " + String(RELAY2 == PCF_ON ? "ON" : "OFF")); }
+            if (doc.containsKey("rel6")) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay3 " + String(RELAY3 == PCF_ON ? "ON" : "OFF")); }
             
             server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":true}");
             return;
@@ -302,6 +303,7 @@ void handleManualControl() {
  */
 void resetAutoControl() {
     state.isManualOverride = false;
+    sysLogger.log("Automatic control restored.");
     server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":false}");
 }
 
@@ -322,4 +324,19 @@ void handleGetRelayStates() {
     server.setContentLength(measureJson(doc));
     server.send(200, "application/json", "");
     serializeJson(doc, client);
+}
+
+/**
+ * @brief Get system logs as plain text.
+ */
+void handleGetLogs() {
+    server.send(200, "text/plain", sysLogger.getLogs());
+}
+
+/**
+ * @brief Clear system logs.
+ */
+void handleClearLogs() {
+    sysLogger.clear();
+    server.send(200, "application/json", "{\"status\":\"ok\"}");
 }
