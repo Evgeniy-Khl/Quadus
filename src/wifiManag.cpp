@@ -78,11 +78,24 @@ void initWiFiManag(void){
           server.streamFile(file, "text/html");
           file.close();
         });
-        server.on("/getvalues", HTTP_GET, respondsValues);      // the server responds the completed index.html to the client
-        server.on("/geteeprom", HTTP_GET, respondsEeprom);      // the server responds the completed setup.html to the client
-        server.on("/seteeprom", HTTP_POST, acceptEeprom);       // the server accepts the edited setup.html from the client
-        // server.on("/get_table", HTTP_POST, respondsProgram);    // the server responds the completed table.html to the client
-        // server.on("/save_table", HTTP_GET, acceptProgram);      // the server accepts the edited table.html from the client
+        server.on("/getvalues", HTTP_GET, respondsValues);
+        server.on("/geteeprom", HTTP_GET, respondsEeprom);
+        server.on("/seteeprom", HTTP_POST, acceptEeprom);
+        
+        // Manual control routes
+        server.on("/switch", HTTP_GET, []() {
+            File file = LittleFS.open("/switch.html", "r");
+            if (file) {
+                server.streamFile(file, "text/html");
+                file.close();
+            } else {
+                server.send(404, "text/plain", "switch.html not found");
+            }
+        });
+        server.on("/get_relays", HTTP_GET, handleGetRelayStates);
+        server.on("/set_relay", HTTP_POST, handleManualControl);
+        server.on("/reset_auto", HTTP_POST, resetAutoControl);
+
         server.onNotFound(notFoundHandler);
         
         server.begin();   // Start server

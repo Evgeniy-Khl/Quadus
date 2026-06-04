@@ -273,3 +273,53 @@ void acceptProgram() {
         server.send(400, "application/json", "{\"error\":\"no data\"}");
     }
 }
+
+/**
+ * @brief Handle manual relay control from web interface.
+ */
+void handleManualControl() {
+    if (server.hasArg("plain")) {
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, server.arg("plain"));
+        if (!error) {
+            state.isManualOverride = true;
+            if (doc.containsKey("rel1")) LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF;
+            if (doc.containsKey("rel2")) HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF;
+            if (doc.containsKey("rel3")) HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF;
+            if (doc.containsKey("rel4")) RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF;
+            if (doc.containsKey("rel5")) RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF;
+            if (doc.containsKey("rel6")) RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF;
+            
+            server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":true}");
+            return;
+        }
+    }
+    server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+}
+
+/**
+ * @brief Reset control to automatic mode.
+ */
+void resetAutoControl() {
+    state.isManualOverride = false;
+    server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":false}");
+}
+
+/**
+ * @brief Send current relay states to the switch page.
+ */
+void handleGetRelayStates() {
+    JsonDocument doc;
+    doc["rel1"] = (LIGHT == PCF_ON);
+    doc["rel2"] = (HEATER == PCF_ON);
+    doc["rel3"] = (HUMIDI == PCF_ON);
+    doc["rel4"] = (RELAY1 == PCF_ON);
+    doc["rel5"] = (RELAY2 == PCF_ON);
+    doc["rel6"] = (RELAY3 == PCF_ON);
+    doc["manual"] = state.isManualOverride;
+
+    WiFiClient client = server.client();
+    server.setContentLength(measureJson(doc));
+    server.send(200, "application/json", "");
+    serializeJson(doc, client);
+}

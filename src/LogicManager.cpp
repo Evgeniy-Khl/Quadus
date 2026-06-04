@@ -5,7 +5,7 @@
 LogicManager logicManager;
 
 void LogicManager::processLighting() {
-    if (!RTCENABLE) return;
+    if (!RTCENABLE || state.isManualOverride) return;
     
     uint8_t currentHour = timeinfo->tm_hour;
     if (checkLightState(currentHour, settings.timerOn, settings.timerOff)) {
@@ -16,12 +16,14 @@ void LogicManager::processLighting() {
 }
 
 void LogicManager::processIrrigation() {
+    if (state.isManualOverride) return;
     relaySwitch(1);
     relaySwitch(2);
     relaySwitch(3);
 }
 
 void LogicManager::processClimate() {
+    if (state.isManualOverride) return;
     // Heater processing
     if (ds[0].pvT > 1250) { // 125.0°C
         ERROR1 = 1;

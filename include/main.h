@@ -92,6 +92,7 @@ struct SystemState {
     uint8_t pvFlap = 0;
     uint8_t numberOfDS18 = 0;
     bool hasDHT22 = false;
+    bool isManualOverride = false;
 };
 
 extern SystemState state;

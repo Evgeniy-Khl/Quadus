@@ -1,101 +1,134 @@
-﻿<!DOCTYPE HTML>
+<!DOCTYPE HTML>
 <html>
 <head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
+  <title>Квадус - Перемикачі</title>
   <style>
-    html {font-family: Arial; display: inline-block; text-align: center;}
-    h1 {
-  	  color: white;
-  	  text-align: center;
-	}
-	#grad1 {
-      height: 830px;
-      background-color: #9d9e9b; /* For browsers that do not support gradients */
-      background-image: linear-gradient(to bottom right, #585957, #db9951);
+    html { font-family: Arial, sans-serif; display: inline-block; text-align: center; }
+    h1, h4 { color: white; margin: 10px; }
+    #grad1 {
+      min-height: 100vh;
+      background-image: linear-gradient(to bottom right, #2c3e50, #000000);
+      padding: 20px;
+      box-sizing: border-box;
     }
-	.button {
-	  display: inline-block;
-	  background-color: #008CBA;
-	  border: none;
-	  border-radius: 4px;
-	  color: white;
-	  padding: 16px 40px;
-	  text-decoration: none;
-	  font-size: 30px;
-	  margin: 2px;
-	  cursor: pointer;
-	}
-    h2 {font-size: 3.0rem;}
-    p {font-size: 3.0rem;}
-    body {max-width: 600px; margin:0px auto; padding-bottom: 25px;}
-    .switch {position: relative; display: inline-block; width: 120px; height: 68px} 
-    .switch input {display: none}
-    .slider {position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; border-radius: 34px}
-    .slider:before {position: absolute; content: ""; height: 52px; width: 52px; left: 8px; bottom: 8px; background-color: #fff; -webkit-transition: .4s; transition: .4s; border-radius: 68px}
-    input:checked+.slider {background-color: #2196F3}
-    input:checked+.slider:before {-webkit-transform: translateX(52px); -ms-transform: translateX(52px); transform: translateX(52px)}
+    .button {
+      display: inline-block; background-color: #34495e; border: none; border-radius: 4px;
+      color: white; padding: 15px 30px; text-decoration: none; font-size: 1.2rem;
+      margin: 20px; cursor: pointer; transition: 0.3s; width: 80%; max-width: 300px;
+    }
+    .button:hover { background-color: #2c3e50; }
+    .button-reset { background-color: #e67e22; }
+    .button-reset:hover { background-color: #d35400; }
+
+    .switch-container {
+      background: rgba(255,255,255,0.1);
+      padding: 15px; border-radius: 10px; margin: 10px auto;
+      max-width: 400px; display: flex; justify-content: space-between; align-items: center;
+    }
+    
+    .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc; transition: .4s; border-radius: 34px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: #2ecc71; }
+    input:focus + .slider { box-shadow: 0 0 1px #2ecc71; }
+    input:checked + .slider:before { transform: translateX(26px); }
+
+    .manual-indicator {
+        color: #e67e22; font-weight: bold; margin-bottom: 15px; display: none;
+    }
+    .manual-indicator.active { display: block; }
   </style>
 </head>
 <body>
   <div id="grad1">
-  <h1>ПЕРЕКЛЮЧАТЕЛИ</h1>
-  <h4>ОСВЕЩЕНИЕ</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel1" name="" /><span class="slider"></span></label>
-  <h4>НАГРЕВАТЕЛЬ</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel2" name="" /><span class="slider"></span></label>
-  <h4>УВЛАЖНИТЕЛЬ</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel3" name="" /><span class="slider"></span></label>
-  <h4>РЕЛЕ(1)</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel4" name="" /><span class="slider"></span></label>
-  <h4>РЕЛЕ(2)</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel5" name="" /><span class="slider"></span></label>
-  <h4>РЕЛЕ(3)</h4><label class="switch"><input type="checkbox" onchange="toggleCheckbox(this)" id="rel6" name="" /><span class="slider"></span></label>
-  <p>
-    <a href="/"><button class="button">ВЫХОД</button></a>
-  </p>
+    <h1>Ручне управління</h1>
+    <div id="manualMsg" class="manual-indicator">УВАГА: Ручний режим активований</div>
+    
+    <div class="switch-container">
+        <h4>ОСВІТЛЕННЯ</h4>
+        <label class="switch"><input type="checkbox" id="rel1" onchange="toggleRelay('rel1', this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="switch-container">
+        <h4>НАГРІВАЧ</h4>
+        <label class="switch"><input type="checkbox" id="rel2" onchange="toggleRelay('rel2', this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="switch-container">
+        <h4>ЗВОЛОЖУВАЧ</h4>
+        <label class="switch"><input type="checkbox" id="rel3" onchange="toggleRelay('rel3', this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="switch-container">
+        <h4>РЕЛЕ 1</h4>
+        <label class="switch"><input type="checkbox" id="rel4" onchange="toggleRelay('rel4', this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="switch-container">
+        <h4>РЕЛЕ 2</h4>
+        <label class="switch"><input type="checkbox" id="rel5" onchange="toggleRelay('rel5', this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="switch-container">
+        <h4>РЕЛЕ 3</h4>
+        <label class="switch"><input type="checkbox" id="rel6" onchange="toggleRelay('rel6', this.checked)"><span class="slider"></span></label>
+    </div>
+
+    <button class="button button-reset" onclick="resetAuto()">ПОВЕРНУТИ АВТОМАТИКУ</button>
+    <br>
+    <a href="/"><button class="button">НА ГОЛОВНУ</button></a>
   </div>
+
 <script>
-// Отримуємо кнопку та ініціалізуємо змінні
-		var GPIO_status = 0;
-		// Функція для отримання стану реле
-		function relay_state() {
-			var request = new XMLHttpRequest();		// XMLHttpRequest (XHR)- об'єкт для відправки і отримання даних з сервера без перезавантаження веб-сторінки.
-			for(var i=0;i<5;i++){
-				request.open("POST", "swich.html?status="+i,false);	//выполнение СИНХРОННО
-				// Обробка відповіді сервера
-				request.onload = function() {
-					if (request.readyState == 4 && request.status == 200) {
-						var response = request.responseText;
-						if (response == "ON") {
-							switch (i) {
-								case 0: rel1.checked = true; break;
-								case 1: rel2.checked = true; break;
-								case 2: rel3.checked = true; break;
-								case 3: rel4.checked = true; break;
-								case 4: rel5.checked = true; break;
-								default :					break;
-							} 
-						}
-						else {
-							switch (i) {
-								case 0: rel1.checked = false; break;
-								case 1: rel2.checked = false; break;
-								case 2: rel3.checked = false; break;
-								case 3: rel4.checked = false; break;
-								case 4: rel5.checked = false; break;
-								default :					break;
-							}						
-						}
-					}
-				}
-				request.send();
-			}
-		}
-		
-		function toggleCheckbox(element) {
-		  var xhr = new XMLHttpRequest();		// XMLHttpRequest (XHR)- об'єкт для відправки і отримання даних з сервера без перезавантаження веб-сторінки.
-		  if(element.checked){ xhr.open("POST", "swich.html?update="+element.id+"&state=1", false); }	//выполнение СИНХРОННО
-		  else { xhr.open("POST", "swich.html?update="+element.id+"&state=0", false); }					//выполнение СИНХРОННО
-		  xhr.send();
-		}
-		// Отримання стану реле при завантаженні сторінки
-		document.addEventListener('DOMContentLoaded', relay_state);
+    function updateUI() {
+        fetch('/get_relays')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('rel1').checked = data.rel1;
+                document.getElementById('rel2').checked = data.rel2;
+                document.getElementById('rel3').checked = data.rel3;
+                document.getElementById('rel4').checked = data.rel4;
+                document.getElementById('rel5').checked = data.rel5;
+                document.getElementById('rel6').checked = data.rel6;
+                
+                const msg = document.getElementById('manualMsg');
+                if (data.manual) msg.classList.add('active');
+                else msg.classList.remove('active');
+            });
+    }
+
+    function toggleRelay(id, state) {
+        const payload = {};
+        payload[id] = state;
+        
+        fetch('/set_relay', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') updateUI();
+        });
+    }
+
+    function resetAuto() {
+        fetch('/reset_auto', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'ok') updateUI();
+        });
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', updateUI);
+    // Refresh every 5 seconds
+    setInterval(updateUI, 5000);
 </script>
 </body>
 </html>

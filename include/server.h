@@ -39,6 +39,9 @@ void respondsProgram();
 void acceptEeprom();
 void acceptProgram();
 void respondsValues();
+void handleManualControl();
+void resetAutoControl();
+void handleGetRelayStates();
 String getFloat(float val, uint8_t brackets);
 byte calculateChecksum(byte* data, int length);
 void OutStatusLed();  // // для HTML страницы
