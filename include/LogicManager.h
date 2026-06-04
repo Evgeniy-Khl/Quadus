@@ -37,7 +37,7 @@ public:
     void relaySwitch(uint8_t channel);
     bool checkDeviceState(bool previousState, int16_t currentVal, int16_t onVal, int16_t offVal, uint8_t permit);
     bool checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour);
-    void alarm(uint8_t channel);
+    void processAlarm(uint8_t channel);
 
 private:
     uint16_t transformTimeOff(uint8_t point);

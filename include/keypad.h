@@ -34,9 +34,8 @@
 void checkkey(uint8_t key);
 void displIncr(void);
 void displDecr(void);
-int16_t incrVal(int16_t val, uint8_t max);
-int16_t decrVal(int16_t val, uint8_t min);
-// void saveset(void);
+int16_t incrVal(int16_t val, int16_t max);
+int16_t decrVal(int16_t val, int16_t min);
 void doSave();
 
 #endif /*_KEYPAD_H*/

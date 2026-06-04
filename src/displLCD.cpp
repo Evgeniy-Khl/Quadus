@@ -4,10 +4,8 @@
 void displ0(){
     lcd.setCursor(0,0);
     if(RTCENABLE){
-    //   time_t unix_time = time(nullptr);             // Получаем текущее время из процессора, сконвертированное для нашего часового пояса
-      time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
-    //   struct tm* timeUnix = localtime(&unix_time);  // Преобразуем unix_time в структуру с локальным временем
-      timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
+      time_t utc_time = rtc.now().unixtime();
+      timeinfo = localtime(&utc_time);
       sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeinfo->tm_mday,timeinfo->tm_mon+1,
                         (timeinfo->tm_year+1900)%100,timeinfo->tm_hour,timeinfo->tm_min);
       lcd.print(displStr);
@@ -19,7 +17,7 @@ void displ0(){
 //---------- Температура датчиков и RH --------------
 void displ1(){
     uint8_t permit;
-    if(detectedSensor == UNKNOWN){
+    if(!hasDHT22 && numberOfDS18 == 0){
         lcd.setCursor(0,0);
         myPrint(sensorsWord,sizeof(sensorsWord));
         lcd.setCursor(0,1);
@@ -37,9 +35,9 @@ void displ1(){
             lcd.print(displStr);
         
             permit = settings.modeHeater;
-            if(permit){ // если permission > 0 то ...
-                if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-                else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+            if(permit){
+                if(LIGHT == PCF_OFF && permit == 2) permit = 0;
+                else if(LIGHT == PCF_ON && permit == 1) permit = 0;
             }
             if(permit == 0){
                 snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
@@ -64,15 +62,15 @@ void displ1(){
             }
         } else {
             snprintf(displStr, sizeof(displStr),"t2=%d.%d\xDF\x43", ds[1].pvT / 10, abs(ds[1].pvT % 10));
-            if(detectedSensor == SENSOR_DHT22){
+            if(hasDHT22){
                 snprintf(displStr, sizeof(displStr), "Bo=%d.%d%% ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             }
             lcd.print(displStr);
 
             permit = settings.modeHumidi;
-            if(permit){ // если permission > 0 то ...
-                if(LIGHT == PCF_OFF && permit == 2) permit = 0;// если permission == 2 разрешена работа только когда свет потушен
-                else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
+            if(permit){
+                if(LIGHT == PCF_OFF && permit == 2) permit = 0;
+                else if(LIGHT == PCF_ON && permit == 1) permit = 0;
             }
             if(permit == 0){
                 snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
@@ -91,24 +89,22 @@ void displ1(){
 }
 //---------- Остаток времени до переключения LT, R1 --------------
 void displ2(){
-    // time_t utc_time = rtc.now().unixtime();       // текущее время из DS3231 в формате Unix, сконвертированное для нашего часового пояса
-    // timeinfo = localtime(&utc_time);    // Преобразуем utc_time в структуру с локальным временем
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr)," CB %02u:%02u[%u\x2D%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-    if(LIGHT) displStr[0] = '\xDA'; // ↓
+    if(LIGHT == PCF_ON) displStr[0] = '\xDA'; // ↓
     else displStr[0] = '\xD9';      // ↑
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(pvTimeR1 == -1){
         lcd.print("T1 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
-        if(RELAY1){    //-- OFF --
+        if(RELAY1 == PCF_OFF){    //-- OFF --
             uint8_t day = pvTimeR1 / 1440;
             uint8_t hour = (pvTimeR1 % 1440) / 60;
             uint8_t min = pvTimeR1 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT1 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT1 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1); // ↑Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1);
         }
         lcd.print(displStr); 
     } 
@@ -119,13 +115,13 @@ void displ3(){
     if(pvTimeR2 == -1){
         lcd.print("T2 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
-        if(RELAY2){    //-- OFF --
+        if(RELAY2 == PCF_OFF){    //-- OFF --
             uint8_t day = pvTimeR2 / 1440;
             uint8_t hour = (pvTimeR2 % 1440) / 60;
             uint8_t min = pvTimeR2 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT2 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT2 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2); // ↑Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2);
         }
         lcd.print(displStr);
     } 
@@ -133,13 +129,13 @@ void displ3(){
     if(pvTimeR3 == -1){
         lcd.print("T3 "); myPrint(no_permissions,sizeof(no_permissions));
     } else {
-        if(RELAY3){    //-- OFF --
+        if(RELAY3 == PCF_OFF){    //-- OFF --
             uint8_t day = pvTimeR3 / 1440;
             uint8_t hour = (pvTimeR3 % 1440) / 60;
             uint8_t min = pvTimeR3 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT3 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);       // ↓Tx 0 дб. 00:00
+            snprintf(displStr, sizeof(displStr),"\xDAT3 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3); // ↑Tx увiм.00хвл.
+            snprintf(displStr, sizeof(displStr),"\xD9T3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3);
         }
         lcd.print(displStr);
     } 
@@ -182,6 +178,6 @@ void displSwitch(){
 
 void myPrint(const uint8_t* data, uint8_t size) {
     for (size_t i = 0; i < size; i++) {
-        lcd.write(data[i]); // Выводим элемент по индексу i
+        lcd.write(data[i]);
     }
 }

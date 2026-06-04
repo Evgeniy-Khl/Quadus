@@ -5,7 +5,7 @@
 LogicManager logicManager;
 
 void LogicManager::processLighting() {
-    if (!RTCENABLE || state.isManualOverride) return;
+    if (!RTCENABLE || isManualOverride) return;
     
     uint8_t currentHour = timeinfo->tm_hour;
     if (checkLightState(currentHour, settings.timerOn, settings.timerOff)) {
@@ -16,14 +16,14 @@ void LogicManager::processLighting() {
 }
 
 void LogicManager::processIrrigation() {
-    if (state.isManualOverride) return;
+    if (isManualOverride) return;
     relaySwitch(1);
     relaySwitch(2);
     relaySwitch(3);
 }
 
 void LogicManager::processClimate() {
-    if (state.isManualOverride) return;
+    if (isManualOverride) return;
     // Heater processing
     if (ds[0].pvT > 1250) { // 125.0°C
         if (!ERROR1) sysLogger.log("ALARM: Heater sensor error!");
@@ -49,9 +49,9 @@ void LogicManager::processAlarms() {
 void LogicManager::updateStatusLeds() {
     for (uint8_t i = 0; i < 6; i++) {
         uint8_t numBit = 1 << i;
-        dataLed[i] = (~state.portOut.value) & numBit;
+        dataLed[i] = (~portOut.value) & numBit;
     }
-    dataLed[6] = state.errorsFlag.value;
+    dataLed[6] = errorsFlag.value;
 }
 
 void LogicManager::relaySwitch(uint8_t cn) {
@@ -109,7 +109,7 @@ void LogicManager::relaySwitch(uint8_t cn) {
             case 3: RELAY3 = stateBit; pvTimeR3 = val; break;
         }
         #ifdef DEBUG
-        if (prnBit) printBinary(state.portOut.value);
+        if (prnBit) printBinary(portOut.value);
         #endif
     } else {
         switch (cn) {
@@ -198,8 +198,8 @@ void LogicManager::processAlarm(uint8_t cn) {
             ERROR4 = beep;
         }
 
-        if (state.errorsFlag.value) {
-            uint8_t duration = (state.errorsFlag.value == 0x03) ? 100 : 50;
+        if (errorsFlag.value) {
+            uint8_t duration = (errorsFlag.value == 0x03) ? 100 : 50;
             if (disableBeep == 0) beeperOn(duration);
             else disableBeep--;
         } else {

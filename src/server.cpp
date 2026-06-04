@@ -12,7 +12,6 @@ void notFoundHandler() {
 
 /**
  * @brief Respond with current system values in JSON format.
- * Optimized to avoid large String allocations.
  */
 void respondsValues() {
     char txt[64];
@@ -22,7 +21,6 @@ void respondsValues() {
     
     data["model"] = "Quadus&nbsp;&nbsp;&nbsp;&nbsp;№ " + String(num);
     
-    // Format temperature with 0.1 precision
     snprintf(txt, sizeof(txt), "%d.%d", ds[0].pvT / 10, abs(ds[0].pvT % 10));
     data["temperature0"] = txt;
     
@@ -31,7 +29,7 @@ void respondsValues() {
              settings.spT0off / 10, abs(settings.spT0off % 10));
     data["settemp0"] = txt;
 
-    if(detectedSensor == SENSOR_DHT22){
+    if(hasDHT22){
         snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
         data["humidity"] = txt;
         snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
@@ -49,14 +47,14 @@ void respondsValues() {
     }
     
     snprintf(txt, sizeof(txt), "%s %02u:%02u [%02u - %02u]", 
-             LIGHT ? "↓" : "↑", 
+             LIGHT == PCF_ON ? "↓" : "↑", 
              timeinfo->tm_hour, timeinfo->tm_min, 
              settings.timerOn, settings.timerOff);
     data["light"] = txt;
 
     auto formatTimer = [&](int16_t pvTime, bool relayState, const char* label) {
         if (pvTime == -1) return String(label) + " no permission";
-        if (relayState) { // OFF phase
+        if (relayState == PCF_OFF) { // OFF phase
             uint8_t day = pvTime / 1440;
             uint8_t hour = (pvTime % 1440) / 60;
             uint8_t min = pvTime % 60;
@@ -93,16 +91,12 @@ void respondsValues() {
     data["led5"] = dataLed[5] ? "ON" : "OFF";
     data["led6"] = dataLed[6] ? "ON" : "OFF";
     
-    // Direct serialization to stream to avoid heap fragmentation
     WiFiClient client = server.client();
     server.setContentLength(measureJson(data));
     server.send(200, "application/json", "");
     serializeJson(data, client);
 }
 
-/**
- * @brief Respond with EEPROM settings in JSON format.
- */
 void respondsEeprom() {
     JsonDocument doc;
     doc["spT0on"] = settings.spT0on;
@@ -140,9 +134,6 @@ void respondsEeprom() {
     interval = INTERVAL_1000;
 }
 
-/**
- * @brief Accept and save settings received from client (POST JSON).
- */
 void acceptEeprom() {
     if (server.hasArg("plain")) {
         JsonDocument doc;
@@ -151,15 +142,14 @@ void acceptEeprom() {
         if (!error) {
             JsonObject obj = doc.as<JsonObject>();
             
-            // Helper function to update setting if key exists
             auto updateInt = [&](const char* key, int16_t& target, bool isScaled = false) {
-                if (obj.containsKey(key)) {
+                if (obj[key].is<float>() || obj[key].is<int>()) {
                     if (isScaled) target = (int16_t)round(obj[key].as<float>() * 10.0);
                     else target = obj[key].as<int>();
                 }
             };
             auto updateUint8 = [&](const char* key, uint8_t& target) {
-                if (obj.containsKey(key)) target = obj[key].as<uint8_t>();
+                if (obj[key].is<int>()) target = obj[key].as<uint8_t>();
             };
 
             updateInt("spT0on", settings.spT0on, true);
@@ -195,9 +185,6 @@ void acceptEeprom() {
     server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
 }
 
-/**
- * @brief Respond with program data in JSON format.
- */
 void respondsProgram() {
     mode = SAVEPROG; 
     interval = INTERVAL_1000;
@@ -231,9 +218,6 @@ void respondsProgram() {
     }
 }
 
-/**
- * @brief Deserialize program data from string.
- */
 void programDeser(String input) {
     JsonDocument doc;
     DeserializationError error = deserializeJson(doc, input);
@@ -259,9 +243,6 @@ void programDeser(String input) {
     }
 }
 
-/**
- * @brief Accept program data from client (POST JSON).
- */
 void acceptProgram() {
     if (server.hasArg("plain")) {
         programDeser(server.arg("plain"));
@@ -274,22 +255,19 @@ void acceptProgram() {
     }
 }
 
-/**
- * @brief Handle manual relay control from web interface.
- */
 void handleManualControl() {
     if (server.hasArg("plain")) {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, server.arg("plain"));
         if (!error) {
-            state.isManualOverride = true;
+            isManualOverride = true;
             sysLogger.log("Manual override activated.");
-            if (doc.containsKey("rel1")) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Light " + String(LIGHT == PCF_ON ? "ON" : "OFF")); }
-            if (doc.containsKey("rel2")) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Heater " + String(HEATER == PCF_ON ? "ON" : "OFF")); }
-            if (doc.containsKey("rel3")) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Humidi " + String(HUMIDI == PCF_ON ? "ON" : "OFF")); }
-            if (doc.containsKey("rel4")) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay1 " + String(RELAY1 == PCF_ON ? "ON" : "OFF")); }
-            if (doc.containsKey("rel5")) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay2 " + String(RELAY2 == PCF_ON ? "ON" : "OFF")); }
-            if (doc.containsKey("rel6")) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay3 " + String(RELAY3 == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel1"].is<bool>()) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Light " + String(LIGHT == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel2"].is<bool>()) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Heater " + String(HEATER == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel3"].is<bool>()) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Humidi " + String(HUMIDI == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel4"].is<bool>()) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay1 " + String(RELAY1 == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel5"].is<bool>()) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay2 " + String(RELAY2 == PCF_ON ? "ON" : "OFF")); }
+            if (doc["rel6"].is<bool>()) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay3 " + String(RELAY3 == PCF_ON ? "ON" : "OFF")); }
             
             server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":true}");
             return;
@@ -298,18 +276,12 @@ void handleManualControl() {
     server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
 }
 
-/**
- * @brief Reset control to automatic mode.
- */
 void resetAutoControl() {
-    state.isManualOverride = false;
+    isManualOverride = false;
     sysLogger.log("Automatic control restored.");
     server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":false}");
 }
 
-/**
- * @brief Send current relay states to the switch page.
- */
 void handleGetRelayStates() {
     JsonDocument doc;
     doc["rel1"] = (LIGHT == PCF_ON);
@@ -318,7 +290,7 @@ void handleGetRelayStates() {
     doc["rel4"] = (RELAY1 == PCF_ON);
     doc["rel5"] = (RELAY2 == PCF_ON);
     doc["rel6"] = (RELAY3 == PCF_ON);
-    doc["manual"] = state.isManualOverride;
+    doc["manual"] = isManualOverride;
 
     WiFiClient client = server.client();
     server.setContentLength(measureJson(doc));
@@ -326,16 +298,10 @@ void handleGetRelayStates() {
     serializeJson(doc, client);
 }
 
-/**
- * @brief Get system logs as plain text.
- */
 void handleGetLogs() {
     server.send(200, "text/plain", sysLogger.getLogs());
 }
 
-/**
- * @brief Clear system logs.
- */
 void handleClearLogs() {
     sysLogger.clear();
     server.send(200, "application/json", "{\"status\":\"ok\"}");

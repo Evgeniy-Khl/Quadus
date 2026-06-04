@@ -1,8 +1,9 @@
 #include "main.h"
 
 const char* version = "v.0.0";
-char displStr[18];
-char botToken[50] = "";  // your Bot Token (Get from Botfather);
+char displStr[40];
+char botToken[50] = "";
+  // your Bot Token (Get from Botfather);
 char chatID [15] = "";   // your Chat ID
 
 int8_t dataOut[6] = {-1,-1,-1,-1,-1,-1};

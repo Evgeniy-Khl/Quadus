@@ -1,7 +1,7 @@
 #include "main.h"
 #include "my_settings.h"
 
-SystemState state;
+SystemState sysState;
 
 ESP8266WebServer server(80);
 

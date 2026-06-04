@@ -9,6 +9,14 @@
 #include <FS.h>
 #include <LittleFS.h>
 #define FlashFS LittleFS
+
+#define READDEFAULT 0
+#define READEEPROM  1
+#define SAVEEEPROM  2
+#define READPROG    3
+#define SAVEPROG    4
+#define GET_PROG1   0
+
 #include <SPI.h>
 #include <Wire.h>     // Библиотека для I2C связи
 #include <LiquidCrystal_I2C.h>
@@ -47,12 +55,6 @@
 #define MAX_DEVICE        4
 #define START_MARKER      0xDD
 
-#define READDEFAULT 0
-#define READEEPROM  1
-#define SAVEEEPROM  2
-#define READPROG    3
-#define SAVEPROG    4
-
 typedef struct {
   int16_t  pvT;              // current value (multiplied by 10, e.g. 225 = 22.5)
   int16_t  pvErr;            // current error (multiplied by 10)
@@ -80,23 +82,24 @@ union Byte {
 
 /**
  * @brief Structure for current system state.
+ * Member names have _m suffix to avoid macro collisions.
  */
 struct SystemState {
-    Ds ds[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0},{150,0,0,0,0},{150,0,0,0,0}};
-    union Byte portOut;
-    union Byte errorsFlag;
-    union Byte portFlag;
-    uint8_t dataLed[7];
-    int16_t pvTimeR1 = 0;
-    int16_t pvTimeR2 = 0;
-    int16_t pvTimeR3 = 0;
-    uint8_t pvFlap = 0;
-    uint8_t numberOfDS18 = 0;
-    bool hasDHT22 = false;
-    bool isManualOverride = false;
+    Ds ds_m[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0},{150,0,0,0,0},{150,0,0,0,0}};
+    union Byte portOut_m;
+    union Byte errorsFlag_m;
+    union Byte portFlag_m;
+    uint8_t dataLed_m[7];
+    int16_t pvTimeR1_m = 0;
+    int16_t pvTimeR2_m = 0;
+    int16_t pvTimeR3_m = 0;
+    uint8_t pvFlap_m = 0;
+    uint8_t numberOfDS18_m = 0;
+    bool hasDHT22_m = false;
+    bool isManualOverride_m = false;
 };
 
-extern SystemState state;
+extern SystemState sysState;
 
 #pragma pack(push, 1)
 struct Settings {
@@ -149,39 +152,44 @@ union TableBuff {
 
 extern TableBuff unTable;
 
-#define LIGHT		state.portOut.bitfield.a0
-#define HEATER  state.portOut.bitfield.a1
-#define HUMIDI	state.portOut.bitfield.a2
-#define RELAY1	state.portOut.bitfield.a3
-#define RELAY2	state.portOut.bitfield.a4
-#define RELAY3 	state.portOut.bitfield.a5
+// Legacy macros for compatibility - using _m members to avoid recursion
+#define LIGHT		sysState.portOut_m.bitfield.a0
+#define HEATER      sysState.portOut_m.bitfield.a1
+#define HUMIDI	    sysState.portOut_m.bitfield.a2
+#define RELAY1	    sysState.portOut_m.bitfield.a3
+#define RELAY2	    sysState.portOut_m.bitfield.a4
+#define RELAY3 	    sysState.portOut_m.bitfield.a5
 
-#define ds              state.ds
-#define dataLed         state.dataLed
-#define pvTimeR1        state.pvTimeR1
-#define pvTimeR2        state.pvTimeR2
-#define pvTimeR3        state.pvTimeR3
-#define pvFlap          state.pvFlap
-#define numberOfDS18    state.numberOfDS18
-#define hasDHT22        state.hasDHT22
+#define ds              sysState.ds_m
+#define dataLed         sysState.dataLed_m
+#define pvTimeR1        sysState.pvTimeR1_m
+#define pvTimeR2        sysState.pvTimeR2_m
+#define pvTimeR3        sysState.pvTimeR3_m
+#define pvFlap          sysState.pvFlap_m
+#define numberOfDS18    sysState.numberOfDS18_m
+#define hasDHT22        sysState.hasDHT22_m
+#define isManualOverride sysState.isManualOverride_m
+#define portOut         sysState.portOut_m
+#define errorsFlag      sysState.errorsFlag_m
+#define portFlag        sysState.portFlag_m
 
-#define ERROR1    state.errorsFlag.bitfield.a0
-#define ERROR2	  state.errorsFlag.bitfield.a1
-#define ERROR4	  state.errorsFlag.bitfield.a2
-#define ERROR8	  state.errorsFlag.bitfield.a3
-#define ERROR10	  state.errorsFlag.bitfield.a4
-#define ERROR20	  state.errorsFlag.bitfield.a5
-#define OVERHEAT  state.errorsFlag.bitfield.a6
-#define FROZE	    state.errorsFlag.bitfield.a7
+#define ERROR1    sysState.errorsFlag_m.bitfield.a0
+#define ERROR2	  sysState.errorsFlag_m.bitfield.a1
+#define ERROR4	  sysState.errorsFlag_m.bitfield.a2
+#define ERROR8	  sysState.errorsFlag_m.bitfield.a3
+#define ERROR10	  sysState.errorsFlag_m.bitfield.a4
+#define ERROR20	  sysState.errorsFlag_m.bitfield.a5
+#define OVERHEAT  sysState.errorsFlag_m.bitfield.a6
+#define FROZE	    sysState.errorsFlag_m.bitfield.a7
 
-#define REACHED0    state.portFlag.bitfield.a0
-#define REACHED1    state.portFlag.bitfield.a1
-#define TURNSECOND  state.portFlag.bitfield.a2
-#define RTCENABLE   state.portFlag.bitfield.a3
-#define WIFIENABLE	state.portFlag.bitfield.a4
-#define RESERV      state.portFlag.bitfield.a5
-#define NEWSCREEN   state.portFlag.bitfield.a6
-#define SAVING      state.portFlag.bitfield.a7
+#define REACHED0    sysState.portFlag_m.bitfield.a0
+#define REACHED1    sysState.portFlag_m.bitfield.a1
+#define TURNSECOND  sysState.portFlag_m.bitfield.a2
+#define RTCENABLE   sysState.portFlag_m.bitfield.a3
+#define WIFIENABLE	sysState.portFlag_m.bitfield.a4
+#define RESERV      sysState.portFlag_m.bitfield.a5
+#define NEWSCREEN   sysState.portFlag_m.bitfield.a6
+#define SAVING      sysState.portFlag_m.bitfield.a7
 
 #define PCF_ON      0
 #define PCF_OFF     1
@@ -210,7 +218,7 @@ extern TM1638 module;
 #define ALARM1    5
 
 extern const char* version;
-extern char displStr[18];
+extern char displStr[40];
 extern char botToken[50];
 extern char chatID [15];
 extern bool shouldSaveConfig;
@@ -218,7 +226,6 @@ extern bool shouldSaveConfig;
 extern uint8_t earlyMode, mode, tmrResetMode, quarter, errors, seconds;
 extern int tmrTelegramOff;
 extern long lastSendTime, allTime; 
-typedef enum { INTERVAL_1000 } Interval;
 extern Interval interval;
 
 extern RTC_DS3231 rtc;
@@ -253,7 +260,7 @@ void sensorType();
 void checkDs18b20();
 void checkkey(uint8_t keys);
 void setupSwitch();
-void myPrint(const uint8_t* str, size_t size);
+void myPrint(const uint8_t* str, uint8_t size);
 void testProgs();
 
 extern const uint8_t error_[8], connect[10], config[12], no_[3], saved[10], file_damaged[15], wordSet[12], timeout_[9], manual_control[15], set_permissions[16], restored[10], save_time[13], time_saved[14], no_permissions[13], sensorsWord[7];
