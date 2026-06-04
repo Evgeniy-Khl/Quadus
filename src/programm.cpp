@@ -4,22 +4,25 @@
 TableBuff unTable;
 
 /**
- * AT24C32 имеет страницы по 32 байта. 
- * адреса страниц: 0-31, 32-63, ... 
- * 0xF00 - 0xFFF резерв 255 байт.
+ * AT24C32 has 32-byte pages.
+ * Page addresses: 0-31, 32-63, ...
+ * 0xF00 - 0xFFF reserved (255 bytes).
  */
 uint16_t eepromMemoryAddressForHour(uint8_t prg, uint8_t hour){
-	// из расчета одна страница на 1 день, 1 прог.=30 страниц всего 30*4=120 страниц плюс 8 страниц резерв.
+    // Calculation: 1 page per day, 1 prog = 30 pages. Total 30*4 = 120 pages plus 8 pages reserve.
     uint16_t addressPage = (hour) * 8 + (prg - 1) * (8 * 24);  
 	return addressPage;
 }
 
+/**
+ * @brief Write buffer to EEPROM.
+ */
 byte eepromWrBuff(uint16_t memoryAddress, const uint8_t* buffer, uint8_t length) {
-  uint8_t currentBufferIndex = 0;
+    uint8_t currentBufferIndex = 0;
  
     Wire.beginTransmission(EEPROM_I2C_ADDRESS);
-    Wire.write((uint8_t)(memoryAddress >> 8));   // Старший байт адреса
-    Wire.write((uint8_t)(memoryAddress & 0xFF)); // Младший байт адреса
+    Wire.write((uint8_t)(memoryAddress >> 8));   // High byte of address
+    Wire.write((uint8_t)(memoryAddress & 0xFF)); // Low byte of address
 
     for (uint8_t i = 0; i < length; ++i) {
       Wire.write(buffer[currentBufferIndex + i]);
@@ -29,17 +32,16 @@ byte eepromWrBuff(uint16_t memoryAddress, const uint8_t* buffer, uint8_t length)
     if (status != 0) {
       MYDEBUG_PRINT("I2C Write Error in buffer (addr "); MYDEBUG_PRINT(memoryAddress);
       MYDEBUG_PRINT("). Status: "); MYDEBUG_PRINTLN(status);
-      // Прервать дальнейшую запись этого буфера, если есть ошибка
     }
-    delay(EEPROM_WRITE_DELAY); // Ожидание завершения цикла записи страницы
+    delay(EEPROM_WRITE_DELAY); // Wait for page write cycle completion
     return status; 
 }
 
 /**
- * @brief Читает массив байт (буфер) из EEPROM.
- * @param memoryAddress Начальный 16-битный адрес ячейки памяти.
- * @param buffer Указатель на буфер для сохранения прочитанных данных.
- * @param length Количество байт для чтения.
+ * @brief Read byte array (buffer) from EEPROM.
+ * @param memoryAddress Starting 16-bit address.
+ * @param buffer Pointer to buffer for storing read data.
+ * @param length Number of bytes to read.
  */
 void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
   Wire.beginTransmission(EEPROM_I2C_ADDRESS);
@@ -47,17 +49,17 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
   Wire.write((uint8_t)(memoryAddress & 0xFF));
   Wire.endTransmission();
 
-  Wire.requestFrom(EEPROM_I2C_ADDRESS, (int)length); // Запросить 'length' байт
+  Wire.requestFrom(EEPROM_I2C_ADDRESS, (int)length); // Request 'length' bytes
   for (uint16_t i = 0; i < length; i++) {
     if (Wire.available()) {
       buffer[i] = Wire.read();
     } else {
-      buffer[i] = 0; // В случае ошибки заполнить нулем
+      buffer[i] = 0; // Fill with zero on error
     }
   }
 }
 
-// ----- Функция для подготовки стандартной талбицы ----------
+// ----- Function for default table preparation ----------
 #define UNUSED(x) (void)(x)
 void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_t t1off){
     uint8_t flp = 2;
@@ -67,23 +69,23 @@ void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_
     unTable.spHour.spT0off = t0off;
     unTable.spHour.spT1on = t1on;
     unTable.spHour.spT1off = t1off;
-    unTable.spHour.water0run = 10;  // 0-120 мин. Длительность включ.состояниe полива
-    unTable.spHour.water1run = 20;  // 0-120 мин. Длительность включ.состояниe полива
-    unTable.spHour.water2run = 30;  // 0-120 мин. Длительность включ.состояниe полива
-    unTable.spHour.timerFlap = tmr; // 0-60 Освещение маска 0x3F / 0-3 (0-0%; 1-30%; 2-60%; 3-100%) Заслонка текущее положение
+    unTable.spHour.water0run = 10;  // 0-120 min. Irrigation duration
+    unTable.spHour.water1run = 20;  // 0-120 min. Irrigation duration
+    unTable.spHour.water2run = 30;  // 0-120 min. Irrigation duration
+    unTable.spHour.timerFlap = tmr; // 0-60 Light mask 0x3F / 0-3 Flap position (0-0%; 1-30%; 2-60%; 3-100%)
     
     for (size_t i = 0; i < 24; i++){
-      if(i <= 4 || i >= 22){  // ночь
+      if(i <= 4 || i >= 22){  // Night mode
         unTable.spHour.spT0on = t0on-5;
         unTable.spHour.spT0off = t0off-5;
         unTable.spHour.spT1on = t1on-5;
         unTable.spHour.spT1off = t1off-5;
-        unTable.spHour.water0run = 0;  // 0-120 мин. Длительность включ.состояниe полива
-        unTable.spHour.water1run = 0;  // 0-120 мин. Длительность включ.состояниe полива
-        unTable.spHour.water2run = 0;  // 0-120 мин. Длительность включ.состояниe полива
-        unTable.spHour.timerFlap = 0;  // 0-60 Освещение маска 0x3F / 0-3 (0-0%; 1-30%; 2-60%; 3-100%) Заслонка текущее положение
+        unTable.spHour.water0run = 0;
+        unTable.spHour.water1run = 0;
+        unTable.spHour.water2run = 0;
+        unTable.spHour.timerFlap = 0;
       }
-      else if((i > 4 || i < 8) || (i > 20 || i < 22)){ // вечер утро
+      else if((i > 4 || i < 8) || (i > 20 || i < 22)){ // Morning/Evening mode
         unTable.spHour.spT0on = t0on-2;
         unTable.spHour.spT0off = t0off-2;
         unTable.spHour.spT1on = t1on-2;
@@ -91,10 +93,10 @@ void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_
         flp = 1;
         tmr = 60;
         tmr |= flp << 6;
-        unTable.spHour.timerFlap = tmr; // 0-60 Освещение маска 0x3F / 0-3 (0-0%; 1-30%; 2-60%; 3-100%) Заслонка текущее положение
+        unTable.spHour.timerFlap = tmr;
       }
       uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
-      byte res = 0;//eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+      byte res = 0;
       UNUSED(memoryAddress);
       UNUSED(res);
       MYDEBUG_PRINT("HOUR:"); MYDEBUG_PRINT(i); 
@@ -103,6 +105,7 @@ void prepareTable(uint8_t prg, uint8_t t0on, uint8_t t0off, uint8_t t1on, uint8_
     }
     
 }
+
 void prepareProg1(){
     MYDEBUG_PRINTLN("PROGRAMM: 1");
     prepareTable(1,22,24,18,20);
@@ -120,33 +123,15 @@ void prepareProg4(){
     MYDEBUG_PRINTLN("PROGRAMM: 4");
 }
 
+/**
+ * @brief Test EEPROM content and initialize programs if empty.
+ */
 void testProgs(){
   MYDEBUG_PRINTLN("AT24C32 EEPROM Test.");
   uint16_t memoryAddress = eepromMemoryAddressForHour(1, 0);
   eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   if(unTable.spHour.spT0on == -1){
     prepareProg1();
-    MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N1");
+    MYDEBUG_PRINTLN("REWRITTEN PROG N1");
   } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
-
-  // memoryAddress = eepromMemoryAddressForHour(2, 0);
-  // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-  // if(unTable.spHour.spT0on == -1){
-  //   prepareProg2();
-  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N2");
-  // } else MYDEBUG_PRINTLN("PROGRAMM N2 Ok");
-
-  // memoryAddress = eepromMemoryAddressForHour(3, 0);
-  // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-  // if(unTable.spHour.spT0on == -1){
-  //   prepareProg3();
-  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N3");
-  // } else MYDEBUG_PRINTLN("PROGRAMM N3 Ok");
-
-  // memoryAddress = eepromMemoryAddressForHour(4, 0);
-  // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-  // if(unTable.spHour.spT0on == -1){
-  //   prepareProg4();
-  //   MYDEBUG_PRINTLN("ПЕРЕЗАПИСАНА PROG N4");
-  // } else MYDEBUG_PRINTLN("PROGRAMM N4 Ok");
 }

@@ -5,30 +5,30 @@ SystemState state;
 
 ESP8266WebServer server(80);
 
-RTC_DS3231 rtc;                             // Создаем объект RTC для DS3231
+RTC_DS3231 rtc;                             // Create RTC object for DS3231
 
 DHT dht(ONE_WIRE_BUS_PIN, DHT22);
-OneWire oneWire(ONE_WIRE_BUS_PIN);          // Создаем экземпляр объекта OneWire для взаимодействия с шиной 1-Wire
-DallasTemperature sensors(&oneWire);        // Передаем ссылку на объект oneWire в конструктор DallasTemperature
-DeviceAddress sensorAddresses[MAX_DEVICE];  // Массив для хранения уникальных адресов датчиков
+OneWire oneWire(ONE_WIRE_BUS_PIN);          // Create OneWire instance for 1-Wire bus interaction
+DallasTemperature sensors(&oneWire);        // Pass oneWire reference to DallasTemperature constructor
+DeviceAddress sensorAddresses[MAX_DEVICE];  // Array for unique sensor addresses
 
 LiquidCrystal_I2C lcd(0x20, 16, 2);         // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte writePCF8574(byte data);
 
-TM1638 module(13, 14, 12);                  // Создаем объект module для TM1638
+TM1638 module(13, 14, 12);                  // Create module object for TM1638
 void ledSet(void);
 
 void setup(){
   #ifdef DEBUG
-    Serial.begin(115200);                   // Инициализация последовательного порта для отладки
+    Serial.begin(115200);                   // Initialize serial for debugging
   #endif
   //--------------------------------- initialize the LCD -----------------------------------
-  lcd.begin();  // ВЛОЖЕН > Wire.begin() Инициализация I2C (SDA, SCL по умолчанию для ESP8266 - GPIO4, GPIO5)
+  lcd.begin();  // Wire.begin() is called inside. Initialize I2C (SDA, SCL default for ESP8266 - GPIO4, GPIO5)
 
-  uint8_t temp = writePCF8574(0xFF);    // Установить все пины в LOW (если они используются как выходы)
+  uint8_t temp = writePCF8574(0xFF);    // Set all pins LOW (if used as outputs)
 
-  // Turn on the blacklight and print a message.
+  // Turn on the backlight and print a message.
   lcd.backlight();
   lcd.print(version);
   if(temp){
@@ -43,22 +43,12 @@ void setup(){
   bool lFS = LittleFS.begin();
   if(lFS) {
     MYDEBUG_PRINTLN("mounted file system");
-    //--------------------------------- clean LittleFS, for testing -----------------------
-    // **Здесь вы можете разместить LittleFS.format();  но ОЧЕНЬ ВАЖНО ПОНИМАТЬ КОГДА ЭТО ДЕЛАТЬ!**
-    // Например, вы можете отформатировать файловую систему только при первом запуске или при определенном условии.
-    // **ВНИМАНИЕ: Раскомментирование следующей строки приведет к форматированию LittleFS при каждом запуске!**
-    // Проверка и форматирование, если необходимо
-    // if (LittleFS.format()) {
-    //   MYDEBUG_PRINTLN("LittleFS formatted successfully");
-    // } else {
-    //   MYDEBUG_PRINTLN("Failed to format LittleFS");
-    // }
     //--------------------- checkSetpoint ----------------------------------
     temp = checkSetpoint();
     if(temp){
       lcd.clear();
       lcd.setCursor(0,0);
-      myPrint(error_,sizeof(error_));// ПОМИЛКА 
+      myPrint(error_,sizeof(error_));// ERROR 
       lcd.print(temp);
       lcd.setCursor(0,1);
       lcd.print("setpoint.json");
@@ -68,16 +58,16 @@ void setup(){
     MYDEBUG_PRINTLN("failed to mount FS");
     lcd.clear();
     lcd.setCursor(0,0);
-    myPrint(error_,sizeof(error_)); lcd.print("- FS");// ПОМИЛКА - FS
+    myPrint(error_,sizeof(error_)); lcd.print("- FS");// ERROR - FS
     lcd.setCursor(0,1);
-    myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));// не підключено
+    myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));// not connected
     delay(3000);
   }
-  //---------------------------- инициализация WiFiManager -----------------------------------
+  //---------------------------- WiFiManager initialization -----------------------------------
   if(settings.special & 0x03) initWiFiManag();
-  else MYDEBUG_PRINTLN("Запрет на подключение к WiFi! Продолжаем работу в оффлайн-режиме.");
+  else MYDEBUG_PRINTLN("WiFi connection disabled! Continuing in offline mode.");
   initEnvironment();
-  //----------------------- определяем какой датчик подключен --------------------------------
+  //----------------------- detect connected sensor type --------------------------------
   sensorType();
   lcd.clear();
   lcd.setCursor(0,0);
@@ -95,8 +85,8 @@ void setup(){
       break;
   }
   //------------------------------------------------------------------------------------------
-  digitalWrite(BEEP_PIN, HIGH); // Выключаем бипер
-  pinMode(BEEP_PIN, OUTPUT);    // Настраиваем пин бипера как выход только для LED
+  digitalWrite(BEEP_PIN, HIGH); // Turn off beeper
+  pinMode(BEEP_PIN, OUTPUT);    // Set beeper pin as output for LED only
   
   delay(3000);  
   lcd.clear();
@@ -112,17 +102,17 @@ void setup(){
 
 void loop(){
 	long now = millis();
-  server.handleClient(); // Обработка входящих запросов
+  server.handleClient(); // Handle incoming requests
   //-------------------------------------------- 10 mSec. --------------------------------------
   if(now - counter10 > 10){
     counter10 = now;
 
-    if(beepOn) beepOn--; else digitalWrite(BEEP_PIN, HIGH);   // Выключаем бипер
+    if(beepOn) beepOn--; else digitalWrite(BEEP_PIN, HIGH);   // Turn off beeper
 
     keys = module.getButtons();
-    if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}  // если не удерживается ни одна кнопка то сброс времени ожидания.
+    if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}  // reset wait time if no button is held.
   }
-  //-------------------------------------------- КЛАВИАТУРА --------------------------------------
+  //-------------------------------------------- KEYPAD --------------------------------------
     if(now - counterWait > waitCheckKeyPad){
       counterWait = now;
       keys = module.getButtons();
@@ -135,19 +125,19 @@ void loop(){
       else if(keys == 0) {waitCheckKeyPad = MINWAIT; keyCount = 0;}
       else lastKey = keys;
     }
-  //============================= НОВАЯ ПОЛ-СЕКУНДА =================================
+  //============================= NEW HALF-SECOND =================================
   if(now - counter1s > 500){
     counter1s = now;
     halfSecond++; 
     if(resetDispl){
       if(--resetDispl == 0) {
         if(setupNum) saveSetPoint();
-        setupNum = 0; // возврат к главному дисплею
+        setupNum = 0; // return to main display
         lcd.clear(); 
         displSwitch();
       }
     }
-    if(halfSecond & 2){//-------- НОВАЯ СЕКУНДА -----------------------
+    if(halfSecond & 2){//-------- NEW SECOND -----------------------
       countSeconds++; errorsFlag.value = 0;
       sensorCheck();
       
@@ -157,7 +147,7 @@ void loop(){
 
       if(setupNum == 0) displSwitch(); else setupSwitch();
     } //---------------------------------------------------------------
-    if(halfSecond > 119){//------ новая минута ------------------------
+    if(halfSecond > 119){//------ NEW MINUTE ------------------------
       halfSecond = 0; countSeconds = 0; minutes++;
       if(RTCENABLE){
         time_t utc_time = rtc.now().unixtime();
@@ -170,33 +160,25 @@ void loop(){
         MYDEBUG_PRINTLN("processLighting():");
         printBinary(portOut.value);
         #endif
-        /* // Время, которое хранится в RTC (UTC)
-        MYDEBUG_PRINT("DateTime class from DS3231 (UTC): ");
-        DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-                      curT.year(), curT.month(),
-                      curT.day(), curT.hour(),
-                      curT.minute(), curT.second()); */
 
-        // Время, сконвертированное для нашего часового пояса
+        // Converted local time for our timezone
         MYDEBUG_PRINT("Converted Local Time  (EET/EEST): ");
         DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
                       timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
                       timeinfo->tm_mday, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
-        uint16_t heapSize = ESP.getFreeHeap();    // Проверка доступной памяти
+        uint16_t heapSize = ESP.getFreeHeap();    // Memory check
         DEBUG_PRINTF("Free heap size: %d\n", heapSize);
       }
-      //---------------------------- новый час ----------------------------------
+      //---------------------------- NEW HOUR ----------------------------------
       if(++minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          // time_t utc_time = rtc.now().unixtime();                             // Получаем текущее время с модуля DS3231
-          // timeinfo = localtime(&utc_time);                                    // Преобразуем utc_time в структуру с локальным временем
           if(WIFIENABLE){
-            // ------------- Логика ежедневной синхронизации --------------
-            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 15) { // Проверяем, наступил ли новый день. И сейчас 3 часа ночи
-              MYDEBUG_PRINTLN("\nIt's 15:00 , time for daily sync!");
-              syncTime();                                                     // Запускаем нашу функцию синхронизации
+            // ------------- Daily synchronization logic --------------
+            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Check for new day at 3 AM
+              MYDEBUG_PRINTLN("\nIt's 03:00 , time for daily sync!");
+              syncTime();                                                     // Run sync function
             }
             MYDEBUG_PRINT("Update Local Time  (EET/EEST): ");
             DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
@@ -205,21 +187,17 @@ void loop(){
                       timeinfo->tm_min, timeinfo->tm_sec);
           }
         }
-      } // ------------------------- час ----------------------------
-    } //--------------------------- минута --------------------------
-  } //-------------------------- пол-секунда ------------------------
+      } // ------------------------- hour ----------------------------
+    } //--------------------------- minute --------------------------
+  } //-------------------------- half-second ------------------------
 }//============================================== END LOOP =============================================
 
-// Функция для записи байта на PCF8574
+// Function to write byte to PCF8574
 byte writePCF8574(byte data) {
   Wire.beginTransmission(PCF8574_ADDRESS);
   Wire.write(data);
   byte error = Wire.endTransmission();
-  if (error == 0) {
-    //MYDEBUG_PRINT("Data written: 0b");
-    //printBinary(data);
-    //MYDEBUG_PRINTLN();
-  } else {
+  if (error != 0) {
     MYDEBUG_PRINT("\nError writing to PCF8574. Error code: ");
     MYDEBUG_PRINTLN(error);
   }

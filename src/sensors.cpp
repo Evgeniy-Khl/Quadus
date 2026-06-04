@@ -2,51 +2,57 @@
 
 #define TUNING	170
 
+/**
+ * @brief Detect the type of connected sensor (DS18B20 or DHT22).
+ */
 void sensorType(){
-  MYDEBUG_PRINTLN("Определение типа датчика...");
-  // 1. Пытаемся найти датчик DS18B20. Это более надежная проверка.
-  sensors.begin(); // Инициализируем шину 1-Wire
-  // numberOfDevices = sensors.getDeviceCount();
+  MYDEBUG_PRINTLN("Detecting sensor type...");
+  // 1. Try to find DS18B20 sensor.
+  sensors.begin(); // Initialize 1-Wire bus
   numberOfDevices = sensors.getDS18Count();
   if(numberOfDevices > 0) {
       detectedSensor = SENSOR_DS18B20;
       if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
-      MYDEBUG_PRINT("Обнаружен датчик DS18B20:"); MYDEBUG_PRINT(numberOfDevices, DEC); MYDEBUG_PRINTLN(" шт.");
-      sensors.setWaitForConversion(false);    // false: функция вернет управление немедленно.
-      sensors.setCheckForConversion(false);   // Часто используется вместе с waitForConversion = false
-      sensors.setAutoSaveScratchPad(false);   // Флаг автоматического сохранения настроек в EEPROM датчика.
-      sensors.setResolution(12);// Устанавливаем разрешение для всех датчиков (9, 10, 11, or 12 бит)
-      sensors.requestTemperatures(); // Отправляем команду на измерение
-      //------- Получаем и сохраняем адреса всех найденных датчиков ------
+      MYDEBUG_PRINT("DS18B20 detected: "); MYDEBUG_PRINT(numberOfDevices, DEC); MYDEBUG_PRINTLN(" pcs.");
+      sensors.setWaitForConversion(false);    // return control immediately
+      sensors.setCheckForConversion(false);
+      sensors.setAutoSaveScratchPad(false);
+      sensors.setResolution(12);              // Set resolution (9-12 bits)
+      sensors.requestTemperatures();          // Command sensors to start conversion
+      
+      // Get and print addresses for all found sensors
       for (int i = 0; i < numberOfDevices; i++){
         if(sensors.getAddress(sensorAddresses[i], i)){
-          DEBUG_PRINTF("  Датчик %d: ", i);
+          DEBUG_PRINTF("  Sensor %d: ", i);
           printAddress(sensorAddresses[i]);
           MYDEBUG_PRINTLN();
         } else {
-          DEBUG_PRINTF("Не удалось получить адрес для датчика %d\n", i);
+          DEBUG_PRINTF("Failed to get address for sensor %d\n", i);
         }
       }
    } else {
-      // 2. Если DS18B20 не найден, пытаемся прочитать данные с DHT22.
+      // 2. If no DS18B20, try reading DHT22.
       delay(1000);
-      dht.begin(); // Инициализируем датчик DHT
-      // Делаем тестовое чтение. Если результат не "NaN", значит, это DHT.
+      dht.begin();
+      // Test read. If not NaN, it's a DHT.
       if (!isnan(dht.readTemperature())) {
         detectedSensor = SENSOR_DHT22;
-        MYDEBUG_PRINTLN("Обнаружен датчик: DHT22");
+        MYDEBUG_PRINTLN("Sensor detected: DHT22");
       }
    }
 }
 
+/**
+ * @brief Main sensor update routine.
+ */
 void sensorCheck(){
   switch (detectedSensor){
-    case SENSOR_DHT22:{ // <--- Открывающая скобка
+    case SENSOR_DHT22:{
       float h = dht.readHumidity();
       float t = dht.readTemperature();
 
       if (isnan(h) || isnan(t)) {
-        MYDEBUG_PRINTLN("Ошибка чтения с DHT22!");
+        MYDEBUG_PRINTLN("DHT22 read error!");
         if(++ds[0].errDevice > 5) {ds[0].pvT = 126; ds[1].pvT = 126; ds[0].errDevice = 5;}
       } else {
         ds[0].errDevice = 0;
@@ -58,18 +64,23 @@ void sensorCheck(){
       break;
     }
     case SENSOR_DS18B20: checkDs18b20(); break;
-    case UNKNOWN: MYDEBUG_PRINTLN("Датчики не подключены!"); break;
+    case UNKNOWN: MYDEBUG_PRINTLN("No sensors connected!"); break;
   }
 }
 
-//------------- индикация 66,0 - завис датчик. --------------
+/**
+ * @brief Check if sensor data has frozen (not changing).
+ */
 bool check_freeze(uint8_t i, float val){
  if(val == ds[i].previousValue){
-    if(++ds[i].froze> 600){ds[i].froze = 600; return true;}
+    if(++ds[i].froze > 600){ds[i].froze = 600; return true;}
  } else {ds[i].froze = 0; ds[i].previousValue = val;}
  return false;
 }
 
+/**
+ * @brief Process DS18B20 sensor data.
+ */
 void checkDs18b20(void){
 #ifdef DEBUG
   char buff[100];
@@ -80,15 +91,11 @@ void checkDs18b20(void){
     MYDEBUG_PRINT(buff);
     if(tempC == DEVICE_DISCONNECTED_C) {
       ds[i].errDevice++;
-      // if(ds[i].errDevice > 5) {ds[i].pvT = 126; ds[i].errDevice = 5;}
-      // DEBUG_SPRINTF(buff, "pvT(%i): %3i °C; err=%u",i,ds[i].pvT,ds[i].errDevice);
-      // MYDEBUG_PRINTLN(buff);
     }
     else {
       ds[i].pvT = round(tempC);
-      // ds[i].errDevice = 0;
     }
-    //----- Коректировка датчика DS18B20 ---------
+    // Sensor correction logic using Alarm registers
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
     
     if(alarmH == TUNING){
@@ -98,7 +105,6 @@ void checkDs18b20(void){
       ds[i].pvT += alarmL;
     }
     if(check_freeze(i, tempC)){
-
       if(i) ERROR2 = 1; else ERROR1 = 1;
     }
     MYDEBUG_PRINTLN();
@@ -106,12 +112,3 @@ void checkDs18b20(void){
   MYDEBUG_PRINTLN("--------");
   sensors.requestTemperatures();
 }
-
-/* int16_t lowPassF2(int16_t PV)
-{
-float val;
-  // val = A1*PVold1-A2*PVold2+A3*PV;
-  // PVold2 = PVold1;
-  // PVold1 = val;
-  return val;
-}; */

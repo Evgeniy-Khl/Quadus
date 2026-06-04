@@ -10,13 +10,16 @@ void notFoundHandler() {
   server.send(404, "text/plain", "Not found");
 }
 
+/**
+ * @brief Respond with current system values in JSON format.
+ */
 void respondsValues() {
     char txt[20];
     String string, jsonResponse;
     uint8_t num = settings.deviceNum & 0x0F;
     tmrTelegramOff = 300;
     JsonDocument data;
-    data["model"] = "Квадус&nbsp;&nbsp;&nbsp;&nbsp;№ "+String(num);
+    data["model"] = "Quadus&nbsp;&nbsp;&nbsp;&nbsp;№ "+String(num);
     data["temperature0"] = String(ds[0].pvT);
     data["settemp0"] = "["+String(settings.spT0on)+" - "+String(settings.spT0off)+"]";
 
@@ -32,41 +35,41 @@ void respondsValues() {
     snprintf(txt, sizeof(txt),"%02u:%02u [%02u - %02u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
     if(LIGHT) data["light"] = "↓ " + String(txt);
     else data["light"] = "↑ " + String(txt);
-    // data["light"] = txt;
+
     if(pvTimeR1 == -1){
-        data["timer1"] = "T1 немає дозволу";
+        data["timer1"] = "T1 no permission";
     } else {
         if(RELAY1){    //-- OFF --
             uint8_t day = pvTimeR1 / 1440;
             uint8_t hour = (pvTimeR1 % 1440) / 60;
             uint8_t min = pvTimeR1 % 60;
-            data["timer1"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
+            data["timer1"] = "↓ OFF "+String(day)+"d."+String(hour)+"h."+String(min)+"m.";
         } else {      //-- ON --
-            data["timer1"] = "↑ увімкн. "+String(pvTimeR1)+" хвл."; // ↑увімкн.19 хвл.
+            data["timer1"] = "↑ ON "+String(pvTimeR1)+" min.";
         }
     } 
     if(pvTimeR2 == -1){
-        data["timer2"] = "T2 немає дозволу";
+        data["timer2"] = "T2 no permission";
     } else {
         if(RELAY2){    //-- OFF --
             uint8_t day = pvTimeR2 / 1440;
             uint8_t hour = (pvTimeR2 % 1440) / 60;
             uint8_t min = pvTimeR2 % 60;
-            data["timer2"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
+            data["timer2"] = "↓ OFF "+String(day)+"d."+String(hour)+"h."+String(min)+"m.";
         } else {      //-- ON --
-            data["timer2"] = "↑ увімкн. "+String(pvTimeR2)+" хвл."; // ↑увімкн.19 хвл.             
+            data["timer2"] = "↑ ON "+String(pvTimeR2)+" min.";
         }
     } 
     if(pvTimeR3 == -1){
-        data["timer3"] = "T3 немає дозволу";
+        data["timer3"] = "T3 no permission";
     } else {
         if(RELAY3){    //-- OFF --
             uint8_t day = pvTimeR3 / 1440;
             uint8_t hour = (pvTimeR3 % 1440) / 60;
             uint8_t min = pvTimeR3 % 60;
-            data["timer3"] = "↓ вимкн. "+String(day)+"д."+String(hour)+"г."+String(min)+"х."; // ↓вимкн.0 дiб. 00:00
+            data["timer3"] = "↓ OFF "+String(day)+"d."+String(hour)+"h."+String(min)+"m.";
         } else {      //-- ON --
-            data["timer3"] = "↑ увімкн. "+String(pvTimeR3)+" хвл."; // ↑увімкн.19 хвл. 
+            data["timer3"] = "↑ ON "+String(pvTimeR3)+" min.";
         }
     } 
     data["error1"] = ERROR1;
@@ -74,29 +77,29 @@ void respondsValues() {
     data["error4"] = ERROR4;
     data["error8"] = ERROR8;
     data["flap"] = String(pvFlap) + "%";
-    if((settings.program & 0xF) == 0) string = "немає";
-    else string = "№" + String(settings.program & 0xF);
+    if((settings.program & 0xF) == 0) string = "none";
+    else string = "#" + String(settings.program & 0xF);
     data["program"] = string;
     snprintf(txt,sizeof(txt),"%02d.%02d.%04d %02d:%02d:%02d",
                       timeinfo->tm_mday, timeinfo->tm_mon + 1,
                       timeinfo->tm_year + 1900, timeinfo->tm_hour,
                       timeinfo->tm_min, timeinfo->tm_sec);
     data["currDay"] = txt;
-    data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // Освещение
-    data["led1"] = dataLed[1] ? "ON" : "OFF" ;  // НАГРЕВАТЕЛЬ
-    data["led2"] = dataLed[2] ? "ON" : "OFF" ;  // УВЛАЖНИТЕЛЬ
-    data["led3"] = dataLed[3] ? "ON" : "OFF" ;  // Таймер 1
-    data["led4"] = dataLed[4] ? "ON" : "OFF" ;  // Таймер 2
-    data["led5"] = dataLed[5] ? "ON" : "OFF" ;  // Таймер 3
-    data["led6"] = dataLed[6] ? "ON" : "OFF" ;  // Авария
+    data["led0"] = dataLed[0] ? "ON" : "OFF" ;  // Light
+    data["led1"] = dataLed[1] ? "ON" : "OFF" ;  // HEATER
+    data["led2"] = dataLed[2] ? "ON" : "OFF" ;  // HUMIDIFIER
+    data["led3"] = dataLed[3] ? "ON" : "OFF" ;  // Timer 1
+    data["led4"] = dataLed[4] ? "ON" : "OFF" ;  // Timer 2
+    data["led5"] = dataLed[5] ? "ON" : "OFF" ;  // Timer 3
+    data["led6"] = dataLed[6] ? "ON" : "OFF" ;  // Alarm
     
     serializeJson(data, jsonResponse);
-    // DEBUG_PRINTF("SERVER responds to the client with VALUES: %d,%ld\n",seconds,millis()-lastSendTime);
-    // Serial.println("out=" + response);
     server.send(200, "application/json", jsonResponse);
-    // DEBUG_PRINTF("END VALUES: %d,%ld\n",seconds,millis()-lastSendTime);
 }
 
+/**
+ * @brief Respond with EEPROM settings in JSON format.
+ */
 void respondsEeprom(){
     String jsonResponse;
     JsonDocument doc;
@@ -124,24 +127,22 @@ void respondsEeprom(){
         doc["modeRelay3"] = settings.modeRelay3 & 0x0F;
         doc["status"] = 1;
 
-        serializeJson(doc, jsonResponse); // Сериализуем JSON
-        DEBUG_PRINTF("SERVER responds to the client with EEPROM: %d,%ld\n",seconds,millis()-lastSendTime);
+        serializeJson(doc, jsonResponse);
+        DEBUG_PRINTF("SERVER responds with EEPROM: %d,%ld\n", seconds, millis() - lastSendTime);
         MYDEBUG_PRINTLN(jsonResponse);
         mode = SAVEEEPROM; interval = INTERVAL_1000;
-        server.send(200, "application/json", jsonResponse); // Отправляем ответ
-        // DEBUG_PRINTF("END EEPROM: %d,%ld\n",seconds,millis()-lastSendTime);
+        server.send(200, "application/json", jsonResponse);
 }
 
+/**
+ * @brief Accept and save settings received from client.
+ */
 void acceptEeprom() {
-  // Логирование всех параметров
-  DEBUG_PRINTF("The SERVER has accepted settings.sp_structs[]: %d, %ld\n", seconds, millis() - lastSendTime);
+  DEBUG_PRINTF("SERVER accepted settings: %d, %ld\n", seconds, millis() - lastSendTime);
   
   for (uint8_t i = 0; i < server.args(); i++) {
       String paramName = server.argName(i);
       String paramValue = server.arg(i);
-      
-      // Логирование параметров (раскомментируйте, если нужно)
-      // DEBUG_PRINTF("Parameter: %s, Value: %s\n", paramName.c_str(), paramValue.c_str());
       
       if (paramName == "spT0on") settings.spT0on = paramValue.toInt();
       else if (paramName == "spT0off") settings.spT0off = paramValue.toInt();
@@ -167,21 +168,21 @@ void acceptEeprom() {
       else if (paramName == "modeRelay3") settings.modeRelay3  = paramValue.toInt();
   }
 
-  server.send(200); // Отправляем только статус 200
-
+  server.send(200);
   saveSetPoint();
 }
 
-  void respondsProgram(){
+/**
+ * @brief Respond with program data in JSON format.
+ */
+void respondsProgram(){
     String jsonResponse;
     JsonDocument doc;
-    mode = SAVEPROG; interval = INTERVAL_1000; quarter = SET_PROG4+1;
+    mode = SAVEPROG; interval = INTERVAL_1000;
     uint8_t prg = settings.program;
     if(prg){
       for (int i = 1; i < 31; i++) {
           JsonArray row = doc.add<JsonArray>();
-          // uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
-          // eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
           row.add(settings.spT0on);
           row.add(settings.spT0off);
           row.add(settings.spT1on);
@@ -197,17 +198,16 @@ void acceptEeprom() {
           row.add(settings.water2off);
       }
       serializeJson(doc, jsonResponse);
-      DEBUG_PRINTF("SERVER responds to the client PROGRAM DATA #: %d,%ld\n",seconds,millis()-lastSendTime);
-      MYDEBUG_PRINTLN("jsonResponse:"+jsonResponse);
+      DEBUG_PRINTF("SERVER responds with PROGRAM DATA: %d,%ld\n", seconds, millis() - lastSendTime);
       server.send(200, "application/json", jsonResponse);
     }
-  }
+}
 
-  //https://arduinojson.org/v7/assistant/#/step1
-  void programDeser(String input){
-    // uint8_t prg = settings.program;
+/**
+ * @brief Deserialize program data from string.
+ */
+void programDeser(String input){
     JsonDocument doc;
-
     DeserializationError error = deserializeJson(doc, input);
 
     if (error) {
@@ -221,57 +221,41 @@ void acceptEeprom() {
 
     for (int i = 1; i < 31; i++) {
       JsonArray data_i = data[i];
-      settings.spT0on = data_i[0]; //
-      settings.spT0off = data_i[0]; //
-      settings.spT1on = data_i[1]; //
-      settings.spT1off = data_i[1]; //
-      settings.flap = data_i[3]; //
-      settings.timerOn = data_i[3]; //
-      settings.timerOff = data_i[3]; //
-      settings.water0on = data_i[4]; //
-      settings.water0off = data_i[4]; //
-      settings.water1on = data_i[5]; //
-      settings.water1off = data_i[5]; //
-      settings.water2on = data_i[6]; //
-      settings.water2off = data_i[6]; //
+      settings.spT0on = data_i[0];
+      settings.spT0off = data_i[0];
+      settings.spT1on = data_i[1];
+      settings.spT1off = data_i[1];
+      settings.flap = data_i[3];
+      settings.timerOn = data_i[3];
+      settings.timerOff = data_i[3];
+      settings.water0on = data_i[4];
+      settings.water0off = data_i[4];
+      settings.water1on = data_i[5];
+      settings.water1off = data_i[5];
+      settings.water2on = data_i[6];
+      settings.water2off = data_i[6];
       
-      // MYDEBUG_PRINT("spT0="); MYDEBUG_PRINT(settings.spT0); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("spT1="); MYDEBUG_PRINT(settings.spT1); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("spRH="); MYDEBUG_PRINT(settings.spRH); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("flap="); MYDEBUG_PRINT(settings.flap); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("timer0="); MYDEBUG_PRINT(settings.timer0); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("timer1="); MYDEBUG_PRINT(settings.timer1); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("aeration0="); MYDEBUG_PRINT(settings.aeration0); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINT("aeration1="); MYDEBUG_PRINT(settings.aeration1); MYDEBUG_PRINT("; ");
-      // MYDEBUG_PRINTLN();
-      // uint16_t memoryAddress = eepromMemoryAddressForDay(prg, i);
-      // byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-
       MYDEBUG_PRINT("DAY:"); MYDEBUG_PRINT(i); 
-      // MYDEBUG_PRINT("; ADD:"); MYDEBUG_PRINT(memoryAddress);
-      // MYDEBUG_PRINT("; RES:"); MYDEBUG_PRINTLN(res);
     }
-  }
+}
 
-  void acceptProgram() {
+/**
+ * @brief Accept program data from client.
+ */
+void acceptProgram() {
     String jsonData;
 
-    // Проверка наличия параметра "data" в запросе
     if (server.hasArg("data")) {
         jsonData = server.arg("data");
-        MYDEBUG_PRINTLN("jsonData: " + jsonData); // Логирование полученных данных
+        MYDEBUG_PRINTLN("jsonData received");
         
-        // Отправляем статус 200
         server.send(200); 
         
-        // Обработка полученных данных
         programDeser(jsonData);
         mode = SAVEPROG; interval = INTERVAL_1000;
-        quarter = SET_PROG1;
         
         DEBUG_PRINTF("Accept Program: %d, %ld\n", seconds, millis() - lastSendTime);
     } else {
-        // Отправка сообщения об ошибке, если параметр отсутствует
-        server.send(400, "text/plain", "Ошибка: нет данных");
+        server.send(400, "text/plain", "Error: no data");
     }
-  }
+}
