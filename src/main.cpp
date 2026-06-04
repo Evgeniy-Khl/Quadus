@@ -178,9 +178,19 @@ void loop(){
         if(RTCENABLE){
           if(WIFIENABLE){
             // ------------- Daily synchronization logic --------------
-            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 3) { // Check for new day at 3 AM
-              MYDEBUG_PRINTLN("\nIt's 03:00 , time for daily sync!");
-              syncTime();                                                     // Run sync function
+            // Sync with RTC at midnight (00:00)
+            if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 0) { 
+              MYDEBUG_PRINTLN("\nMidnight sync: Updating RTC from NTP...");
+              configTzTime(tzInfo, ntpServer); // Ensure background sync is active
+              
+              // Wait a bit for NTP to update system time if needed, 
+              // but don't block heavily as it's a background process in ESP8266 core
+              time_t now_t = time(nullptr);
+              if (now_t > 1000000000) { // If system time is valid
+                rtc.adjust(DateTime(now_t));
+                lastSyncDay = timeinfo->tm_mday;
+                MYDEBUG_PRINTLN("RTC updated successfully.");
+              }
             }
             MYDEBUG_PRINT("Update Local Time  (EET/EEST): ");
             DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
