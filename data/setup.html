@@ -4,208 +4,215 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="icon" href="data:,">
-    <title>Налаштування</title>
+    <title>Квадус - Налаштування</title>
     <style>
+    html { font-family: Arial, sans-serif; display: inline-block; text-align: center; }
+    h2 { color: white; margin: 20px 0; }
+    #grad1 {
+      min-height: 100vh;
+      background-image: linear-gradient(to bottom right, #2c3e50, #000000);
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    form {
+        background: rgba(255, 255, 255, 0.08);
+        padding: 25px;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+        max-width: 450px;
+        margin: 0 auto;
+        backdrop-filter: blur(4px);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+    }
+
+    label {
+        display: block;
+        margin: 15px 0 5px;
+        font-weight: bold;
+        color: #ecf0f1;
+        font-size: 0.95rem;
+    }
+
+    input[type="number"], select {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 5px;
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 8px;
+        box-sizing: border-box;
+        background: rgba(0,0,0,0.3);
+        color: white;
+        font-size: 1rem;
+    }
+
+    input:focus, select:focus {
+        outline: none;
+        border-color: #3498db;
+        background: rgba(0,0,0,0.5);
+    }
+
+    .button {
+      display: inline-block; background-color: #2ecc71; border: none; border-radius: 8px;
+      color: white; padding: 15px 30px; text-decoration: none; font-size: 1.2rem;
+      margin: 20px auto; cursor: pointer; transition: 0.3s; width: 100%;
+      box-shadow: 0 4px 15px rgba(46, 204, 113, 0.3);
+      font-weight: bold;
+    }
+    .button:hover { background-color: #27ae60; transform: translateY(-2px); }
+    
+    .button-cancel {
+        background-color: #95a5a6;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .button-cancel:hover { background-color: #7f8c8d; }
+
     .popup {
-        display: none;
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        border: 1px solid #ccc;
-        padding: 20px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        z-index: 1000;
-        width: 200px;
-        text-align: center;
+        display: none; position: fixed; left: 50%; top: 50%;
+        transform: translate(-50%, -50%); background: #fff;
+        padding: 30px; border-radius: 15px; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        z-index: 1000; min-width: 200px; text-align: center;
     }
     .popup.active { display: block; }
-    #popupMessage { font-size: 20px; font-weight: bold; color: #333; }
-	
-    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }		
-    #grad1 { height: 100%; background-image: linear-gradient(to bottom, #2389fc, #f4fc58); padding: 20px; border-radius: 10px; }
-    h2 { text-align: center; color: white; }
-    form { background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 0 auto; }
-    label { display: block; margin: 15px 0 5px; font-weight: bold; color: #555; }
-    input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-    button { background-color: #007BFF; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
-    .button1 { display: inline-block; background-color: #008CBA; border: none; border-radius: 4px; color: white; padding: 16px 40px; text-decoration: none; font-size: 20px; margin: 10px auto; cursor: pointer; width: 100%; }
-    .container { max-width: 400px; margin: 10px auto; text-align: center; }
-    button:hover { background-color: #0056b3; }
+    #popupMessage { font-size: 1.2rem; font-weight: bold; color: #2c3e50; }
+
+    .group-title {
+        color: #3498db;
+        border-bottom: 2px solid #3498db;
+        padding-bottom: 5px;
+        margin-top: 25px;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
     </style>
+</head>
+<body>
+<div id="grad1">
+    <h2>Налаштування Системи</h2>
+    <form id="settingsForm">
+        <div class="group-title">Клімат T1</div>
+        <label>t1 увімкнути (°C):</label>
+        <input type="number" name="spT0on" id="spT0on" required min="0" max="99" step="0.1">
+        <label>t1 вимкнути (°C):</label>
+        <input type="number" name="spT0off" id="spT0off" required min="0" max="99" step="0.1">
+        <label>Гістерезис t1 (°C):</label>
+        <input type="number" name="hyst0" id="hyst0" required min="0.1" max="10" step="0.1">
+        <label>Тривога t1 дельта (°C):</label>
+        <input type="number" name="alarm0" id="alarm0" min="0" max="99" step="0.1" required>
+        <label>Дозвіл каналу t1:</label>
+        <select name="modeHeater" id="modeHeater">
+            <option value="0">ЗАВЖДИ</option>
+            <option value="1">ТІЛЬКИ ЗІ СВІТЛОМ</option>
+            <option value="2">ТІЛЬКИ БЕЗ СВІТЛА</option>
+        </select>
+
+        <div class="group-title">Клімат T2 / Вологість</div>
+        <label>t2 увімкнути (°C/%):</label>
+        <input type="number" name="spT1on" id="spT1on" required min="0" max="99" step="0.1">
+        <label>t2 вимкнути (°C/%):</label>
+        <input type="number" name="spT1off" id="spT1off" required min="0" max="99" step="0.1">
+        <label>Гістерезис t2 (°C/%):</label>
+        <input type="number" name="hyst1" id="hyst1" required min="0.1" max="10" step="0.1">
+        <label>Тривога t2 дельта (°C/%):</label>
+        <input type="number" name="alarm1" id="alarm1" min="0" max="99" step="0.1" required>
+        <label>Дозвіл каналу t2:</label>
+        <select name="modeHumidi" id="modeHumidi">
+            <option value="0">ЗАВЖДИ</option>
+            <option value="1">ТІЛЬКИ ЗІ СВІТЛОМ</option>
+            <option value="2">ТІЛЬКИ БЕЗ СВІТЛА</option>
+        </select>
+
+        <div class="group-title">Освітлення</div>
+        <label>Увімкнути о (год):</label>
+        <input type="number" name="timerOn" id="timerOn" min="0" max="23">
+        <label>Вимкнути о (год):</label>
+        <input type="number" name="timerOff" id="timerOff" min="0" max="23">
+
+        <div class="group-title">Таймери поливу</div>
+        <label>Таймер 1 (хвл):</label>
+        <input type="number" name="water0on" id="water0on" min="1" max="99">
+        <label>Період 1:</label>
+        <select name="water0off" id="water0off">
+            <option value="0">НЕМАЄ</option><option value="1">1 год</option><option value="2">2 год</option>
+            <option value="3">3 год</option><option value="4">4 год</option><option value="5">6 год</option>
+            <option value="6">8 год</option><option value="7">10 год</option><option value="8">12 год</option>
+            <option value="9">24 год</option><option value="10">2 доби</option><option value="11">3 доби</option>
+        </select>
+
+        <div class="group-title">Системні</div>
+        <label>Заслінка (%):</label>
+        <input type="number" name="flpNow" id="flpNow" min="0" max="100">
+        <label>№ Приладу:</label>
+        <input type="number" name="deviceNum" id="deviceNum" min="1" max="99">
+        <label>Програма:</label>
+        <select name="program" id="program">
+            <option value="0">НЕМАЄ</option>
+            <option value="1">№1</option><option value="2">№2</option>
+            <option value="3">№3</option><option value="4">№4</option>
+        </select>
+
+        <button type="submit" class="button">ЗБЕРЕГТИ ЗМІНИ</button>
+        <a href="/" style="text-decoration:none;"><button type="button" class="button button-cancel">СКАСУВАТИ</button></a>
+    </form>
+</div>
+
+<div id="popup" class="popup"><div id="popupMessage">Завантаження...</div></div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
         const popup = document.getElementById('popup');
-        const popupMessage = document.getElementById('popupMessage');
+        const msg = document.getElementById('popupMessage');
 
-        function showPopup(message) {
-            popupMessage.textContent = message;
+        function fetchData() {
+            msg.textContent = 'Завантаження...';
             popup.classList.add('active');
-        }
-
-        function closePopup() {
-            popup.classList.remove('active');
-        }
-
-        function fetchData(retries = 5) {
-            showPopup('Завантаження...');
             fetch('/geteeprom')
-                .then(response => {
-                    closePopup();
-                    if (!response.ok) throw new Error('Network error: ' + response.status);
-                    return response.json();
-                })
+                .then(r => r.json())
                 .then(data => {
-                    console.log('Data received:', data);
+                    popup.classList.remove('active');
                     if (data.status === 1) {
-                        // All temperature values are scaled by 10 on the backend
-                        document.getElementById('spT0on').value = data.spT0on / 10;
-                        document.getElementById('spT0off').value = data.spT0off / 10;
-						document.getElementById('spT1on').value = data.spT1on / 10;
-                        document.getElementById('spT1off').value = data.spT1off / 10;
-                        document.getElementById('alarm0').value = data.alarm0 / 10;
-                        document.getElementById('alarm1').value = data.alarm1 / 10;
-                        document.getElementById('hyst0').value = (data.hyst0 || 5) / 10;
-                        document.getElementById('hyst1').value = (data.hyst1 || 5) / 10;
-
-                        document.getElementById('water0on').value = data.water0on;
-                        document.getElementById('water0off').value = data.water0off;
-						document.getElementById('water1on').value = data.water1on;
-                        document.getElementById('water1off').value = data.water1off;
-						document.getElementById('water2on').value = data.water2on;
-                        document.getElementById('water2off').value = data.water2off;
-                        document.getElementById('flpNow').value = data.flpNow;
-						document.getElementById('timerOn').value = data.timerOn;
-                        document.getElementById('timerOff').value = data.timerOff;
-						document.getElementById('deviceNum').value = data.deviceNum;
-                        document.getElementById('program').value = data.program;
-                        document.getElementById('modeHeater').value = data.modeHeater;
-                        document.getElementById('modeHumidi').value = data.modeHumidi;
-                        document.getElementById('modeRelay1').value = data.modeRelay1;
-                        document.getElementById('modeRelay2').value = data.modeRelay2;
-                        document.getElementById('modeRelay3').value = data.modeRelay3;
-                    } else if (retries > 0) {
-                        setTimeout(() => fetchData(retries - 1), 1000);
+                        for (let key in data) {
+                            const el = document.getElementById(key);
+                            if (el) {
+                                // Scale logic for temperatures/hysteresis
+                                if (["spT0on","spT0off","spT1on","spT1off","alarm0","alarm1","hyst0","hyst1"].includes(key)) {
+                                    el.value = data[key] / 10;
+                                } else {
+                                    el.value = data[key];
+                                }
+                            }
+                        }
                     }
                 })
-                .catch(error => {
-                    closePopup();
-                    console.error('Error fetching settings:', error);
+                .catch(e => {
+                    msg.textContent = 'Помилка мережі!';
+                    console.error(e);
                 });
         }
 
-        document.getElementById('settingsForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            const formData = new FormData(event.target);
-			const data = {};
-			formData.forEach((value, key) => {
-				data[key] = parseFloat(value);
-			});
+        document.getElementById('settingsForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((v, k) => { data[k] = parseFloat(v); });
 
             fetch('/seteeprom', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
             })
-            .then(response => {
-                if (response.ok) {
-                    alert('Налаштування успішно збережено!');
+            .then(r => {
+                if (r.ok) {
+                    alert('Налаштування збережено!');
                     window.location.href = "/";
-                } else {
-                    alert('Помилка збереження.');
-                }
-            })
-            .catch(error => console.error('Error saving settings:', error));
+                } else alert('Помилка при збереженні!');
+            });
         });
 
         fetchData();
     });
 </script>
-</head>
-<body>
-<div id="grad1">
-<h2>Налаштування Quadus</h2>
-<form id="settingsForm">
-    <label for="spT0on">t1 увімкнути (°C):</label>
-    <input type="number" name="spT0on" id="spT0on" required min="0" max="99" step="0.1">
-
-    <label for="spT0off">t1 вимкнути (°C):</label>
-    <input type="number" name="spT0off" id="spT0off" required min="0" max="99" step="0.1">
-	
-	<label for="spT1on">t2 увімкнути (°C/%):</label>
-    <input type="number" name="spT1on" id="spT1on" required min="0" max="99" step="0.1">
-
-    <label for="spT1off">t2 вимкнути (°C/%):</label>
-    <input type="number" name="spT1off" id="spT1off" required min="0" max="99" step="0.1">
-
-    <label for="hyst0">Гістерезис t1 (°C):</label>
-    <input type="number" name="hyst0" id="hyst0" required min="0" max="10" step="0.1">
-
-    <label for="hyst1">Гістерезис t2 (°C/%):</label>
-    <input type="number" name="hyst1" id="hyst1" required min="0" max="10" step="0.1">
-
-    <label for="water0on">Таймер 1 увімкн (хвл):</label>
-    <input type="number" name="water0on" id="water0on" min="1" max="99" required>
-	
-	<label for="water0off">Таймер 1 період:</label>
-	<select name="water0off" id="water0off">
-        <option value="0">НЕМАЄ</option>
-        <option value="1">1 година</option><option value="2">2 години</option>
-		<option value="3">3 години</option><option value="4">4 години</option>
-        <option value="5">6 годин</option><option value="6">8 годин</option>
-        <option value="7">10 годин</option><option value="8">12 годин</option>
-        <option value="9">24 години</option><option value="10">2 діби</option>
-        <option value="11">3 діби</option><option value="12">4 діби</option>
-        <option value="13">5 діб</option><option value="14">6 діб</option>
-        <option value="15">7 діб</option>
-    </select>
-	
-	<label for="timerOn">Світло увімкн (год):</label>
-    <input type="number" name="timerOn" id="timerOn" min="0" max="23" required>
-
-    <label for="timerOff">Світло вимкн (год):</label>
-    <input type="number" name="timerOff" id="timerOff" min="0" max="23" required>
-	
-	<label for="alarm0">Тривога t1 дельта (°C):</label>
-    <input type="number" name="alarm0" id="alarm0" min="0" max="99" step="0.1" required>
-
-    <label for="alarm1">Тривога t2 дельта (°C/%):</label>
-    <input type="number" name="alarm1" id="alarm1" min="0" max="99" step="0.1" required>
-	
-	<label for="flpNow">Заслінка (%):</label>
-    <input type="number" name="flpNow" id="flpNow" min="0" max="100" required>
-	
-    <label for="program">Програма:</label>
-	<select name="program" id="program">
-        <option value="0">НЕМАЄ</option>
-        <option value="1">№1</option><option value="2">№2</option>
-		<option value="3">№3</option><option value="4">№4</option>
-    </select>	
-
-	<label for="deviceNum">№ Приладу:</label>
-    <input type="number" name="deviceNum" id="deviceNum" min="1" max="99" required>
-	
-	<label for="modeHeater">Дозвіл t1:</label>
-    <select name="modeHeater" id="modeHeater">
-		<option value="0">ЗАВЖДИ</option>
-        <option value="1">тільки зі світлом</option>
-        <option value="2">тільки без світла</option>
-	</select>
-	
-    <label for="modeHumidi">Дозвіл t2:</label>
-    <select name="modeHumidi" id="modeHumidi">
-		<option value="0">ЗАВЖДИ</option>
-        <option value="1">тільки зі світлом</option>
-        <option value="2">тільки без світла</option>
-	</select>
-
-    <button type="submit" class="button1">ЗБЕРІГТИ</button>
-</form>
-<div class="container">
-<a href="/"><button class="button1" style="background-color: #666;">СКАСУВАТИ</button></a>
-</div>
-</div>
-<div id="popup" class="popup"><div id="popupMessage">Завантаження...</div></div>
 </body>
 </html>
