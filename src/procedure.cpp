@@ -225,10 +225,10 @@ void printBinary(unsigned char byte) {
  * @brief Reset all settings to hardcoded defaults.
  */
 void reset(void){
-    settings.spT0on = T0ON;
-    settings.spT0off = T0OFF;
-    settings.spT1on = T1ON;
-    settings.spT1off = T1OFF;
+    settings.spT0on = T0ON * 10;
+    settings.spT0off = T0OFF * 10;
+    settings.spT1on = T1ON * 10;
+    settings.spT1off = T1OFF * 10;
     settings.water0on = WT0ON;
     settings.water0off = WT0OFF;
     settings.water1on = WT1ON;
@@ -238,8 +238,8 @@ void reset(void){
     settings.flap = 0;
     settings.timerOn = TIMERON;
     settings.timerOff = TIMEROFF;
-    settings.alarm0 = ALARM0;
-    settings.alarm1 = ALARM1;
+    settings.alarm0 = ALARM0 * 10;
+    settings.alarm1 = ALARM1 * 10;
     settings.special = 0;
     settings.deviceNum = 0;
     settings.program = 0;

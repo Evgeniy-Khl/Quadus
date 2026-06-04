@@ -21,19 +21,30 @@ void respondsValues() {
     JsonDocument data;
     
     data["model"] = "Quadus&nbsp;&nbsp;&nbsp;&nbsp;№ " + String(num);
-    data["temperature0"] = ds[0].pvT; // Sending as number is better than String
     
-    snprintf(txt, sizeof(txt), "[%d - %d]", settings.spT0on, settings.spT0off);
+    // Format temperature with 0.1 precision
+    snprintf(txt, sizeof(txt), "%d.%d", ds[0].pvT / 10, abs(ds[0].pvT % 10));
+    data["temperature0"] = txt;
+    
+    snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
+             settings.spT0on / 10, abs(settings.spT0on % 10),
+             settings.spT0off / 10, abs(settings.spT0off % 10));
     data["settemp0"] = txt;
 
     if(detectedSensor == SENSOR_DHT22){
-        data["humidity"] = ds[1].pvT;
-        snprintf(txt, sizeof(txt), "[%d - %d]", settings.spT1on, settings.spT1off);
+        snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+        data["humidity"] = txt;
+        snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
+                 settings.spT1on / 10, abs(settings.spT1on % 10),
+                 settings.spT1off / 10, abs(settings.spT1off % 10));
         data["sethum"] = txt;
     }
     else {
-        data["temperature1"] = ds[1].pvT;
-        snprintf(txt, sizeof(txt), "[%d - %d]", settings.spT1on, settings.spT1off);
+        snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+        data["temperature1"] = txt;
+        snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
+                 settings.spT1on / 10, abs(settings.spT1on % 10),
+                 settings.spT1off / 10, abs(settings.spT1off % 10));
         data["settemp1"] = txt;
     }
     
@@ -134,30 +145,32 @@ void acceptEeprom() {
     for (uint8_t i = 0; i < server.args(); i++) {
         String paramName = server.argName(i);
         String paramValue = server.arg(i);
-        int val = paramValue.toInt();
+        float valF = paramValue.toFloat();
+        int16_t valScaled = (int16_t)round(valF * 10.0);
+        int valInt = paramValue.toInt();
         
-        if (paramName == "spT0on") settings.spT0on = val;
-        else if (paramName == "spT0off") settings.spT0off = val;
-        else if (paramName == "spT1on") settings.spT1on = val;
-        else if (paramName == "spT1off") settings.spT1off = val;
-        else if (paramName == "water0on") settings.water0on = val;
-        else if (paramName == "water0off") settings.water0off = val;
-        else if (paramName == "water1on") settings.water1on = val;
-        else if (paramName == "water1off") settings.water1off = val;
-        else if (paramName == "water2on") settings.water2on = val;
-        else if (paramName == "water2off") settings.water2off = val;
-        else if (paramName == "flpNow") settings.flap = val;
-        else if (paramName == "timerOn") settings.timerOn = val;
-        else if (paramName == "timerOff") settings.timerOff = val;
-        else if (paramName == "alarm0") settings.alarm0 = val;
-        else if (paramName == "alarm1") settings.alarm1 = val;
-        else if (paramName == "deviceNum") settings.deviceNum  = val;
-        else if (paramName == "program") settings.program  = val;
-        else if (paramName == "modeHeater") settings.modeHeater  = val;
-        else if (paramName == "modeHumidi") settings.modeHumidi  = val;
-        else if (paramName == "modeRelay1") settings.modeRelay1  = val;
-        else if (paramName == "modeRelay2") settings.modeRelay2  = val;
-        else if (paramName == "modeRelay3") settings.modeRelay3  = val;
+        if (paramName == "spT0on") settings.spT0on = valScaled;
+        else if (paramName == "spT0off") settings.spT0off = valScaled;
+        else if (paramName == "spT1on") settings.spT1on = valScaled;
+        else if (paramName == "spT1off") settings.spT1off = valScaled;
+        else if (paramName == "water0on") settings.water0on = valInt;
+        else if (paramName == "water0off") settings.water0off = valInt;
+        else if (paramName == "water1on") settings.water1on = valInt;
+        else if (paramName == "water1off") settings.water1off = valInt;
+        else if (paramName == "water2on") settings.water2on = valInt;
+        else if (paramName == "water2off") settings.water2off = valInt;
+        else if (paramName == "flpNow") settings.flap = valInt;
+        else if (paramName == "timerOn") settings.timerOn = valInt;
+        else if (paramName == "timerOff") settings.timerOff = valInt;
+        else if (paramName == "alarm0") settings.alarm0 = valScaled;
+        else if (paramName == "alarm1") settings.alarm1 = valScaled;
+        else if (paramName == "deviceNum") settings.deviceNum  = valInt;
+        else if (paramName == "program") settings.program  = valInt;
+        else if (paramName == "modeHeater") settings.modeHeater  = valInt;
+        else if (paramName == "modeHumidi") settings.modeHumidi  = valInt;
+        else if (paramName == "modeRelay1") settings.modeRelay1  = valInt;
+        else if (paramName == "modeRelay2") settings.modeRelay2  = valInt;
+        else if (paramName == "modeRelay3") settings.modeRelay3  = valInt;
     }
 
     server.send(200);

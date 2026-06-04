@@ -46,10 +46,10 @@ long lastSendTime = 0, allTime = 0;
 Interval interval = INTERVAL_1000;
 
 Settings settings = {
-    .spT0on = T0ON,
-    .spT0off = T0OFF,
-    .spT1on = T1ON,
-    .spT1off = T1OFF,
+    .spT0on = T0ON * 10,
+    .spT0off = T0OFF * 10,
+    .spT1on = T1ON * 10,
+    .spT1off = T1OFF * 10,
     .water0on = WT0ON,
     .water0off = WT0OFF,
     .water1on = WT1ON,
@@ -59,8 +59,8 @@ Settings settings = {
     .flap = 0,
     .timerOn = TIMERON,
     .timerOff = TIMEROFF,
-    .alarm0 = ALARM0,
-    .alarm1 = ALARM1,
+    .alarm0 = ALARM0 * 10,
+    .alarm1 = ALARM1 * 10,
     .special = 0,
     .deviceNum = 0,
     .program = 0,

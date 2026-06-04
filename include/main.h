@@ -53,12 +53,12 @@
 #define SAVEPROG    4
 
 typedef struct {
-  int16_t  pvT;              // текущее значение
-  int16_t  pvErr;            // текущая ошибка
-  float   previousValue;    // предыдущее значение
-  uint16_t errDevice;        // нет ответа датчика
-  uint8_t deviation;        // отклонение от заданного значения
-  uint16_t froze;           // длительность зависания
+  int16_t  pvT;              // current value (multiplied by 10, e.g. 225 = 22.5)
+  int16_t  pvErr;            // current error (multiplied by 10)
+  float   previousValue;    // previous raw value
+  uint16_t errDevice;        // sensor no response counter
+  uint8_t deviation;        // deviation from setpoint
+  uint16_t froze;           // freeze duration counter
 } Ds;
 
 enum SensorType {
@@ -84,10 +84,10 @@ union Byte {
 };
 
 /**
- * @brief Структура для хранения текущего состояния системы.
+ * @brief Structure for current system state.
  */
 struct SystemState {
-    Ds ds[2] = {{15,0,0,0,0},{10,0,0,0,0}};
+    Ds ds[2] = {{150,0,0,0,0},{100,0,0,0,0}};
     union Byte portOut;
     union Byte errorsFlag;
     union Byte portFlag;
@@ -104,40 +104,40 @@ extern SystemState state;
 
 #pragma pack(push, 1)
 struct Settings {
-    uint8_t spT0on; 	  // 10-120 Уставка температуры T0 ON
-    uint8_t spT0off; 	  // 10-120 Уставка температуры T0 OFF
-    uint8_t spT1on; 	  // 10-100 Уставка температуры T1 или 0-100 Уставка относительной влажности ON
-    uint8_t spT1off; 	  // 10-100 Уставка температуры T1 или 0-100 Уставка относительной влажности OFF
-    uint8_t water0on;   // 0-120 мин. Длительность включ.состояниe полива № 1
-    uint8_t water0off;  // 0-15 пункт. Длительность отключ.состояниe полива № 1
-    uint8_t water1on;   // 0-120 мин. Длительность включ.состояниe полива № 2
-    uint8_t water1off;  // 0-15 пункт. Длительность отключ.состояниe полива № 2
-    uint8_t water2on;   // 0-120 мин. Длительность включ.состояниe полива № 3on
-    uint8_t water2off;  // 0-15 пункт. Длительность отключ.состояниe полива № 3on
-    uint8_t flap;       // 0-100 Заслонка текущее положение
-    uint8_t timerOn;    // 0-24 Освещение ON
-    uint8_t timerOff;   // 0-24 Освещение OFF
-    uint8_t alarm0;     // 0-24 отклонение t0
-    uint8_t alarm1;     // 0-24 отклонение t1
-    uint8_t special;    // 0-3=>0x03-initWiFiManag(); 0x04-syncTime(); 0x08-wifiManager.resetSettings();
-    uint8_t deviceNum;  // 0-120 номер прибора;
-    uint8_t program;    // 0-4 номер программы;
-    uint8_t modeLight;    // маска 0x0F - разрешения реле освещения;
-    uint8_t modeHeater;   // маска 0x0F - разрешения реле температуры;
-    uint8_t modeHumidi;   // маска 0x0F - разрешения реле влажности;
-    uint8_t modeRelay1;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 3
-    uint8_t modeRelay2;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 4
-    uint8_t modeRelay3;   // маска 0x0F - разрешения реле 3; маска 0xF0 - источник реле 5
+    int16_t spT0on; 	  // Setpoint T0 ON (value * 10)
+    int16_t spT0off; 	  // Setpoint T0 OFF (value * 10)
+    int16_t spT1on; 	  // Setpoint T1/Humidity ON (value * 10)
+    int16_t spT1off; 	  // Setpoint T1/Humidity OFF (value * 10)
+    uint8_t water0on;   // Irrigation 1 ON duration (min)
+    uint8_t water0off;  // Irrigation 1 OFF interval (preset point)
+    uint8_t water1on;   // Irrigation 2 ON duration (min)
+    uint8_t water1off;  // Irrigation 2 OFF interval (preset point)
+    uint8_t water2on;   // Irrigation 3 ON duration (min)
+    uint8_t water2off;  // Irrigation 3 OFF interval (preset point)
+    uint8_t flap;       // Flap current position (0-100%)
+    uint8_t timerOn;    // Lighting ON hour (0-24)
+    uint8_t timerOff;   // Lighting OFF hour (0-24)
+    int16_t alarm0;     // Alarm deviation t0 (value * 10)
+    int16_t alarm1;     // Alarm deviation t1 (value * 10)
+    uint8_t special;    // Flags for WiFi/Time/Reset
+    uint8_t deviceNum;  // Device ID
+    uint8_t program;    // Active program number
+    uint8_t modeLight;    // Lighting relay mode
+    uint8_t modeHeater;   // Heater relay mode
+    uint8_t modeHumidi;   // Humidifier relay mode
+    uint8_t modeRelay1;   // Relay 3 mode and source
+    uint8_t modeRelay2;   // Relay 4 mode and source
+    uint8_t modeRelay3;   // Relay 5 mode and source
 };
 #pragma pack(pop)
 
 extern Settings settings;
 
 struct TableForOneHour {
-    uint8_t spT0on;
-    uint8_t spT0off;
-    uint8_t spT1on;
-    uint8_t spT1off;
+    int16_t spT0on;   // Scaled by 10
+    int16_t spT0off;  // Scaled by 10
+    int16_t spT1on;   // Scaled by 10
+    int16_t spT1off;  // Scaled by 10
     uint8_t water0run;
     uint8_t water1run;
     uint8_t water2run;
@@ -145,7 +145,7 @@ struct TableForOneHour {
 };
 
 union TableBuff {
-    uint8_t buffer[8];
+    uint8_t buffer[12]; // Increased from 8 to 12
     struct TableForOneHour spHour;
 };
 

@@ -33,7 +33,7 @@ void displ1(){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t1=%3u\xDF\x43",ds[0].pvT);            //t1=???°C
+            snprintf(displStr, sizeof(displStr),"t1=%d.%d\xDF\x43", ds[0].pvT / 10, abs(ds[0].pvT % 10));
             lcd.print(displStr);
         
             permit = settings.modeHeater;
@@ -42,7 +42,9 @@ void displ1(){
                 else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
             }
             if(permit == 0){
-                snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT0on, settings.spT0off);
+                snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
+                         settings.spT0on / 10, abs(settings.spT0on % 10),
+                         settings.spT0off / 10, abs(settings.spT0off % 10));
                 if(ERROR4) displStr[0] = '!';
             } else {
                 for (uint8_t i = 0; i < 8; i++){
@@ -61,13 +63,9 @@ void displ1(){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t2=%3u\xDF\x43",ds[1].pvT);       //t2=???°C ([8])
+            snprintf(displStr, sizeof(displStr),"t2=%d.%d\xDF\x43", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             if(detectedSensor == SENSOR_DHT22){
-                displStr[0] = 'B';
-                displStr[1] = 'o';
-                displStr[6] = '%';
-                displStr[7] = ' ';     //Bo=???%
-                displStr[8] = '\0';
+                snprintf(displStr, sizeof(displStr), "Bo=%d.%d%% ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             }
             lcd.print(displStr);
 
@@ -77,7 +75,9 @@ void displ1(){
                 else if(LIGHT == PCF_ON && permit == 1) permit = 0;// если permission == 1 разрешена работа только когда свет включен
             }
             if(permit == 0){
-                snprintf(displStr, sizeof(displStr)," [%2u\x2D%2u]", settings.spT1on, settings.spT1off);
+                snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
+                         settings.spT1on / 10, abs(settings.spT1on % 10),
+                         settings.spT1off / 10, abs(settings.spT1off % 10));
                 if(ERROR8) displStr[0] = '!';
             } else {
                 for (uint8_t i = 0; i < 8; i++){

@@ -23,18 +23,16 @@ void LogicManager::processIrrigation() {
 
 void LogicManager::processClimate() {
     // Heater processing
-    if (ds[0].pvT > 125) {
+    if (ds[0].pvT > 1250) { // 125.0°C
         ERROR1 = 1;
     } else {
         HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
     }
 
     // Humidifier processing
-    if (ds[1].pvT > 125) {
+    if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
         ERROR2 = 1;
     } else {
-        // Note: original code used constants 5 and settings.spT1off.
-        // Using settings values for flexibility unless it was a deliberate restriction.
         HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }
 }

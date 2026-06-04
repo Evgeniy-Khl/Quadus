@@ -56,8 +56,8 @@ void sensorCheck(){
         if(++ds[0].errDevice > 5) {ds[0].pvT = 126; ds[1].pvT = 126; ds[0].errDevice = 5;}
       } else {
         ds[0].errDevice = 0;
-        ds[0].pvT = round(t);
-        ds[1].pvT = round(h);
+        ds[0].pvT = round(t * 10.0);
+        ds[1].pvT = round(h * 10.0);
         MYDEBUG_PRINT("t= "); MYDEBUG_PRINT(t); MYDEBUG_PRINTLN(" °C");
         MYDEBUG_PRINT("RH= "); MYDEBUG_PRINT(h); MYDEBUG_PRINT(" %\t");
       }
@@ -93,7 +93,7 @@ void checkDs18b20(void){
       ds[i].errDevice++;
     }
     else {
-      ds[i].pvT = round(tempC);
+      ds[i].pvT = round(tempC * 10.0);
     }
     // Sensor correction logic using Alarm registers
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
@@ -102,7 +102,7 @@ void checkDs18b20(void){
       int8_t alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
       DEBUG_SPRINTF(buff, "High(%i): %3i; Low:%3i",i,alarmH, alarmL);
       MYDEBUG_PRINT(buff);
-      ds[i].pvT += alarmL;
+      ds[i].pvT += (alarmL * 10);
     }
     if(check_freeze(i, tempC)){
       if(i) ERROR2 = 1; else ERROR1 = 1;

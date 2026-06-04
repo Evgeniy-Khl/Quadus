@@ -5,8 +5,7 @@
 uint16_t eepromMemoryAddressForHour(uint8_t prg, uint8_t day);
 byte eepromWrBuff(uint16_t memoryAddress, const uint8_t* buffer, uint8_t length);
 void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length);
-void prepareTable(uint8_t prg, uint8_t day, uint8_t amountday, int16_t t0, int16_t t1, 
-  int16_t rh, int16_t timer, int16_t aer0, int16_t aer1, int16_t fl);
+void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off);
 void prepareProg1();
 void prepareProg2();
 void prepareProg3();

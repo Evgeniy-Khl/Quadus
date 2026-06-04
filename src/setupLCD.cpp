@@ -33,10 +33,10 @@ void setup2(){
         editBuff1 = settings.spT0off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 \x79\xB3\x69\xBC\xBA\xBD\x2E  %2u\xDF\x43",editBuff0);      //t1 увiмкн.  ??°C
+    sprintf(displStr,"t1 \x79\xB3\x69\xBC\xBA\xBD\x2E %2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));      //t1 увiмкн. ??.?°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t1 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t1 вимкнути ??°C
+    sprintf(displStr,"t1 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8%2d.%d\xDF\x43", editBuff1 / 10, abs(editBuff1 % 10));   //t1 вимкнути ??.?°C
     lcd.print(displStr);
 }
 
@@ -47,21 +47,19 @@ void setup3(){
         editBuff1 = settings.spT1off;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t2 \x79\xB3\x69\xBC\xBA\xBD\x2E  %2u\xDF\x43",editBuff0);      //t2 увiмкн.  ??°C
-    if(detectedSensor == DHT22){
+    sprintf(displStr,"t2 \x79\xB3\x69\xBC\xBA\xBD\x2E %2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));      //t2 увiмкн. ??.?°C
+    if(detectedSensor == SENSOR_DHT22){
         displStr[0] = 'B';
         displStr[1] = 'o';
-        displStr[14] = '%';
-        displStr[15] = ' ';     //Bo увiмкн.  ??%
+        sprintf(displStr + 11, "%2d.%d%% ", editBuff0 / 10, abs(editBuff0 % 10)); //Bo увiмкн. ??.?%
     }
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xDF\x43",editBuff1);   //t2 вимкнути ??°C
-    if(detectedSensor == DHT22){
+    sprintf(displStr,"t2 \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8%2d.%d\xDF\x43", editBuff1 / 10, abs(editBuff1 % 10));   //t2 вимкнути ??.?°C
+    if(detectedSensor == SENSOR_DHT22){
         displStr[0] = 'B';
         displStr[1] = 'o';
-        displStr[14] = '%';
-        displStr[15] = ' ';     //Bo вимкнути  ??%
+        sprintf(displStr + 11, "%2d.%d%% ", editBuff1 / 10, abs(editBuff1 % 10)); //Bo вимкнути ??.?%
     }
     lcd.print(displStr);
 }
@@ -77,13 +75,15 @@ void setRelay(uint8_t item){
         }
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"T%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2u",item,editBuff0);
-    if(mode == 0) strcat(displStr," \x78\xB3\x2E");                 //Tx увімкн.??хвл.
-    else strcat(displStr,"\xDF\x43");                               //Tx увімкн.??°C
+    if(mode == 0) {
+        sprintf(displStr,"T%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2u \x78\xB3\x2E",item,editBuff0); //Tx увімкн.??хвл.
+    } else {
+        sprintf(displStr,"T%u \x79\xB3\x69\xBC\xBA\xBD\x2E%2d.%d\xDF\x43",item, editBuff0 / 10, abs(editBuff0 % 10)); //Tx увімкн.??.?°C
+    }
     lcd.print(displStr);
     lcd.setCursor(0,1);
     if(mode == 0) switchTimeOff(item,editBuff1);
-    else sprintf(displStr,"T%u \xB3\xB8\xBC\xBA\xBD\x2E%2u\xDF\x43",item,editBuff1);    //Tx вимкн.??°C
+    else sprintf(displStr,"T%u \xB3\xB8\xBC\xBA\xBD\x2E%2d.%d\xDF\x43",item, editBuff1 / 10, abs(editBuff1 % 10));    //Tx вимкн.??.?°C
     lcd.print(displStr);
 }
 
@@ -108,10 +108,10 @@ void setAlarm(){
         editBuff1 = settings.alarm1;
     }
     lcd.setCursor(0,0);
-    sprintf(displStr,"t1 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2u\xDF\x43",editBuff0);//t1 тривога =??°C
+    sprintf(displStr,"t1 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));//t1 тривога =??.?°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"t2 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2u\xDF\x43",editBuff1);//t2 тривога =??°C
+    sprintf(displStr,"t2 \xBF\x70\xB8\xB3\x6F\xB4\x61 =%2d.%d\xDF\x43", editBuff1 / 10, abs(editBuff1 % 10));//t2 тривога =??.?°C
     lcd.print(displStr);
 }
 
