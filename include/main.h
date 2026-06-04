@@ -43,7 +43,7 @@
 
 #define LEDPIN            2
 #define ONE_WIRE_BUS_PIN  LEDPIN
-#define MAX_DEVICE        2
+#define MAX_DEVICE        4
 #define START_MARKER      0xDD
 
 #define READDEFAULT 0
@@ -60,12 +60,6 @@ typedef struct {
   uint8_t deviation;        // deviation from setpoint
   uint16_t froze;           // freeze duration counter
 } Ds;
-
-enum SensorType {
-  UNKNOWN,
-  SENSOR_DHT22,
-  SENSOR_DS18B20
-};
 
 struct Bitfield {
     unsigned a0: 1;
@@ -87,7 +81,7 @@ union Byte {
  * @brief Structure for current system state.
  */
 struct SystemState {
-    Ds ds[2] = {{150,0,0,0,0},{100,0,0,0,0}};
+    Ds ds[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0},{150,0,0,0,0},{150,0,0,0,0}};
     union Byte portOut;
     union Byte errorsFlag;
     union Byte portFlag;
@@ -96,8 +90,8 @@ struct SystemState {
     int16_t pvTimeR2 = 0;
     int16_t pvTimeR3 = 0;
     uint8_t pvFlap = 0;
-    uint8_t numberOfDevices = 0;
-    SensorType detectedSensor = UNKNOWN;
+    uint8_t numberOfDS18 = 0;
+    bool hasDHT22 = false;
 };
 
 extern SystemState state;
@@ -145,7 +139,7 @@ struct TableForOneHour {
 };
 
 union TableBuff {
-    uint8_t buffer[12]; // Increased from 8 to 12
+    uint8_t buffer[12];
     struct TableForOneHour spHour;
 };
 
@@ -164,8 +158,8 @@ extern TableBuff unTable;
 #define pvTimeR2        state.pvTimeR2
 #define pvTimeR3        state.pvTimeR3
 #define pvFlap          state.pvFlap
-#define numberOfDevices state.numberOfDevices
-#define detectedSensor  state.detectedSensor
+#define numberOfDS18    state.numberOfDS18
+#define hasDHT22        state.hasDHT22
 
 #define ERROR1    state.errorsFlag.bitfield.a0
 #define ERROR2	  state.errorsFlag.bitfield.a1
@@ -220,7 +214,7 @@ extern bool shouldSaveConfig;
 extern uint8_t earlyMode, mode, tmrResetMode, quarter, errors, seconds;
 extern int tmrTelegramOff;
 extern long lastSendTime, allTime; 
-typedef enum { INTERVAL_1000 } Interval; // Simplification if needed, check original
+typedef enum { INTERVAL_1000 } Interval;
 extern Interval interval;
 
 extern RTC_DS3231 rtc;

@@ -3,68 +3,76 @@
 #define TUNING	170
 
 /**
- * @brief Detect the type of connected sensor (DS18B20 or DHT22).
+ * @brief Detect all connected sensors (DS18B20 AND DHT22) on the same pin.
  */
 void sensorType(){
-  MYDEBUG_PRINTLN("Detecting sensor type...");
-  // 1. Try to find DS18B20 sensor.
+  MYDEBUG_PRINTLN("Detecting sensors...");
+  
+  // 1. Scan for DS18B20 sensors
   sensors.begin(); // Initialize 1-Wire bus
-  numberOfDevices = sensors.getDS18Count();
-  if(numberOfDevices > 0) {
-      detectedSensor = SENSOR_DS18B20;
-      if(numberOfDevices > MAX_DEVICE) numberOfDevices = MAX_DEVICE;
-      MYDEBUG_PRINT("DS18B20 detected: "); MYDEBUG_PRINT(numberOfDevices, DEC); MYDEBUG_PRINTLN(" pcs.");
-      sensors.setWaitForConversion(false);    // return control immediately
+  numberOfDS18 = sensors.getDS18Count();
+  if(numberOfDS18 > 0) {
+      if(numberOfDS18 > MAX_DEVICE) numberOfDS18 = MAX_DEVICE;
+      MYDEBUG_PRINT("DS18B20 detected: "); MYDEBUG_PRINT(numberOfDS18, DEC); MYDEBUG_PRINTLN(" pcs.");
+      sensors.setWaitForConversion(false);
       sensors.setCheckForConversion(false);
       sensors.setAutoSaveScratchPad(false);
-      sensors.setResolution(12);              // Set resolution (9-12 bits)
-      sensors.requestTemperatures();          // Command sensors to start conversion
+      sensors.setResolution(12);
+      sensors.requestTemperatures();
       
-      // Get and print addresses for all found sensors
-      for (int i = 0; i < numberOfDevices; i++){
+      for (int i = 0; i < numberOfDS18; i++){
         if(sensors.getAddress(sensorAddresses[i], i)){
           DEBUG_PRINTF("  Sensor %d: ", i);
           printAddress(sensorAddresses[i]);
           MYDEBUG_PRINTLN();
-        } else {
-          DEBUG_PRINTF("Failed to get address for sensor %d\n", i);
         }
       }
    } else {
-      // 2. If no DS18B20, try reading DHT22.
-      delay(1000);
-      dht.begin();
-      // Test read. If not NaN, it's a DHT.
-      if (!isnan(dht.readTemperature())) {
-        detectedSensor = SENSOR_DHT22;
-        MYDEBUG_PRINTLN("Sensor detected: DHT22");
-      }
+      MYDEBUG_PRINTLN("No DS18B20 sensors found.");
+   }
+
+   // 2. Try to detect DHT22 regardless of DS18B20 presence
+   delay(1000); // Give some time after OneWire scan
+   dht.begin();
+   float testT = dht.readTemperature();
+   if (!isnan(testT)) {
+     hasDHT22 = true;
+     MYDEBUG_PRINTLN("DHT22 sensor detected.");
+   } else {
+     hasDHT22 = false;
+     MYDEBUG_PRINTLN("DHT22 not found.");
    }
 }
 
 /**
- * @brief Main sensor update routine.
+ * @brief Main sensor update routine. Handles both DHT22 and DS18B20.
  */
 void sensorCheck(){
-  switch (detectedSensor){
-    case SENSOR_DHT22:{
-      float h = dht.readHumidity();
-      float t = dht.readTemperature();
+  // Read DHT22 if present
+  if (hasDHT22) {
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
 
-      if (isnan(h) || isnan(t)) {
-        MYDEBUG_PRINTLN("DHT22 read error!");
-        if(++ds[0].errDevice > 5) {ds[0].pvT = 126; ds[1].pvT = 126; ds[0].errDevice = 5;}
-      } else {
-        ds[0].errDevice = 0;
-        ds[0].pvT = round(t * 10.0);
-        ds[1].pvT = round(h * 10.0);
-        MYDEBUG_PRINT("t= "); MYDEBUG_PRINT(t); MYDEBUG_PRINTLN(" °C");
-        MYDEBUG_PRINT("RH= "); MYDEBUG_PRINT(h); MYDEBUG_PRINT(" %\t");
-      }
-      break;
+    if (isnan(h) || isnan(t)) {
+      MYDEBUG_PRINTLN("DHT22 read error!");
+      // If DHT fails, we increment error count on ds[0] and ds[1] (primary air control)
+      if(++ds[0].errDevice > 5) { ds[0].pvT = 1260; ds[1].pvT = 1260; ds[0].errDevice = 5; }
+    } else {
+      ds[0].errDevice = 0;
+      ds[0].pvT = round(t * 10.0);
+      ds[1].pvT = round(h * 10.0);
+      MYDEBUG_PRINT("DHT Air t="); MYDEBUG_PRINT(t); MYDEBUG_PRINT(" RH="); MYDEBUG_PRINTLN(h);
     }
-    case SENSOR_DS18B20: checkDs18b20(); break;
-    case UNKNOWN: MYDEBUG_PRINTLN("No sensors connected!"); break;
+  }
+
+  // Read DS18B20 sensors
+  if (numberOfDS18 > 0) {
+    checkDs18b20();
+  }
+
+  // If NO sensors are found at all
+  if (!hasDHT22 && numberOfDS18 == 0) {
+    MYDEBUG_PRINTLN("ALARM: No sensors connected!");
   }
 }
 
@@ -79,36 +87,45 @@ bool check_freeze(uint8_t i, float val){
 }
 
 /**
- * @brief Process DS18B20 sensor data.
+ * @brief Process DS18B20 sensor data. 
+ * If DHT22 is present, DS18B20 values start from ds[2].
+ * If DHT22 is NOT present, DS18B20 values start from ds[0] (backward compatibility).
  */
 void checkDs18b20(void){
 #ifdef DEBUG
   char buff[100];
 #endif
-  for (uint8_t i = 0; i < numberOfDevices; i++){
-    float tempC = sensors.getTempC(sensorAddresses[i],3);
-    DEBUG_SPRINTF(buff, "tempC(%i): %7.3f °C; ERR=%u; FROZE=%u",i,tempC,ds[i].errDevice,ds[i].froze);
+  uint8_t startIdx = hasDHT22 ? 2 : 0;
+  
+  for (uint8_t i = 0; i < numberOfDS18; i++){
+    uint8_t dsIdx = startIdx + i;
+    if (dsIdx >= MAX_DEVICE) break;
+
+    float tempC = sensors.getTempC(sensorAddresses[i]);
+    DEBUG_SPRINTF(buff, "DS18B20[%i] (ds[%u]): %7.3f °C; ERR=%u", i, dsIdx, tempC, ds[dsIdx].errDevice);
     MYDEBUG_PRINT(buff);
+
     if(tempC == DEVICE_DISCONNECTED_C) {
-      ds[i].errDevice++;
+      ds[dsIdx].errDevice++;
     }
     else {
-      ds[i].pvT = round(tempC * 10.0);
+      ds[dsIdx].pvT = round(tempC * 10.0);
+      ds[dsIdx].errDevice = 0;
     }
-    // Sensor correction logic using Alarm registers
+
+    // Calibration using Alarm registers
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
-    
     if(alarmH == TUNING){
       int8_t alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
-      DEBUG_SPRINTF(buff, "High(%i): %3i; Low:%3i",i,alarmH, alarmL);
-      MYDEBUG_PRINT(buff);
-      ds[i].pvT += (alarmL * 10);
+      ds[dsIdx].pvT += (alarmL * 10);
+      MYDEBUG_PRINT(" (Calibrated)");
     }
-    if(check_freeze(i, tempC)){
-      if(i) ERROR2 = 1; else ERROR1 = 1;
+    
+    if(check_freeze(dsIdx, tempC)){
+      if(dsIdx == 0) ERROR1 = 1;
+      else if(dsIdx == 1) ERROR2 = 1;
     }
     MYDEBUG_PRINTLN();
   }
-  MYDEBUG_PRINTLN("--------");
-  sensors.requestTemperatures();
+  sensors.requestTemperatures(); // Request for next cycle
 }
