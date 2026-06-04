@@ -141,44 +141,58 @@ void respondsEeprom() {
 }
 
 /**
- * @brief Accept and save settings received from client.
+ * @brief Accept and save settings received from client (POST JSON).
  */
 void acceptEeprom() {
-    for (uint8_t i = 0; i < server.args(); i++) {
-        String paramName = server.argName(i);
-        String paramValue = server.arg(i);
-        float valF = paramValue.toFloat();
-        int16_t valScaled = (int16_t)round(valF * 10.0);
-        int valInt = paramValue.toInt();
+    if (server.hasArg("plain")) {
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, server.arg("plain"));
         
-        if (paramName == "spT0on") settings.spT0on = valScaled;
-        else if (paramName == "spT0off") settings.spT0off = valScaled;
-        else if (paramName == "spT1on") settings.spT1on = valScaled;
-        else if (paramName == "spT1off") settings.spT1off = valScaled;
-        else if (paramName == "water0on") settings.water0on = valInt;
-        else if (paramName == "water0off") settings.water0off = valInt;
-        else if (paramName == "water1on") settings.water1on = valInt;
-        else if (paramName == "water1off") settings.water1off = valInt;
-        else if (paramName == "water2on") settings.water2on = valInt;
-        else if (paramName == "water2off") settings.water2off = valInt;
-        else if (paramName == "flpNow") settings.flap = valInt;
-        else if (paramName == "timerOn") settings.timerOn = valInt;
-        else if (paramName == "timerOff") settings.timerOff = valInt;
-        else if (paramName == "alarm0") settings.alarm0 = valScaled;
-        else if (paramName == "alarm1") settings.alarm1 = valScaled;
-        else if (paramName == "hyst0") settings.hysteresis0 = valScaled;
-        else if (paramName == "hyst1") settings.hysteresis1 = valScaled;
-        else if (paramName == "deviceNum") settings.deviceNum  = valInt;
-        else if (paramName == "program") settings.program  = valInt;
-        else if (paramName == "modeHeater") settings.modeHeater  = valInt;
-        else if (paramName == "modeHumidi") settings.modeHumidi  = valInt;
-        else if (paramName == "modeRelay1") settings.modeRelay1  = valInt;
-        else if (paramName == "modeRelay2") settings.modeRelay2  = valInt;
-        else if (paramName == "modeRelay3") settings.modeRelay3  = valInt;
-    }
+        if (!error) {
+            JsonObject obj = doc.as<JsonObject>();
+            
+            // Helper function to update setting if key exists
+            auto updateInt = [&](const char* key, int16_t& target, bool isScaled = false) {
+                if (obj.containsKey(key)) {
+                    if (isScaled) target = (int16_t)round(obj[key].as<float>() * 10.0);
+                    else target = obj[key].as<int>();
+                }
+            };
+            auto updateUint8 = [&](const char* key, uint8_t& target) {
+                if (obj.containsKey(key)) target = obj[key].as<uint8_t>();
+            };
 
-    server.send(200);
-    saveSetPoint();
+            updateInt("spT0on", settings.spT0on, true);
+            updateInt("spT0off", settings.spT0off, true);
+            updateInt("spT1on", settings.spT1on, true);
+            updateInt("spT1off", settings.spT1off, true);
+            updateUint8("water0on", settings.water0on);
+            updateUint8("water0off", settings.water0off);
+            updateUint8("water1on", settings.water1on);
+            updateUint8("water1off", settings.water1off);
+            updateUint8("water2on", settings.water2on);
+            updateUint8("water2off", settings.water2off);
+            updateUint8("flpNow", settings.flap);
+            updateUint8("timerOn", settings.timerOn);
+            updateUint8("timerOff", settings.timerOff);
+            updateInt("alarm0", settings.alarm0, true);
+            updateInt("alarm1", settings.alarm1, true);
+            updateInt("hyst0", settings.hysteresis0, true);
+            updateInt("hyst1", settings.hysteresis1, true);
+            updateUint8("deviceNum", settings.deviceNum);
+            updateUint8("program", settings.program);
+            updateUint8("modeHeater", settings.modeHeater);
+            updateUint8("modeHumidi", settings.modeHumidi);
+            updateUint8("modeRelay1", settings.modeRelay1);
+            updateUint8("modeRelay2", settings.modeRelay2);
+            updateUint8("modeRelay3", settings.modeRelay3);
+
+            saveSetPoint();
+            server.send(200, "application/json", "{\"status\":\"ok\"}");
+            return;
+        }
+    }
+    server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
 }
 
 /**
@@ -246,16 +260,16 @@ void programDeser(String input) {
 }
 
 /**
- * @brief Accept program data from client.
+ * @brief Accept program data from client (POST JSON).
  */
 void acceptProgram() {
-    if (server.hasArg("data")) {
-        programDeser(server.arg("data"));
+    if (server.hasArg("plain")) {
+        programDeser(server.arg("plain"));
         mode = SAVEPROG; 
         interval = INTERVAL_1000;
-        server.send(200); 
+        server.send(200, "application/json", "{\"status\":\"ok\"}");
         DEBUG_PRINTLN("Program accepted and processed");
     } else {
-        server.send(400, "text/plain", "Error: no data");
+        server.send(400, "application/json", "{\"error\":\"no data\"}");
     }
 }

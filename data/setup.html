@@ -6,9 +6,8 @@
 	<link rel="icon" href="data:,">
     <title>Налаштування</title>
     <style>
-	/* Стили для всплывающего окна */
     .popup {
-        display: none; /* Скрыто по умолчанию */
+        display: none;
         position: fixed;
         left: 50%;
         top: 50%;
@@ -21,162 +20,55 @@
         width: 200px;
         text-align: center;
     }
-    .popup.active {
-        display: block; /* Показать при добавлении класса active */
-    }
-    .popup .close {
-        cursor: pointer;
-        color: red;
-        margin-top: 10px;
-    }
-	/* Увеличение текста "Загрузка..." */
-    #popupMessage {
-        font-size: 20px; /* Размер шрифта */
-        font-weight: bold; /* Жирный шрифт */
-        color: #333; /* Цвет текста */
-    }
+    .popup.active { display: block; }
+    #popupMessage { font-size: 20px; font-weight: bold; color: #333; }
 	
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }		
-		#grad1 {
-		  height: 0px auto;
-		  background-color: #9d9e9b; /* For browsers that do not support gradients */
-		  background-image: linear-gradient(to bottom, #2389fc, #f4fc58);
-		}
-        h2 {
-            text-align: center;
-            color: white;
-        }
-
-        form {
-            background: #fff;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-width: 300px;
-            margin: 0 auto;
-        }
-
-        label {
-            display: block;
-            margin: 15px 0 5px;
-            font-weight: bold;
-            color: #555;
-        }
-
-        input[type="number"],
-        select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
-        }
-
-        input[type="number"]:focus,
-        select:focus {
-            border-color: #007BFF;
-            outline: none;
-        }
-
-        button {
-            background-color: #007BFF;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            width: 100%;
-            transition: background-color 0.3s;
-        }
-		.button1 {
-		  display: inline-block;
-		  background-color: #008CBA;
-		  border: none;
-		  border-radius: 4px;
-		  color: white;
-		  padding: 16px 40px;
-		  text-decoration: none;
-		  font-size: 30px;
-		  margin: 2px;
-		  cursor: pointer;
-		}
-		
-		.container {
-		  width: 300px; /* Занимает всю доступную ширину */
-		  height: 0px auto;
-		  margin: 0px auto;
-		}
-
-        button:hover {
-            background-color: #0056b3;
-        }
-
-        @media (max-width: 600px) {
-            form {
-                padding: 15px;
-            }
-
-            button {
-                padding: 8px;
-                font-size: 14px;
-            }
-        }
+    body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }		
+    #grad1 { height: 100%; background-image: linear-gradient(to bottom, #2389fc, #f4fc58); padding: 20px; border-radius: 10px; }
+    h2 { text-align: center; color: white; }
+    form { background: #fff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); max-width: 400px; margin: 0 auto; }
+    label { display: block; margin: 15px 0 5px; font-weight: bold; color: #555; }
+    input[type="number"], select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+    button { background-color: #007BFF; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; width: 100%; }
+    .button1 { display: inline-block; background-color: #008CBA; border: none; border-radius: 4px; color: white; padding: 16px 40px; text-decoration: none; font-size: 20px; margin: 10px auto; cursor: pointer; width: 100%; }
+    .container { max-width: 400px; margin: 10px auto; text-align: center; }
+    button:hover { background-color: #0056b3; }
     </style>
 <script>
-    // Событие DOMContentLoaded – DOM готов, так что обработчик может искать DOM-узлы и инициализировать интерфейс.
     document.addEventListener("DOMContentLoaded", function() {
         const popup = document.getElementById('popup');
         const popupMessage = document.getElementById('popupMessage');
 
         function showPopup(message) {
             popupMessage.textContent = message;
-            popup.classList.add('active'); // Показать всплывающее окно
+            popup.classList.add('active');
         }
 
         function closePopup() {
-            popup.classList.remove('active'); // Скрыть всплывающее окно
+            popup.classList.remove('active');
         }
 
-
         function fetchData(retries = 5) {
-            showPopup('Завантаження...'); // Показать сообщение загрузки
-            
-            // Запрос текущих настроек
+            showPopup('Завантаження...');
             fetch('/geteeprom')
                 .then(response => {
-                    closePopup(); // Скрыть сообщение загрузки
-                    if (!response.ok) {
-                        throw new Error('Сетевая ошибка: ' + response.status);
-                    }
+                    closePopup();
+                    if (!response.ok) throw new Error('Network error: ' + response.status);
                     return response.json();
                 })
                 .then(data => {
-                    console.log('Полученные данные:', data); // Проверка полученных данных
-                    // Условие для обработки статуса
-                    if (data.status === 0) {
-                        // Если статус 0, продолжаем попытки
-                        console.log(`Попытка загрузки данных не удалась. Осталось попыток: ${retries}`);
-                        if (retries > 0) {
-                            if (retries < 3) showPopup(`Осталось попыток: ${retries}`); // Показать оставшиеся попытки
-							else showPopup('Завантаження...');
-                            setTimeout(() => fetchData(retries - 1), 1000);
-                        } else {
-                            showPopup('Не вдалося отримати дані після кількох спроб.');
-                        }
-                    } else if (data.status === 1) {
-                        // Заполнение формы текущими настройками
-                        document.getElementById('spT0on').value = data.spT0on;
-                        document.getElementById('spT0off').value = data.spT0off;
-						document.getElementById('spT1on').value = data.spT1on;
-                        document.getElementById('spT1off').value = data.spT1off;
+                    console.log('Data received:', data);
+                    if (data.status === 1) {
+                        // All temperature values are scaled by 10 on the backend
+                        document.getElementById('spT0on').value = data.spT0on / 10;
+                        document.getElementById('spT0off').value = data.spT0off / 10;
+						document.getElementById('spT1on').value = data.spT1on / 10;
+                        document.getElementById('spT1off').value = data.spT1off / 10;
+                        document.getElementById('alarm0').value = data.alarm0 / 10;
+                        document.getElementById('alarm1').value = data.alarm1 / 10;
+                        document.getElementById('hyst0').value = (data.hyst0 || 5) / 10;
+                        document.getElementById('hyst1').value = (data.hyst1 || 5) / 10;
+
                         document.getElementById('water0on').value = data.water0on;
                         document.getElementById('water0off').value = data.water0off;
 						document.getElementById('water1on').value = data.water1on;
@@ -186,8 +78,6 @@
                         document.getElementById('flpNow').value = data.flpNow;
 						document.getElementById('timerOn').value = data.timerOn;
                         document.getElementById('timerOff').value = data.timerOff;
-						document.getElementById('alarm0').value = data.alarm0;
-                        document.getElementById('alarm1').value = data.alarm1;
 						document.getElementById('deviceNum').value = data.deviceNum;
                         document.getElementById('program').value = data.program;
                         document.getElementById('modeHeater').value = data.modeHeater;
@@ -195,223 +85,127 @@
                         document.getElementById('modeRelay1').value = data.modeRelay1;
                         document.getElementById('modeRelay2').value = data.modeRelay2;
                         document.getElementById('modeRelay3').value = data.modeRelay3;
-					<!------------------------ 23 ---------------------------------> 
+                    } else if (retries > 0) {
+                        setTimeout(() => fetchData(retries - 1), 1000);
                     }
                 })
                 .catch(error => {
-                    closePopup(); // Скрыть индикатор в случае ошибки
-                    console.error('Ошибка при получении настроек:', error);
+                    closePopup();
+                    console.error('Error fetching settings:', error);
                 });
         }
 
-        // Обработка отправки формы
         document.getElementById('settingsForm').addEventListener('submit', function(event) {
-            event.preventDefault(); // Предотвращаем стандартное поведение формы
-
-            // Создание объекта FormData из формы
+            event.preventDefault();
             const formData = new FormData(event.target);
-
-            // Логирование отправляемых данных в формате объекта
-			const formDataObject = {};
-			Array.from(formData.entries()).forEach(([key, value]) => {
-				formDataObject[key] = value;
+			const data = {};
+			formData.forEach((value, key) => {
+				data[key] = parseFloat(value);
 			});
-			console.log('Отправляемые данные:', formDataObject);
 
-            // Отправка данных формы
             fetch('/seteeprom', {
                 method: 'POST',
-                body: formData
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
             })
             .then(response => {
                 if (response.ok) {
-                    alert('Налаштування успішно збережено!'); // Сообщение об успехе
-                    window.location.href = "/"; // Перенаправление на главную страницу
+                    alert('Налаштування успішно збережено!');
+                    window.location.href = "/";
                 } else {
-                    alert('Помилка збереження налаштувань.'); // Сообщение об ошибке
+                    alert('Помилка збереження.');
                 }
             })
-            .catch(error => {
-                console.error('Ошибка при отправке настроек:', error);
-            });
+            .catch(error => console.error('Error saving settings:', error));
         });
 
-        // Запускаем первую попытку получения данных
-        fetchData(); // Начальная попытка загрузки данных
+        fetchData();
     });
-	
-	function updateDisplay() {
-    const selectElement = document.getElementById('executprog');
-    const selectedValue = parseInt(selectElement.value);
-    const programDisplay = document.getElementById('programDisplay');
-	
-	if (isNaN(selectedValue) || selectedValue === 0 || selectedValue > 4) {
-		programDisplay.innerText = 'НЕМАЄ';
-	} else {
-		programDisplay.innerText = selectElement.options[selectedValue].text; // Отображаем выбранную программу
-	}
-
-	}
 </script>
 </head>
 <body>
 <div id="grad1">
-<h2>Налаштування приладу</h2>
-<form action="/set_parameters"  id="settingsForm" method="POST">
-    <label for="spT0on">t1 увiмкнути (від 0 до 99°C):</label>
-    <input type="number" name="spT0on" id="spT0on" required min="0" max="99" step="1">
+<h2>Налаштування Quadus</h2>
+<form id="settingsForm">
+    <label for="spT0on">t1 увімкнути (°C):</label>
+    <input type="number" name="spT0on" id="spT0on" required min="0" max="99" step="0.1">
 
-    <label for="spT0off">t1 вимкнути (від 0 до 99°C):</label>
-    <input type="number" name="spT0off" id="spT0off" required min="0" max="99" step="1">
+    <label for="spT0off">t1 вимкнути (°C):</label>
+    <input type="number" name="spT0off" id="spT0off" required min="0" max="99" step="0.1">
 	
-	<label for="spT1on">t2 увiмкнути (від 0 до 99°C):</label>
-    <input type="number" name="spT1on" id="spT1on" required min="0" max="99" step=".1">
+	<label for="spT1on">t2 увімкнути (°C/%):</label>
+    <input type="number" name="spT1on" id="spT1on" required min="0" max="99" step="0.1">
 
-    <label for="spT1off">t2 вимкнути (від 0 до 99°C):</label>
-    <input type="number" name="spT1off" id="spT1off" required min="0" max="99" step="1">
+    <label for="spT1off">t2 вимкнути (°C/%):</label>
+    <input type="number" name="spT1off" id="spT1off" required min="0" max="99" step="0.1">
 
-    <label for="water0on">Tаймер 1 увімкнути (від 1 до 99 хвл.):</label>
+    <label for="hyst0">Гістерезис t1 (°C):</label>
+    <input type="number" name="hyst0" id="hyst0" required min="0" max="10" step="0.1">
+
+    <label for="hyst1">Гістерезис t2 (°C/%):</label>
+    <input type="number" name="hyst1" id="hyst1" required min="0" max="10" step="0.1">
+
+    <label for="water0on">Таймер 1 увімкн (хвл):</label>
     <input type="number" name="water0on" id="water0on" min="1" max="99" required>
 	
-	<label for="water0off">Tаймер 1 вимкнути :</label>
-	<select name="water0off" id="water0off" onchange="updateDisplay()">
+	<label for="water0off">Таймер 1 період:</label>
+	<select name="water0off" id="water0off">
         <option value="0">НЕМАЄ</option>
-        <option value="1">1 година</option>
-        <option value="2">2 години</option>
-		<option value="3">3 години</option>
-        <option value="4">4 години</option>
-        <option value="5">6 годин</option>
-        <option value="6">8 годин</option>
-        <option value="7">10 годин</option>
-        <option value="8">12 годин</option>
-        <option value="9">24 години</option>
-        <option value="10">2 діби</option>
-        <option value="11">3 діби</option>
-        <option value="12">4 діби</option>
-        <option value="13">5 діб</option>
-        <option value="14">6 діб</option>
+        <option value="1">1 година</option><option value="2">2 години</option>
+		<option value="3">3 години</option><option value="4">4 години</option>
+        <option value="5">6 годин</option><option value="6">8 годин</option>
+        <option value="7">10 годин</option><option value="8">12 годин</option>
+        <option value="9">24 години</option><option value="10">2 діби</option>
+        <option value="11">3 діби</option><option value="12">4 діби</option>
+        <option value="13">5 діб</option><option value="14">6 діб</option>
         <option value="15">7 діб</option>
     </select>
 	
-	<label for="water1on">Tаймер 2 увімкнути (від 1 до 99 хвл.):</label>
-    <input type="number" name="water1on" id="water1on" min="1" max="99" required>
-	
-	<label for="water1off">Tаймер 2 вимкнути :</label>
-	<select name="water1off" id="water1off" onchange="updateDisplay()">
-        <option value="0">НЕМАЄ</option>
-        <option value="1">1 година</option>
-        <option value="2">2 години</option>
-		<option value="3">3 години</option>
-        <option value="4">4 години</option>
-        <option value="5">6 годин</option>
-        <option value="6">8 годин</option>
-        <option value="7">10 годин</option>
-        <option value="8">12 годин</option>
-        <option value="9">24 години</option>
-        <option value="10">2 діби</option>
-        <option value="11">3 діби</option>
-        <option value="12">4 діби</option>
-        <option value="13">5 діб</option>
-        <option value="14">6 діб</option>
-        <option value="15">7 діб</option>
-    </select>
-	
-	<label for="water2on">Tаймер 3 увімкнути (від 1 до 99 хвл.):</label>
-    <input type="number" name="water2on" id="water2on" min="1" max="99" required>
-	
-	<label for="water2off">Tаймер 3 вимкнути :</label>
-	<select name="water2off" id="water2off" onchange="updateDisplay()">
-        <option value="0">НЕМАЄ</option>
-        <option value="1">1 година</option>
-        <option value="2">2 години</option>
-		<option value="3">3 години</option>
-        <option value="4">4 години</option>
-        <option value="5">6 годин</option>
-        <option value="6">8 годин</option>
-        <option value="7">10 годин</option>
-        <option value="8">12 годин</option>
-        <option value="9">24 години</option>
-        <option value="10">2 діби</option>
-        <option value="11">3 діби</option>
-        <option value="12">4 діби</option>
-        <option value="13">5 діб</option>
-        <option value="14">6 діб</option>
-        <option value="15">7 діб</option>
-    </select>
-	
-	<label for="timerOn">Увімкн. освітлення (від 0 до 23 год.):</label>
-    <input type="number" name="timerOn" id="timerOn" min="0" max="23" step="1" required>
+	<label for="timerOn">Світло увімкн (год):</label>
+    <input type="number" name="timerOn" id="timerOn" min="0" max="23" required>
 
-    <label for="timerOff">Вимкн. освітлення (від 0 до 23 год.):</label>
-    <input type="number" name="timerOff" id="timerOff" min="0" max="23" step="1" required>
+    <label for="timerOff">Світло вимкн (год):</label>
+    <input type="number" name="timerOff" id="timerOff" min="0" max="23" required>
 	
-	<label for="alarm0">Увімкнути тривогу по t1 якщо дельта більше ніж (дельта від 0 до 99°C):</label>
-    <input type="number" name="alarm0" id="alarm0" min="0" max="99"  step="1" required>
+	<label for="alarm0">Тривога t1 дельта (°C):</label>
+    <input type="number" name="alarm0" id="alarm0" min="0" max="99" step="0.1" required>
 
-    <label for="alarm1">Увімкнути тривогу по t2 якщо дельта більше ніж (дельта від 0 до 99°C/%):</label>
-    <input type="number" name="alarm1" id="alarm1" min="0" max="99"  step="1" required>
+    <label for="alarm1">Тривога t2 дельта (°C/%):</label>
+    <input type="number" name="alarm1" id="alarm1" min="0" max="99" step="0.1" required>
 	
-	<label for="flpNow">Положення заслінки (від 0 до 100%):</label>
+	<label for="flpNow">Заслінка (%):</label>
     <input type="number" name="flpNow" id="flpNow" min="0" max="100" required>
 	
-    <label for="program">Виконувана програма:</label>
-	<select name="program" id="program" onchange="updateDisplay()">
+    <label for="program">Програма:</label>
+	<select name="program" id="program">
         <option value="0">НЕМАЄ</option>
-        <option value="1">Програма №1</option>
-        <option value="2">Програма №2</option>
-		<option value="3">Програма №3</option>
-        <option value="4">Програма №4</option>
+        <option value="1">№1</option><option value="2">№2</option>
+		<option value="3">№3</option><option value="4">№4</option>
     </select>	
 
-	<label for="deviceNum">Номер приладу (від 0 до 99)</label>
+	<label for="deviceNum">№ Приладу:</label>
     <input type="number" name="deviceNum" id="deviceNum" min="1" max="99" required>
 	
-	<label for="modeHeater">Дозволяю працювати каналу t1</label>
+	<label for="modeHeater">Дозвіл t1:</label>
     <select name="modeHeater" id="modeHeater">
 		<option value="0">ЗАВЖДИ</option>
-        <option value="1">коли освітлення увімкнено</option>
-        <option value="2">коли освітлення вимкнуто</option>
+        <option value="1">тільки зі світлом</option>
+        <option value="2">тільки без світла</option>
 	</select>
 	
-    <label for="modeHumidi">Дозволяю працювати каналу t2</label>
+    <label for="modeHumidi">Дозвіл t2:</label>
     <select name="modeHumidi" id="modeHumidi">
 		<option value="0">ЗАВЖДИ</option>
-        <option value="1">коли освітлення увімкнено</option>
-        <option value="2">коли освітлення вимкнуто</option>
-	</select>
-	
-	<label for="modeRelay1">Дозволяю працювати Таймеру 1</label>
-    <select name="modeRelay1" id="modeRelay1">
-		<option value="0">ЗАВЖДИ</option>
-        <option value="1">коли освітлення увімкнено</option>
-        <option value="2">коли освітлення вимкнуто</option>
-	</select>
-	
-	<label for="modeRelay2">Дозволяю працювати Таймеру 2</label>
-    <select name="modeRelay2" id="modeRelay2">
-		<option value="0">ЗАВЖДИ</option>
-        <option value="1">коли освітлення увімкнено</option>
-        <option value="2">коли освітлення вимкнуто</option>
-	</select>
-	
-	<label for="modeRelay3">Дозволяю працювати Таймеру 3</label>
-    <select name="modeRelay3" id="modeRelay3">
-		<option value="0">ЗАВЖДИ</option>
-        <option value="1">коли освітлення увімкнено</option>
-        <option value="2">коли освітлення вимкнуто</option>
+        <option value="1">тільки зі світлом</option>
+        <option value="2">тільки без світла</option>
 	</select>
 
     <button type="submit" class="button1">ЗБЕРІГТИ</button>
 </form>
-<!-------------------------------------------------------------> 
 <div class="container">
-<p><a href="/"><button class="button1">СКАСУВАТИ</button></a></p>
+<a href="/"><button class="button1" style="background-color: #666;">СКАСУВАТИ</button></a>
 </div>
 </div>
-<!-- Всплывающее окно -->
-    <div id="popup" class="popup">
-        <div id="popupMessage">Завантаження...</div>
-        <!--div class="close" onclick="closePopup()">Закрыть</div-->
-    </div>
+<div id="popup" class="popup"><div id="popupMessage">Завантаження...</div></div>
 </body>
 </html>
