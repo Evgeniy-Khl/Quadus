@@ -124,12 +124,20 @@ bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int
 
     if (permit == 0) {
         if (onTemp == offTemp) return PCF_OFF;
+        
+        // Determine which hysteresis to use (T0 or T1)
+        int16_t hyst = (&onTemp == &settings.spT0on || &onTemp == &settings.spT0off) ? settings.hysteresis0 : settings.hysteresis1;
+
         if (onTemp < offTemp) { // Heating mode
+            // Turn ON if temperature drops to or below onTemp
             if (currentTemp <= onTemp) return PCF_ON;
-            if (currentTemp >= offTemp) return PCF_OFF;
+            // Turn OFF if temperature reaches offTemp - hyst
+            if (currentTemp >= (offTemp - hyst)) return PCF_OFF;
         } else { // Cooling mode
+            // Turn ON if temperature reaches or exceeds onTemp
             if (currentTemp >= onTemp) return PCF_ON;
-            if (currentTemp <= offTemp) return PCF_OFF;
+            // Turn OFF if temperature drops to offTemp + hyst
+            if (currentTemp <= (offTemp + hyst)) return PCF_OFF;
         }
         return previousState;
     } else {

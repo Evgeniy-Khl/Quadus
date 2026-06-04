@@ -113,6 +113,8 @@ struct Settings {
     uint8_t timerOff;   // Lighting OFF hour (0-24)
     int16_t alarm0;     // Alarm deviation t0 (value * 10)
     int16_t alarm1;     // Alarm deviation t1 (value * 10)
+    int16_t hysteresis0; // Hysteresis for T0 (value * 10)
+    int16_t hysteresis1; // Hysteresis for T1 (value * 10)
     uint8_t special;    // Flags for WiFi/Time/Reset
     uint8_t deviceNum;  // Device ID
     uint8_t program;    // Active program number

@@ -55,6 +55,8 @@ void printSetPoint() {
     DEBUG_PRINTF("  timerOff: %d\n", settings.timerOff);
     DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
     DEBUG_PRINTF("  alarm1: %d\n", settings.alarm1);
+    DEBUG_PRINTF("  hyst0: %d\n", settings.hysteresis0);
+    DEBUG_PRINTF("  hyst1: %d\n", settings.hysteresis1);
     DEBUG_PRINTF("  special: %d\n", settings.special);
     DEBUG_PRINTF("  deviceNum: %d\n", settings.deviceNum);
     DEBUG_PRINTF("  program: %d\n", settings.program);
@@ -92,6 +94,8 @@ void saveSetPoint() {
     obj["timerOff"] = settings.timerOff;
     obj["alarm0"] = settings.alarm0;
     obj["alarm1"] = settings.alarm1;
+    obj["hyst0"] = settings.hysteresis0;
+    obj["hyst1"] = settings.hysteresis1;
     obj["special"] = settings.special;
     obj["deviceNum"] = settings.deviceNum;
     obj["program"] = settings.program;
@@ -166,6 +170,8 @@ bool loadSetPoint() {
     settings.timerOff = obj["timerOff"];
     settings.alarm0 = obj["alarm0"];
     settings.alarm1 = obj["alarm1"];
+    settings.hysteresis0 = obj["hyst0"] | 5; // Default 0.5 if not found
+    settings.hysteresis1 = obj["hyst1"] | 5;
     settings.special = obj["special"];
     settings.deviceNum = obj["deviceNum"];
     settings.program = obj["program"];
@@ -240,6 +246,8 @@ void reset(void){
     settings.timerOff = TIMEROFF;
     settings.alarm0 = ALARM0 * 10;
     settings.alarm1 = ALARM1 * 10;
+    settings.hysteresis0 = 5;
+    settings.hysteresis1 = 5;
     settings.special = 0;
     settings.deviceNum = 0;
     settings.program = 0;

@@ -120,6 +120,8 @@ void respondsEeprom() {
     doc["timerOff"] = settings.timerOff;
     doc["alarm0"] = settings.alarm0;
     doc["alarm1"] = settings.alarm1;
+    doc["hyst0"] = settings.hysteresis0;
+    doc["hyst1"] = settings.hysteresis1;
     doc["deviceNum"] = settings.deviceNum;
     doc["program"] = settings.program;
     doc["modeHeater"] = settings.modeHeater & 0x0F;
@@ -164,6 +166,8 @@ void acceptEeprom() {
         else if (paramName == "timerOff") settings.timerOff = valInt;
         else if (paramName == "alarm0") settings.alarm0 = valScaled;
         else if (paramName == "alarm1") settings.alarm1 = valScaled;
+        else if (paramName == "hyst0") settings.hysteresis0 = valScaled;
+        else if (paramName == "hyst1") settings.hysteresis1 = valScaled;
         else if (paramName == "deviceNum") settings.deviceNum  = valInt;
         else if (paramName == "program") settings.program  = valInt;
         else if (paramName == "modeHeater") settings.modeHeater  = valInt;
@@ -237,7 +241,6 @@ void programDeser(String input) {
             settings.flap = data_i[4];
             settings.timerOn = data_i[5];
             settings.timerOff = data_i[6];
-            // ... update other fields as needed
         }
     }
 }
