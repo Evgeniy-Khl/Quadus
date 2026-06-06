@@ -59,7 +59,7 @@ typedef struct {
   int16_t  pvT;              // current value (multiplied by 10, e.g. 225 = 22.5)
   int16_t  pvErr;            // current error (multiplied by 10)
   float   previousValue;    // previous raw value
-  uint16_t errDevice;        // sensor no response counter
+  uint8_t errDevice;        // sensor no response counter
   uint8_t deviation;        // deviation from setpoint
   uint16_t froze;           // freeze duration counter
 } Ds;
@@ -218,7 +218,7 @@ extern TM1638 module;
 #define ALARM1    5
 
 extern const char* version;
-extern char displStr[40];
+extern char displStr[18];
 extern char botToken[50];
 extern char chatID [15];
 extern bool shouldSaveConfig;

@@ -99,33 +99,46 @@ void checkDs18b20(void){
   
   for (uint8_t i = 0; i < numberOfDS18; i++){
     uint8_t dsIdx = startIdx + i;
+    int8_t alarmL = 0;
+    bool calibrated = false;
     if (dsIdx >= MAX_DEVICE) break;
 
     float tempC = sensors.getTempC(sensorAddresses[i]);
-    DEBUG_SPRINTF(buff, "DS18B20[%i] (ds[%u]): %7.3f °C; ERR=%u", i, dsIdx, tempC, ds[dsIdx].errDevice);
-    MYDEBUG_PRINT(buff);
-
+    
     if(tempC == DEVICE_DISCONNECTED_C) {
-      ds[dsIdx].errDevice++;
+      if(++ds[dsIdx].errDevice > 5){
+        ds[dsIdx].errDevice = 5;
+        switch (dsIdx){
+        case 0: ERROR1 = 1; break;
+        case 1: ERROR2 = 1; break;
+        }
+      }
     }
     else {
       ds[dsIdx].pvT = round(tempC * 10.0);
       ds[dsIdx].errDevice = 0;
+      switch (dsIdx){
+      case 0: ERROR1 = 0; break;
+      case 1: ERROR2 = 0; break;
+      }
     }
 
-    // Calibration using Alarm registers
+    // ---------- Calibration using Alarm registers ---------------
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
     if(alarmH == TUNING){
-      int8_t alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
-      ds[dsIdx].pvT += (alarmL * 10);
-      MYDEBUG_PRINT(" (Calibrated)");
+      alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
+      ds[dsIdx].pvT += (alarmL);
+      calibrated = true;
     }
-    
+    // ---------- Check freeze ------------------------------------
     if(check_freeze(dsIdx, tempC)){
       if(dsIdx == 0) ERROR1 = 1;
       else if(dsIdx == 1) ERROR2 = 1;
     }
-    MYDEBUG_PRINTLN();
+    // DEBUG_SPRINTF(buff, "DS18B20[%i] (ds[%u]): %2d.%d °C; ERR=%u", i, dsIdx, ds[dsIdx].pvT / 10, abs(ds[dsIdx].pvT % 10), ds[dsIdx].errDevice);
+    // MYDEBUG_PRINT(buff);
+    // if(calibrated) {MYDEBUG_PRINT(" Calibrated: "); MYDEBUG_PRINT(alarmL);}
+    // MYDEBUG_PRINTLN();
   }
   sensors.requestTemperatures(); // Request for next cycle
 }

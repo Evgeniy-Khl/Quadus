@@ -26,11 +26,11 @@ void checkkey(uint8_t key){
         }
         DEBUG_PRINT("portOut.value="); DEBUG_PRINTLN(portOut.value);
       break;
-    case 2:
+    case 2: // t1 увiмкнути / вимкнути
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0, 990); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0, 999); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 990); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 999); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,   0); break;
             case KEY_5: editBuff0 = settings.spT0on; editBuff1 = settings.spT0off; break;
             case KEY_6:
@@ -42,12 +42,12 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }        
       break;
-    case 3:
+    case 3: // t2 увiмкнути / вимкнути
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0, 1000); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,    0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 1000); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,    0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0, 999); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 999); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1,   0); break;
             case KEY_5: editBuff0 = settings.spT1on; editBuff1 = settings.spT1off; break;
             case KEY_6:
                 settings.spT1on = editBuff0;
@@ -58,7 +58,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }          
       break;
-    case 4:
+    case 4: // setRelay(1)
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 120); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
@@ -74,7 +74,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }          
       break;
-    case 5:
+    case 5: // setRelay(2)
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 120); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
@@ -90,7 +90,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }          
       break;
-    case 6:
+    case 6: // setRelay(3)
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 120); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
@@ -106,7 +106,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 7:
+    case 7: //CB увімкнути / вимкнути
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 23); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
@@ -122,12 +122,12 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 8:
+    case 8: //t1 тривога / t2 тривога
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0, 120); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 120); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,   0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0, 99); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 99); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
             case KEY_5: editBuff0 = settings.alarm0; editBuff1 = settings.alarm1; break;
             case KEY_6:
                 settings.alarm0 = editBuff0;
@@ -138,7 +138,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 9:
+    case 9: // setRelayMode()
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
             case KEY_1: if(++settings.modeRelay1 > 2) settings.modeRelay1 = 0; break;
@@ -149,7 +149,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
-    case 10:
+    case 10:  // setRelayMode()
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
             case KEY_1: if(++settings.modeHeater > 2) settings.modeHeater = 0; break;
@@ -159,7 +159,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
-    case 11:
+    case 11:  //Заслінка / Програма
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 100); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
@@ -175,7 +175,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }  
       break;
-    case 12:
+    case 12:  //Номер / Спец
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 99); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;

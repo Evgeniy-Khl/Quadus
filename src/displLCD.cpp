@@ -25,13 +25,13 @@ void displ1(){
     } else {
         lcd.setCursor(0,0);
         if(ERROR1){
-            lcd.print("t1 ");
+            lcd.print("A ");
             myPrint(error_,sizeof(error_));
-            for (uint8_t i = 0; i < 5; i++){
+            for (uint8_t i = 0; i < 6; i++){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t1=%d.%d\xDF\x43", ds[0].pvT / 10, abs(ds[0].pvT % 10));
+            snprintf(displStr, sizeof(displStr),"A=%2d.%d", ds[0].pvT / 10, abs(ds[0].pvT % 10));
             lcd.print(displStr);
         
             permit = settings.modeHeater;
@@ -40,7 +40,7 @@ void displ1(){
                 else if(LIGHT == PCF_ON && permit == 1) permit = 0;
             }
             if(permit == 0){
-                snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
+                snprintf(displStr, sizeof(displStr),"\xD5%d.%d-%d.%d", 
                          settings.spT0on / 10, abs(settings.spT0on % 10),
                          settings.spT0off / 10, abs(settings.spT0off % 10));
                 if(ERROR4) displStr[0] = '!';
@@ -55,15 +55,15 @@ void displ1(){
         //-------------------------------------------------------------------------------------------------------------
         lcd.setCursor(0,1);
         if(ERROR2){
-            lcd.print("t2 ");
+            lcd.print("B ");
             myPrint(error_,sizeof(error_));
-            for (uint8_t i = 0; i < 5; i++){
+            for (uint8_t i = 0; i < 6; i++){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t2=%d.%d\xDF\x43", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+            snprintf(displStr, sizeof(displStr),"B=%2d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             if(hasDHT22){
-                snprintf(displStr, sizeof(displStr), "Bo=%d.%d%% ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+                snprintf(displStr, sizeof(displStr), "Rh=%d.%d%% ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             }
             lcd.print(displStr);
 
@@ -73,7 +73,7 @@ void displ1(){
                 else if(LIGHT == PCF_ON && permit == 1) permit = 0;
             }
             if(permit == 0){
-                snprintf(displStr, sizeof(displStr)," [%d.%d-%d.%d]", 
+                snprintf(displStr, sizeof(displStr),"\xD5%d.%d-%d.%d", 
                          settings.spT1on / 10, abs(settings.spT1on % 10),
                          settings.spT1off / 10, abs(settings.spT1off % 10));
                 if(ERROR8) displStr[0] = '!';
