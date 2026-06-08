@@ -26,7 +26,7 @@ void LogicManager::processClimate() {
     if (isManualOverride) return;
     // Heater processing
     if (ds[0].pvT > 1250) { // 125.0°C
-        if (!ERROR1) sysLogger.log("ALARM: Heater sensor error!");
+        if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR));
         ERROR1 = 1;
     } else {
         HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
@@ -34,7 +34,7 @@ void LogicManager::processClimate() {
 
     // Humidifier processing
     if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
-        if (!ERROR2) sysLogger.log("ALARM: Humidity sensor error!");
+        if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR));
         ERROR2 = 1;
     } else {
         HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
@@ -55,16 +55,19 @@ void LogicManager::updateStatusLeds() {
 }
 
 void LogicManager::relaySwitch(uint8_t cn) {
+    // stateBit stores current relay state (active low for PCF8574: 0 = ON, 1 = OFF)
     bool stateBit = PCF_OFF, prnBit = false;
+    // val: remaining time, spOn: ON duration, spOff: OFF interval, permit: operation mode
     int16_t val = 0, spOn = 0, spOff = 0, permit = 0;
     
+    // Step 1: Initialize local variables based on the requested channel
     switch (cn) {
         case 1:
             stateBit = RELAY1;
             val = pvTimeR1;
             spOn = settings.water0on;
             spOff = settings.water0off;
-            permit = settings.modeRelay1 & 3;
+            permit = settings.modeRelay1 & 3; // Mask to get the operating mode bits
             break;
         case 2:
             stateBit = RELAY2;
@@ -82,27 +85,35 @@ void LogicManager::relaySwitch(uint8_t cn) {
             break;
     }
 
+    // Step 2: Check conditional permissions based on light status
+    // Operating mode bits: 0 = Always, 1 = Only when LIGHT is OFF, 2 = Only when LIGHT is ON
     if (permit) {
         if (LIGHT == PCF_OFF && permit == 2) permit = 0;
         else if (LIGHT == PCF_ON && permit == 1) permit = 0;
     }
 
-    if (permit == 0) {
+    // Step 3: Logic execution
+    if (permit == 0) { // If operation is permitted for the current lighting state
+        // Convert the OFF interval index from settings to actual minutes/hours/days
         spOff = transformTimeOff(spOff);
+        
+        // Decrement the timer. If it reaches zero, toggle the relay state
         if (--val <= 0) {
             prnBit = true;
-            if (stateBit) { //-- OFF --
-                val = spOn;
-                stateBit = PCF_ON;
+            if (stateBit == PCF_OFF) { // Current state is OFF -> Switch to ON phase
+                val = spOn;            // Set timer to "ON duration" from settings
+                stateBit = PCF_ON;     // Physical state becomes ON (0)
                 MYDEBUG_PRINT("spOn="); MYDEBUG_PRINT(spOn);
                 MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = ON");
-            } else { //-- ON --
-                val = spOff;
-                stateBit = PCF_OFF;
+            } else { // Current state is ON -> Switch to OFF phase
+                val = spOff;           // Set timer to calculated "OFF interval"
+                stateBit = PCF_OFF;    // Physical state becomes OFF (1)
                 MYDEBUG_PRINT("spOff="); MYDEBUG_PRINT(spOff);
                 MYDEBUG_PRINT("; Relay:"); MYDEBUG_PRINT(cn); MYDEBUG_PRINTLN(" state = OFF");
             }
         }
+        
+        // Step 4: Save updated state and timer back to global system variables
         switch (cn) {
             case 1: RELAY1 = stateBit; pvTimeR1 = val; break;
             case 2: RELAY2 = stateBit; pvTimeR2 = val; break;
@@ -111,7 +122,8 @@ void LogicManager::relaySwitch(uint8_t cn) {
         #ifdef DEBUG
         if (prnBit) printBinary(portOut.value);
         #endif
-    } else {
+    } else { 
+        // If operation is NOT permitted by lighting mode, force the relay OFF and reset timer
         switch (cn) {
             case 1: RELAY1 = PCF_OFF; pvTimeR1 = -1; break;
             case 2: RELAY2 = PCF_OFF; pvTimeR2 = -1; break;
@@ -187,14 +199,14 @@ void LogicManager::processAlarm(uint8_t cn) {
         }
 
         if (cn) {
-            if (!REACHED1 && reached) sysLogger.log("Climate T2/RH target reached.");
+            if (!REACHED1 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
             REACHED1 = reached;
-            if (!ERROR8 && beep) sysLogger.log("ALARM: T2/RH out of range!");
+            if (!ERROR8 && beep) sysLogger.log(getMsg(MSG_ALARM_T2_RANGE));
             ERROR8 = beep;
         } else {
-            if (!REACHED0 && reached) sysLogger.log("Climate T1 target reached.");
+            if (!REACHED0 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED));
             REACHED0 = reached;
-            if (!ERROR4 && beep) sysLogger.log("ALARM: T1 temperature out of range!");
+            if (!ERROR4 && beep) sysLogger.log(getMsg(MSG_ALARM_T1_RANGE));
             ERROR4 = beep;
         }
 

@@ -39,7 +39,7 @@ void setup(){
     delay(3000);
   }
   delay(1000);
-  sysLogger.log("System startup. Version: " + String(version));
+  sysLogger.log(String(getMsg(MSG_STARTUP)) + version);
   //----------------------------------- MOUNTING FS ----------------------------------------
   MYDEBUG_PRINTLN("mounting FS...");
   bool lFS = LittleFS.begin();
@@ -78,15 +78,15 @@ void setup(){
   
   if (hasDHT22) {
       lcd.print("DHT22 ");
-      sysLogger.log("Sensors: DHT22 detected");
+      sysLogger.log(getMsg(MSG_DHT22_FOUND));
   }
   if (numberOfDS18 > 0) {
       lcd.print("DS:"); lcd.print(numberOfDS18);
-      sysLogger.log("Sensors: " + String(numberOfDS18) + "x DS18B20 detected");
+      sysLogger.log(String(numberOfDS18) + getMsg(MSG_DS18B20_FOUND));
   }
   if (!hasDHT22 && numberOfDS18 == 0) {
       myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
-      sysLogger.log("Sensors: NONE found");
+      sysLogger.log(getMsg(MSG_SENSORS_NONE));
   }
 
   //------------------------------------------------------------------------------------------
@@ -168,13 +168,13 @@ void loop(){
         #endif
 
         // Converted local time for our timezone
-        MYDEBUG_PRINT("Converted Local Time  (EET/EEST): ");
-        DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
-                      timeinfo->tm_mday, timeinfo->tm_hour,
-                      timeinfo->tm_min, timeinfo->tm_sec);
-        uint16_t heapSize = ESP.getFreeHeap();    // Memory check
-        DEBUG_PRINTF("Free heap size: %d\n", heapSize);
+        // MYDEBUG_PRINT("Converted Local Time  (EET/EEST): ");
+        // DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
+        //               timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
+        //               timeinfo->tm_mday, timeinfo->tm_hour,
+        //               timeinfo->tm_min, timeinfo->tm_sec);
+        // uint16_t heapSize = ESP.getFreeHeap();    // Memory check
+        // DEBUG_PRINTF("Free heap size: %d\n", heapSize);
       }
       //---------------------------- NEW HOUR ----------------------------------
       if(++minutes > 59){
@@ -193,7 +193,7 @@ void loop(){
               if (now_t > 1000000000) { // If system time is valid
                 rtc.adjust(DateTime(now_t));
                 lastSyncDay = timeinfo->tm_mday;
-                sysLogger.log("Daily RTC sync successful.");
+                sysLogger.log(getMsg(MSG_RTC_SYNC));
                 MYDEBUG_PRINTLN("RTC updated successfully.");
               }
             }

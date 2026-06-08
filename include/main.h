@@ -101,6 +101,40 @@ struct SystemState {
 
 extern SystemState sysState;
 
+// Language Selection: Uncomment only one
+//#define LANG_EN
+#define LANG_RU
+//#define LANG_UA
+
+enum LogMsgId {
+    MSG_HEATER_ERR,
+    MSG_HUMIDITY_ERR,
+    MSG_CLIMATE_T2_REACHED,
+    MSG_ALARM_T2_RANGE,
+    MSG_CLIMATE_T1_REACHED,
+    MSG_ALARM_T1_RANGE,
+    MSG_STARTUP,
+    MSG_DHT22_FOUND,
+    MSG_DS18B20_FOUND,
+    MSG_SENSORS_NONE,
+    MSG_RTC_SYNC,
+    MSG_FS_OPEN_ERR,
+    MSG_JSON_ERR,
+    MSG_CONFIG_SAVED,
+    MSG_MANUAL_ON,
+    MSG_MANUAL_LIGHT,
+    MSG_MANUAL_HEATER,
+    MSG_MANUAL_HUMIDI,
+    MSG_MANUAL_RELAY1,
+    MSG_MANUAL_RELAY2,
+    MSG_MANUAL_RELAY3,
+    MSG_AUTO_RESTORED,
+    MSG_ON,
+    MSG_OFF
+};
+
+const char* getMsg(LogMsgId id);
+
 #pragma pack(push, 1)
 struct Settings {
     int16_t spT0on; 	  // Setpoint T0 ON (value * 10)

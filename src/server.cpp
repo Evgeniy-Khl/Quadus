@@ -261,13 +261,13 @@ void handleManualControl() {
         DeserializationError error = deserializeJson(doc, server.arg("plain"));
         if (!error) {
             isManualOverride = true;
-            sysLogger.log("Manual override activated.");
-            if (doc["rel1"].is<bool>()) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Light " + String(LIGHT == PCF_ON ? "ON" : "OFF")); }
-            if (doc["rel2"].is<bool>()) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Heater " + String(HEATER == PCF_ON ? "ON" : "OFF")); }
-            if (doc["rel3"].is<bool>()) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Humidi " + String(HUMIDI == PCF_ON ? "ON" : "OFF")); }
-            if (doc["rel4"].is<bool>()) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay1 " + String(RELAY1 == PCF_ON ? "ON" : "OFF")); }
-            if (doc["rel5"].is<bool>()) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay2 " + String(RELAY2 == PCF_ON ? "ON" : "OFF")); }
-            if (doc["rel6"].is<bool>()) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log("Manual: Relay3 " + String(RELAY3 == PCF_ON ? "ON" : "OFF")); }
+            sysLogger.log(getMsg(MSG_MANUAL_ON));
+            if (doc["rel1"].is<bool>()) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_LIGHT)) + (LIGHT == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel2"].is<bool>()) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HEATER)) + (HEATER == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel3"].is<bool>()) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HUMIDI)) + (HUMIDI == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel4"].is<bool>()) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY1)) + (RELAY1 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel5"].is<bool>()) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY2)) + (RELAY2 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel6"].is<bool>()) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY3)) + (RELAY3 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
             
             server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":true}");
             return;
@@ -278,7 +278,7 @@ void handleManualControl() {
 
 void resetAutoControl() {
     isManualOverride = false;
-    sysLogger.log("Automatic control restored.");
+    sysLogger.log(getMsg(MSG_AUTO_RESTORED));
     server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":false}");
 }
 

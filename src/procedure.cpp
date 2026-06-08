@@ -112,7 +112,7 @@ void saveSetPoint() {
     if (!configFile) {
         MYDEBUG_PRINTLN("Failed to open file for writing");
         myPrint(file_damaged,sizeof(file_damaged));
-        sysLogger.log("ERROR: Failed to open setpoint.json for writing");
+        sysLogger.log(getMsg(MSG_FS_OPEN_ERR));
         return;
     }
     myPrint(config,sizeof(config));
@@ -120,11 +120,11 @@ void saveSetPoint() {
     if (serializeJson(doc, configFile) == 0) {
         MYDEBUG_PRINTLN("Error writing to file");
         myPrint(no_,sizeof(no_));
-        sysLogger.log("ERROR: JSON serialization failed");
+        sysLogger.log(getMsg(MSG_JSON_ERR));
     } else {
         MYDEBUG_PRINTLN("Configuration saved successfully.");
         myPrint(saved,sizeof(saved));
-        sysLogger.log("Configuration saved to FS.");
+        sysLogger.log(getMsg(MSG_CONFIG_SAVED));
     }
     delay(3000);
     lcd.clear();
