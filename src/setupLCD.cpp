@@ -129,20 +129,19 @@ void setAlarm(){
         "B \xBF\x70\xB8\xB3\x6F\xB4\x61 =%d.%d\xDF\x43", editBuff1 / 10, abs(editBuff1 % 10));//t2 тривога =?.?°C
     lcd.print(displStr);
 }
-// ------------------- setupNum=12 ------------------------------
-void setDevSpec(){
-    if(NEWSCREEN){
-        NEWSCREEN = 0;
-        editBuff0 = settings.deviceNum;
-        editBuff1 = settings.special;
-    }
+
+// ------------------- setupNum=9,10 ------------------------------
+void setRelayMode(uint8_t item){
+    uint8_t relMode = 0;
+    if(item == 1) relMode = settings.modeRelay1; else relMode = settings.modeRelay2;
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"\xA1\x6F\xBC\x65\x70 %3u",editBuff0);     //Номер ???
-    lcd.print(displStr);
+    myPrint(wordSet,sizeof(wordSet));
+    lcd.print(item);
     lcd.setCursor(0,1);
-    snprintf(displStr, sizeof(displStr),"\x43\xBF\x65\xC4 %3u",editBuff1);         //Спец ???
-    lcd.print(displStr);
+    myPrint(set_permissions,sizeof(set_permissions));
+    lcd.print(relMode & 0x0F);
 }
+
 // ------------------- setupNum=11 ------------------------------
 void setFlapProg(){
     if(NEWSCREEN){
@@ -151,13 +150,27 @@ void setFlapProg(){
         editBuff1 = settings.program;
     }
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"\xB7\x61\xC1\xBB\x2E %3u%%",editBuff0);    //Засл. ???%
+    snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61  %3u%%",editBuff0);   //Заслiнка ???%
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    snprintf(displStr, sizeof(displStr),"\x50\x70\x6F\xB3\x70\x2E %3u",editBuff1);  //Прогр. ???
+    snprintf(displStr, sizeof(displStr),"\xA8\x70\x6F\xB4\x70\x61\xBC\x61 \xCC%2u",editBuff1);  //Програма #???
     lcd.print(displStr);
 }
 
+// ------------------- setupNum=12 ------------------------------
+void setDevSpec(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.deviceNum;
+        editBuff1 = settings.special;
+    }
+    lcd.setCursor(0,0);
+    snprintf(displStr, sizeof(displStr),"\xA8\x70\xB8\xB2\x6F\x70 \xCC%2u",editBuff0);     //Прибор #???
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    snprintf(displStr, sizeof(displStr),"\x50\x65\xB6\xB8\xBC  \xCC%2u",editBuff1);         //Режим #???
+    lcd.print(displStr);
+}
 void setupSwitch(){
     switch (setupNum){
         case 1: setup1(); break;
@@ -174,17 +187,6 @@ void setupSwitch(){
         case 12: setDevSpec(); break;
         default: break;
     }
-}
-// ------------------- setupNum=9,10 ------------------------------
-void setRelayMode(uint8_t item){
-    uint8_t relMode = 0;
-    if(item == 1) relMode = settings.modeRelay1; else relMode = settings.modeRelay2;
-    lcd.setCursor(0,0);
-    myPrint(wordSet,sizeof(wordSet));
-    lcd.print(item);
-    lcd.setCursor(0,1);
-    myPrint(set_permissions,sizeof(set_permissions));
-    lcd.print(relMode & 0x0F);
 }
 
 void switchTimeOff(uint8_t item, uint8_t val){
