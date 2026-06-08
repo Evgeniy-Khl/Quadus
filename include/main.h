@@ -103,8 +103,8 @@ extern SystemState sysState;
 
 // Language Selection: Uncomment only one
 //#define LANG_EN
-#define LANG_RU
-//#define LANG_UA
+//#define LANG_RU
+#define LANG_UA
 
 enum LogMsgId {
     MSG_HEATER_ERR,
@@ -297,6 +297,6 @@ void setupSwitch();
 void myPrint(const uint8_t* str, uint8_t size);
 void testProgs();
 
-extern const uint8_t error_[8], connect[10], config[12], no_[3], saved[10], file_damaged[15], wordSet[12], timeout_[9], manual_control[15], set_permissions[16], restored[10], save_time[13], time_saved[14], no_permissions[13], sensorsWord[7];
+extern const uint8_t error_[8], connect[10], config[12], no_[3], saved[10], file_damaged[15], wordSet[14], timeout_[9], manual_control[15], set_permissions[16], restored[10], save_time[13], time_saved[14], no_permissions[13], sensorsWord[7];
 
 #endif /* __MAIN_H */
