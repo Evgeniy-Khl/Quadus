@@ -52,7 +52,8 @@ void respondsValues() {
              settings.timerOn, settings.timerOff);
     data["light"] = txt;
 
-    auto formatTimer = [&](int16_t pvTime, bool relayState, const char* label) {
+    auto formatTimer = [&](int16_t pvTime, bool relayState, int8_t manualMode, const char* label) {
+        if (manualMode != -1) return String(label) + (relayState == PCF_OFF ? " Manual OFF" : " Manual ON");
         if (pvTime == -1) return String(label) + " no permission";
         if (relayState == PCF_OFF) { // OFF phase
             uint8_t day = pvTime / 1440;
@@ -65,9 +66,9 @@ void respondsValues() {
         return String(txt);
     };
 
-    data["timer1"] = formatTimer(pvTimeR1, RELAY1, "T1");
-    data["timer2"] = formatTimer(pvTimeR2, RELAY2, "T2");
-    data["timer3"] = formatTimer(pvTimeR3, RELAY3, "T3");
+    data["timer1"] = formatTimer(pvTimeR1, RELAY1, dataOut[3], "T1");
+    data["timer2"] = formatTimer(pvTimeR2, RELAY2, dataOut[4], "T2");
+    data["timer3"] = formatTimer(pvTimeR3, RELAY3, dataOut[5], "T3");
     
     data["error1"] = ERROR1;
     data["error2"] = ERROR2;
