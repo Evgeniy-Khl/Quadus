@@ -15,7 +15,8 @@ void initWiFiManag(void){
     //---- Устанавливаем таймаут для портала конфигурации в секундах ----
     lcd.clear();
     lcd.setCursor(0,0);
-    myPrint(wordSet,sizeof(wordSet));
+    myPrint(connect,sizeof(connect));
+    lcd.print(" WiFi");
     lcd.setCursor(0,1);
     myPrint(timeout_,sizeof(timeout_));
     lcd.print(tt);

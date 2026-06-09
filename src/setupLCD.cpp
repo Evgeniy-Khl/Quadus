@@ -1,10 +1,12 @@
 #include "setupLCD.h"
 
 // Forward declarations for local functions
-void setRelayMode(uint8_t item);
+void setRelayMode();
+void setClimatMode();
 void switchTimeOff(uint8_t item, uint8_t val);
 
 //---------- Ручное управление выходами --------------
+// LIGHT|HEATER|HUMIDI|RELAY1|RELAY2|RELAY3
 void setup1(){
     int position = 3; // Текущая позиция для записи в строку
     displStr[0] = ' ';
@@ -21,12 +23,10 @@ void setup1(){
         }
     }
     displStr[position] = '\0'; // Завершаем строку
-    
     lcd.setCursor(0,0);
-    myPrint(wordSet,sizeof(wordSet));
-    lcd.setCursor(0,1);
     myPrint(manual_control,sizeof(manual_control));
-    lcd.setCursor(10,1);
+    // lcd.setCursor(0,1);
+    lcd.setCursor(4,1);
     lcd.print(displStr);
 }
 // ------------------- setupNum=2 ------------------------------
@@ -106,11 +106,11 @@ void setLight(){
     }
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),
-        "CB \x79\xB3\x69\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff0);   //CB увімкн.??год.
+        "\x43\xB3 \x79\xB3\x69\xBC\xBA\xBD\x2E%2u\xB4\x6F\xE3\x2E",editBuff0);    //Cв увімкн.??год.
     lcd.print(displStr);
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
-        "CB \xB3\xB8\xBC\xBA\xBD\x2E %2u\xB4\x6F\xE3\x2E",editBuff1);      //CB вимкн. ??год.
+        " \xB3\xB8\xBC\xBA\xBD\x79\xBF\xB8 %2u\xB4\x6F\xE3\x2E",editBuff1); // вимкнути ??год.
     lcd.print(displStr);
 }
 // ------------------- setupNum=8 ------------------------------
@@ -130,16 +130,24 @@ void setAlarm(){
     lcd.print(displStr);
 }
 
-// ------------------- setupNum=9,10 ------------------------------
-void setRelayMode(uint8_t item){
-    uint8_t relMode = 0;
-    if(item == 1) relMode = settings.modeRelay1; else relMode = settings.modeRelay2;
+// ------------------- setupNum=9 modeRelay1, modeRelay2, modeRelay3 -
+void setRelayMode(){
     lcd.setCursor(0,0);
-    myPrint(wordSet,sizeof(wordSet));
-    lcd.print(item);
+    myPrint(settingUp, sizeof(settingUp));
     lcd.setCursor(0,1);
-    myPrint(set_permissions,sizeof(set_permissions));
-    lcd.print(relMode & 0x0F);
+    snprintf(displStr, sizeof(displStr),
+        "R1=%d R2=%d R3=%d  ", settings.modeRelay1, settings.modeRelay2, settings.modeRelay3);
+    lcd.print(displStr);
+}
+
+// ------------------- setupNum=10 modeHeater, modeHumidi ------------
+void setClimatMode(){
+    lcd.setCursor(0,0);
+    myPrint(settingUp, sizeof(settingUp));
+    lcd.setCursor(0,1);
+    snprintf(displStr, sizeof(displStr),
+        "\x48\x61\xB4\x70\x2E=%d \xA4\xB3\x6F\xBB\x2E=%d ", settings.modeHeater, settings.modeHumidi);
+    lcd.print(displStr);
 }
 
 // ------------------- setupNum=11 ------------------------------
@@ -150,7 +158,7 @@ void setFlapProg(){
         editBuff1 = settings.program;
     }
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61  %3u%%",editBuff0);   //Заслiнка ???%
+    snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61 %3u%%",editBuff0);   //Заслiнка ???%
     lcd.print(displStr);
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),"\xA8\x70\x6F\xB4\x70\x61\xBC\x61 \xCC%2u",editBuff1);  //Програма #???
@@ -165,10 +173,10 @@ void setDevSpec(){
         editBuff1 = settings.special;
     }
     lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"\xA8\x70\xB8\xB2\x6F\x70 \xCC%2u",editBuff0);     //Прибор #???
+    snprintf(displStr, sizeof(displStr),"\xA8\x70\xB8\xB2\x6F\x70 \xBD\x6F\xBC\x65\x70%2u",editBuff0);  //Прибор номер ?
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    snprintf(displStr, sizeof(displStr),"\x50\x65\xB6\xB8\xBC  \xCC%2u",editBuff1);         //Режим #???
+    snprintf(displStr, sizeof(displStr),"\x50\x65\xB6\xB8\xBC  WiFi %2u",editBuff1);                   //Режим  WiFi  ?
     lcd.print(displStr);
 }
 void setupSwitch(){
@@ -181,8 +189,8 @@ void setupSwitch(){
         case 6: setRelay(3); break;
         case 7: setLight(); break;
         case 8: setAlarm(); break;
-        case 9: setRelayMode(1); break;
-        case 10: setRelayMode(2); break;
+        case 9: setRelayMode(); break;
+        case 10: setClimatMode(); break;
         case 11: setFlapProg(); break;
         case 12: setDevSpec(); break;
         default: break;

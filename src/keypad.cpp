@@ -149,7 +149,7 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
-    case 10:  // setRelayMode()
+    case 10:  // setClimatMode()
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
             case KEY_1: if(++settings.modeHeater > 2) settings.modeHeater = 0; break;

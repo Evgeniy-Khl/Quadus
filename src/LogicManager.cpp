@@ -54,7 +54,7 @@ void LogicManager::updateStatusLeds() {
     dataLed[6] = errorsFlag.value;
 }
 
-void LogicManager::relaySwitch(uint8_t cn) {
+void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     // stateBit stores current relay state (active low for PCF8574: 0 = ON, 1 = OFF)
     bool stateBit = PCF_OFF, prnBit = false;
     // val: remaining time, spOn: ON duration, spOff: OFF interval, permit: operation mode
