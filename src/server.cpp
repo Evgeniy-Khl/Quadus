@@ -260,16 +260,14 @@ void handleManualControl() {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, server.arg("plain"));
         if (!error) {
-            isManualOverride = true;
-            sysLogger.log(getMsg(MSG_MANUAL_ON));
-            if (doc["rel1"].is<bool>()) { LIGHT  = doc["rel1"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_LIGHT)) + (LIGHT == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
-            if (doc["rel2"].is<bool>()) { HEATER = doc["rel2"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HEATER)) + (HEATER == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
-            if (doc["rel3"].is<bool>()) { HUMIDI = doc["rel3"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HUMIDI)) + (HUMIDI == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
-            if (doc["rel4"].is<bool>()) { RELAY1 = doc["rel4"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY1)) + (RELAY1 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
-            if (doc["rel5"].is<bool>()) { RELAY2 = doc["rel5"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY2)) + (RELAY2 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
-            if (doc["rel6"].is<bool>()) { RELAY3 = doc["rel6"].as<bool>() ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_RELAY3)) + (RELAY3 == PCF_ON ? getMsg(MSG_ON) : getMsg(MSG_OFF))); }
+            if (doc["rel1"].is<int8_t>()) { dataOut[0] = doc["rel1"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_LIGHT)) + dataOut[0]); }
+            if (doc["rel2"].is<int8_t>()) { dataOut[1] = doc["rel2"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_HEATER)) + dataOut[1]); }
+            if (doc["rel3"].is<int8_t>()) { dataOut[2] = doc["rel3"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_HUMIDI)) + dataOut[2]); }
+            if (doc["rel4"].is<int8_t>()) { dataOut[3] = doc["rel4"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY1)) + dataOut[3]); }
+            if (doc["rel5"].is<int8_t>()) { dataOut[4] = doc["rel5"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY2)) + dataOut[4]); }
+            if (doc["rel6"].is<int8_t>()) { dataOut[5] = doc["rel6"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY3)) + dataOut[5]); }
             
-            server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":true}");
+            server.send(200, "application/json", "{\"status\":\"ok\"}");
             return;
         }
     }
@@ -277,20 +275,26 @@ void handleManualControl() {
 }
 
 void resetAutoControl() {
-    isManualOverride = false;
+    for (int i = 0; i < 6; i++) dataOut[i] = -1;
     sysLogger.log(getMsg(MSG_AUTO_RESTORED));
-    server.send(200, "application/json", "{\"status\":\"ok\",\"manual\":false}");
+    server.send(200, "application/json", "{\"status\":\"ok\"}");
 }
 
 void handleGetRelayStates() {
     JsonDocument doc;
+    doc["rel1_m"] = dataOut[0];
+    doc["rel2_m"] = dataOut[1];
+    doc["rel3_m"] = dataOut[2];
+    doc["rel4_m"] = dataOut[3];
+    doc["rel5_m"] = dataOut[4];
+    doc["rel6_m"] = dataOut[5];
+    
     doc["rel1"] = (LIGHT == PCF_ON);
     doc["rel2"] = (HEATER == PCF_ON);
     doc["rel3"] = (HUMIDI == PCF_ON);
     doc["rel4"] = (RELAY1 == PCF_ON);
     doc["rel5"] = (RELAY2 == PCF_ON);
     doc["rel6"] = (RELAY3 == PCF_ON);
-    doc["manual"] = isManualOverride;
 
     WiFiClient client = server.client();
     server.setContentLength(measureJson(doc));

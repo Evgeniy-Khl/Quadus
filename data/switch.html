@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
-  <title>Квадус - Перемикачі</title>
+  <title>Квадус - Керування</title>
   <style>
     html { font-family: Arial, sans-serif; display: inline-block; text-align: center; }
     h1, h4 { color: white; margin: 10px; }
@@ -26,60 +26,125 @@
     .switch-container {
       background: rgba(255,255,255,0.1);
       padding: 15px; border-radius: 10px; margin: 10px auto;
-      max-width: 400px; display: flex; justify-content: space-between; align-items: center;
+      max-width: 500px; display: flex; flex-direction: column; align-items: center;
     }
     
-    .switch { position: relative; display: inline-block; width: 60px; height: 34px; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .slider {
-      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc; transition: .4s; border-radius: 34px;
+    .radio-group {
+        display: flex;
+        justify-content: space-around;
+        width: 100%;
+        margin-top: 10px;
     }
-    .slider:before {
-      position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px;
-      background-color: white; transition: .4s; border-radius: 50%;
-    }
-    input:checked + .slider { background-color: #2ecc71; }
-    input:focus + .slider { box-shadow: 0 0 1px #2ecc71; }
-    input:checked + .slider:before { transform: translateX(26px); }
 
-    .manual-indicator {
-        color: #e67e22; font-weight: bold; margin-bottom: 15px; display: none;
+    .radio-group label {
+        color: white;
+        cursor: pointer;
+        padding: 10px;
+        border-radius: 5px;
+        background: rgba(255,255,255,0.05);
+        flex: 1;
+        margin: 0 5px;
+        transition: 0.3s;
     }
-    .manual-indicator.active { display: block; }
+
+    .radio-group input {
+        display: none;
+    }
+
+    .radio-group input:checked + span {
+        font-weight: bold;
+    }
+
+    /* Styles for different states */
+    .radio-group label.auto-label { border: 1px solid #3498db; }
+    .radio-group input[value="-1"]:checked + span { color: #3498db; }
+    
+    .radio-group label.on-label { border: 1px solid #2ecc71; }
+    .radio-group input[value="1"]:checked + span { color: #2ecc71; }
+    
+    .radio-group label.off-label { border: 1px solid #e74c3c; }
+    .radio-group input[value="0"]:checked + span { color: #e74c3c; }
+
+    .radio-group input:checked {
+        display: none;
+    }
+    
+    .radio-group label:has(input:checked) {
+        background: rgba(255,255,255,0.2);
+    }
+
+    .status-indicator {
+        font-size: 0.8rem;
+        margin-top: 5px;
+        color: #bdc3c7;
+    }
   </style>
 </head>
 <body>
   <div id="grad1">
     <h1>Ручне управління</h1>
-    <div id="manualMsg" class="manual-indicator">УВАГА: Ручний режим активований</div>
     
     <div class="switch-container">
         <h4>ОСВІТЛЕННЯ</h4>
-        <label class="switch"><input type="checkbox" id="rel1" onchange="toggleRelay('rel1', this.checked)"><span class="slider"></span></label>
-    </div>
-    <div class="switch-container">
-        <h4>НАГРІВАЧ</h4>
-        <label class="switch"><input type="checkbox" id="rel2" onchange="toggleRelay('rel2', this.checked)"><span class="slider"></span></label>
-    </div>
-    <div class="switch-container">
-        <h4>ЗВОЛОЖУВАЧ</h4>
-        <label class="switch"><input type="checkbox" id="rel3" onchange="toggleRelay('rel3', this.checked)"><span class="slider"></span></label>
-    </div>
-    <div class="switch-container">
-        <h4>РЕЛЕ 1</h4>
-        <label class="switch"><input type="checkbox" id="rel4" onchange="toggleRelay('rel4', this.checked)"><span class="slider"></span></label>
-    </div>
-    <div class="switch-container">
-        <h4>РЕЛЕ 2</h4>
-        <label class="switch"><input type="checkbox" id="rel5" onchange="toggleRelay('rel5', this.checked)"><span class="slider"></span></label>
-    </div>
-    <div class="switch-container">
-        <h4>РЕЛЕ 3</h4>
-        <label class="switch"><input type="checkbox" id="rel6" onchange="toggleRelay('rel6', this.checked)"><span class="slider"></span></label>
+        <div class="radio-group" id="group_rel1">
+            <label class="auto-label"><input type="radio" name="rel1" value="-1" onchange="setRelayMode('rel1', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel1" value="1" onchange="setRelayMode('rel1', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel1" value="0" onchange="setRelayMode('rel1', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel1">Стан: --</div>
     </div>
 
-    <button class="button button-reset" onclick="resetAuto()">ПОВЕРНУТИ АВТОМАТИКУ</button>
+    <div class="switch-container">
+        <h4>НАГРІВАЧ</h4>
+        <div class="radio-group" id="group_rel2">
+            <label class="auto-label"><input type="radio" name="rel2" value="-1" onchange="setRelayMode('rel2', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel2" value="1" onchange="setRelayMode('rel2', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel2" value="0" onchange="setRelayMode('rel2', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel2">Стан: --</div>
+    </div>
+
+    <div class="switch-container">
+        <h4>ЗВОЛОЖУВАЧ</h4>
+        <div class="radio-group" id="group_rel3">
+            <label class="auto-label"><input type="radio" name="rel3" value="-1" onchange="setRelayMode('rel3', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel3" value="1" onchange="setRelayMode('rel3', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel3" value="0" onchange="setRelayMode('rel3', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel3">Стан: --</div>
+    </div>
+
+    <div class="switch-container">
+        <h4>РЕЛЕ 1</h4>
+        <div class="radio-group" id="group_rel4">
+            <label class="auto-label"><input type="radio" name="rel4" value="-1" onchange="setRelayMode('rel4', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel4" value="1" onchange="setRelayMode('rel4', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel4" value="0" onchange="setRelayMode('rel4', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel4">Стан: --</div>
+    </div>
+
+    <div class="switch-container">
+        <h4>РЕЛЕ 2</h4>
+        <div class="radio-group" id="group_rel5">
+            <label class="auto-label"><input type="radio" name="rel5" value="-1" onchange="setRelayMode('rel5', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel5" value="1" onchange="setRelayMode('rel5', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel5" value="0" onchange="setRelayMode('rel5', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel5">Стан: --</div>
+    </div>
+
+    <div class="switch-container">
+        <h4>РЕЛЕ 3</h4>
+        <div class="radio-group" id="group_rel6">
+            <label class="auto-label"><input type="radio" name="rel6" value="-1" onchange="setRelayMode('rel6', -1)"><span>АВТО</span></label>
+            <label class="on-label"><input type="radio" name="rel6" value="1" onchange="setRelayMode('rel6', 1)"><span>ВКЛ</span></label>
+            <label class="off-label"><input type="radio" name="rel6" value="0" onchange="setRelayMode('rel6', 0)"><span>ВИКЛ</span></label>
+        </div>
+        <div class="status-indicator" id="stat_rel6">Стан: --</div>
+    </div>
+
+    <button class="button button-reset" onclick="resetAuto()">ПОВЕРНУТИ ВСЕ В АВТО</button>
     <br>
     <a href="/"><button class="button">НА ГОЛОВНУ</button></a>
   </div>
@@ -89,22 +154,27 @@
         fetch('/get_relays')
             .then(response => response.json())
             .then(data => {
-                document.getElementById('rel1').checked = data.rel1;
-                document.getElementById('rel2').checked = data.rel2;
-                document.getElementById('rel3').checked = data.rel3;
-                document.getElementById('rel4').checked = data.rel4;
-                document.getElementById('rel5').checked = data.rel5;
-                document.getElementById('rel6').checked = data.rel6;
-                
-                const msg = document.getElementById('manualMsg');
-                if (data.manual) msg.classList.add('active');
-                else msg.classList.remove('active');
+                for (let i = 1; i <= 6; i++) {
+                    const mode = data[`rel${i}_m`];
+                    const state = data[`rel${i}`];
+                    
+                    // Update radio buttons
+                    const radios = document.getElementsByName(`rel${i}`);
+                    radios.forEach(r => {
+                        if (parseInt(r.value) === mode) r.checked = true;
+                    });
+                    
+                    // Update physical status text
+                    const statEl = document.getElementById(`stat_rel${i}`);
+                    statEl.textContent = "Поточний стан: " + (state ? "УВІМКНЕНО" : "ВИМКНЕНО");
+                    statEl.style.color = state ? "#2ecc71" : "#e74c3c";
+                }
             });
     }
 
-    function toggleRelay(id, state) {
+    function setRelayMode(id, mode) {
         const payload = {};
-        payload[id] = state;
+        payload[id] = parseInt(mode);
         
         fetch('/set_relay', {
             method: 'POST',

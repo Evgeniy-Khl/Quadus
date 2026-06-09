@@ -5,8 +5,13 @@
 LogicManager logicManager;
 
 void LogicManager::processLighting() {
-    if (!RTCENABLE || isManualOverride) return;
+    if (!RTCENABLE) return;
     
+    if (dataOut[0] != -1) {
+        LIGHT = (dataOut[0] == 1) ? PCF_ON : PCF_OFF;
+        return;
+    }
+
     uint8_t currentHour = timeinfo->tm_hour;
     if (checkLightState(currentHour, settings.timerOn, settings.timerOff)) {
         LIGHT = PCF_ON;
@@ -16,16 +21,16 @@ void LogicManager::processLighting() {
 }
 
 void LogicManager::processIrrigation() {
-    if (isManualOverride) return;
     relaySwitch(1);
     relaySwitch(2);
     relaySwitch(3);
 }
 
 void LogicManager::processClimate() {
-    if (isManualOverride) return;
     // Heater processing
-    if (ds[0].pvT > 1250) { // 125.0°C
+    if (dataOut[1] != -1) {
+        HEATER = (dataOut[1] == 1) ? PCF_ON : PCF_OFF;
+    } else if (ds[0].pvT > 1250) { // 125.0°C
         if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR));
         ERROR1 = 1;
     } else {
@@ -33,7 +38,9 @@ void LogicManager::processClimate() {
     }
 
     // Humidifier processing
-    if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
+    if (dataOut[2] != -1) {
+        HUMIDI = (dataOut[2] == 1) ? PCF_ON : PCF_OFF;
+    } else if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
         if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR));
         ERROR2 = 1;
     } else {
@@ -59,6 +66,17 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     bool stateBit = PCF_OFF, prnBit = false;
     // val: remaining time, spOn: ON duration, spOff: OFF interval, permit: operation mode
     int16_t val = 0, spOn = 0, spOff = 0, permit = 0;
+    int8_t manualMode = dataOut[cn + 2]; // dataOut[3, 4, 5] for relays 1, 2, 3
+
+    if (manualMode != -1) {
+        stateBit = (manualMode == 1) ? PCF_ON : PCF_OFF;
+        switch (cn) {
+            case 1: RELAY1 = stateBit; pvTimeR1 = -1; break;
+            case 2: RELAY2 = stateBit; pvTimeR2 = -1; break;
+            case 3: RELAY3 = stateBit; pvTimeR3 = -1; break;
+        }
+        return;
+    }
     
     // Step 1: Initialize local variables based on the requested channel
     switch (cn) {

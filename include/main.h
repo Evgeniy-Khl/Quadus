@@ -96,7 +96,6 @@ struct SystemState {
     uint8_t pvFlap_m = 0;
     uint8_t numberOfDS18_m = 0;
     bool hasDHT22_m = false;
-    bool isManualOverride_m = false;
 };
 
 extern SystemState sysState;
@@ -202,7 +201,6 @@ extern TableBuff unTable;
 #define pvFlap          sysState.pvFlap_m
 #define numberOfDS18    sysState.numberOfDS18_m
 #define hasDHT22        sysState.hasDHT22_m
-#define isManualOverride sysState.isManualOverride_m
 #define portOut         sysState.portOut_m
 #define errorsFlag      sysState.errorsFlag_m
 #define portFlag        sysState.portFlag_m

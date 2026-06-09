@@ -19,8 +19,8 @@ void checkkey(uint8_t key){
         for (uint8_t i = 0; i < 6; i++){
           uint8_t val = (1 << i);
           switch (dataOut[i]){
-          case 0: portOut.value &= ~val; break;
-          case 1: portOut.value |= val; break;
+          case 0: portOut.value |= val; break;  // 0 = OFF (set bit to 1)
+          case 1: portOut.value &= ~val; break; // 1 = ON (clear bit to 0)
           default:  break;
           } 
         }
