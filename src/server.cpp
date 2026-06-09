@@ -163,10 +163,6 @@ void acceptEeprom() {
                     if (obj[key].is<float>() || obj[key].is<int>()) return (int16_t)round(obj[key].as<float>() * 10.0);
                     return current;
                 };
-                auto getInt = [&](const char* key, int16_t current) -> int16_t {
-                    if (obj[key].is<float>() || obj[key].is<int>()) return obj[key].as<int>();
-                    return current;
-                };
                 auto getUint8 = [&](const char* key, uint8_t current) -> uint8_t {
                     if (obj[key].is<int>()) return obj[key].as<uint8_t>();
                     return current;
