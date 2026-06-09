@@ -73,6 +73,18 @@ void respondsValues() {
     data["error2"] = ERROR2;
     data["error4"] = ERROR4;
     data["error8"] = ERROR8;
+    
+    // Raw values for alarm calculations on client side
+    data["pvT0"] = ds[0].pvT;
+    data["spT0min"] = min(settings.spT0on, settings.spT0off);
+    data["spT0max"] = max(settings.spT0on, settings.spT0off);
+    data["alarm0"] = settings.alarm0;
+    
+    data["pvT1"] = ds[1].pvT;
+    data["spT1min"] = min(settings.spT1on, settings.spT1off);
+    data["spT1max"] = max(settings.spT1on, settings.spT1off);
+    data["alarm1"] = settings.alarm1;
+
     data["flap"] = String(pvFlap) + "%";
     
     data["program"] = ((settings.program & 0xF) == 0) ? "none" : "#" + String(settings.program & 0xF);

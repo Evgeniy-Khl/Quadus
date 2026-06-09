@@ -81,7 +81,13 @@
     .bg-normal { background: rgba(46, 204, 113, 0.2); border: 1px solid rgba(46, 204, 113, 0.4); }
     .bg-humidity { background: rgba(52, 152, 219, 0.2); border: 1px solid rgba(52, 152, 219, 0.4); }
     .bg-error { background: rgba(231, 76, 60, 0.4); border: 1px solid #e74c3c; }
-    .bg-alarm { background: rgba(241, 196, 15, 0.4); border: 1px solid #f1c40f; }
+    
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0.7); }
+      70% { box-shadow: 0 0 0 10px rgba(230, 126, 34, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(230, 126, 34, 0); }
+    }
+    .bg-alarm { background: rgba(230, 126, 34, 0.4); border: 1px solid #e67e22; animation: pulse 2s infinite; }
 
     .ukraine-flag { width: 30px; vertical-align: middle; margin-left: 10px; border-radius: 3px; }
   </style>
@@ -155,8 +161,14 @@ function fetchData() {
                 if (err == 1) el.classList.add('bg-error');
                 else if (alarm == 1) el.classList.add('bg-alarm');
             };
+            
+            const checkAlarm = (val, min, max, alarm) => {
+                if (val === undefined || min === undefined || max === undefined || alarm === undefined) return 0;
+                return (val <= (min - alarm) || val >= (max + alarm)) ? 1 : 0;
+            };
 
-            updateBlockColor("rcorners0", json.error1, json.error4, "bg-normal");
+            const alarm0 = checkAlarm(json.pvT0, json.spT0min, json.spT0max, json.alarm0) || json.error4;
+            updateBlockColor("rcorners0", json.error1, alarm0, "bg-normal");
 
             if (json.temperature1 === undefined) {
                 document.getElementById("rcorners1").style.display = 'none';
@@ -164,7 +176,8 @@ function fetchData() {
                 document.getElementById("rcorners1").style.display = 'block';
                 document.getElementById("temperature1").innerHTML = json.temperature1;
                 document.getElementById("settemp1").innerHTML = json.settemp1;
-                updateBlockColor("rcorners1", json.error2, json.error8, "bg-normal");
+                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || json.error8;
+                updateBlockColor("rcorners1", json.error2, alarm1, "bg-normal");
             }
 
             if (json.humidity === undefined) {
@@ -173,7 +186,8 @@ function fetchData() {
                 document.getElementById("rcorners2").style.display = 'block';
                 document.getElementById("humidity").innerHTML = json.humidity;
                 document.getElementById("sethum").innerHTML = json.sethum;
-                updateBlockColor("rcorners2", json.error2, json.error8, "bg-humidity");
+                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || json.error8;
+                updateBlockColor("rcorners2", json.error2, alarm1, "bg-humidity");
             }
 
             document.getElementById("light").innerHTML = json.light;

@@ -147,6 +147,8 @@ void loop(){
       countSeconds++; errorsFlag.value = 0;
       sensorCheck();
       
+      logicManager.processLighting();
+      logicManager.processIrrigation();
       logicManager.processClimate();
       logicManager.processAlarms();
       logicManager.updateStatusLeds();
@@ -159,9 +161,6 @@ void loop(){
         time_t utc_time = rtc.now().unixtime();
         timeinfo = localtime(&utc_time);
         
-        logicManager.processLighting();
-        logicManager.processIrrigation();
-
         #ifdef DEBUG
         MYDEBUG_PRINTLN("processLighting():");
         printBinary(portOut.value);
