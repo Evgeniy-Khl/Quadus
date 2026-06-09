@@ -149,49 +149,59 @@ void respondsEeprom() {
 
 void acceptEeprom() {
     if (server.hasArg("plain")) {
-        JsonDocument doc;
-        DeserializationError error = deserializeJson(doc, server.arg("plain"));
+        bool success = false;
         
-        if (!error) {
-            JsonObject obj = doc.as<JsonObject>();
+        // Scope to free memory immediately after parsing
+        {
+            JsonDocument doc;
+            DeserializationError error = deserializeJson(doc, server.arg("plain"));
             
-            auto updateInt = [&](const char* key, int16_t& target, bool isScaled = false) {
-                if (obj[key].is<float>() || obj[key].is<int>()) {
-                    if (isScaled) target = (int16_t)round(obj[key].as<float>() * 10.0);
-                    else target = obj[key].as<int>();
-                }
-            };
-            auto updateUint8 = [&](const char* key, uint8_t& target) {
-                if (obj[key].is<int>()) target = obj[key].as<uint8_t>();
-            };
+            if (!error) {
+                JsonObject obj = doc.as<JsonObject>();
+                
+                auto updateInt = [&](const char* key, int16_t& target, bool isScaled = false) {
+                    if (obj[key].is<float>() || obj[key].is<int>()) {
+                        if (isScaled) target = (int16_t)round(obj[key].as<float>() * 10.0);
+                        else target = obj[key].as<int>();
+                    }
+                };
+                auto updateUint8 = [&](const char* key, uint8_t& target) {
+                    if (obj[key].is<int>()) target = obj[key].as<uint8_t>();
+                };
 
-            updateInt("spT0on", settings.spT0on, true);
-            updateInt("spT0off", settings.spT0off, true);
-            updateInt("spT1on", settings.spT1on, true);
-            updateInt("spT1off", settings.spT1off, true);
-            updateUint8("water0on", settings.water0on);
-            updateUint8("water0off", settings.water0off);
-            updateUint8("water1on", settings.water1on);
-            updateUint8("water1off", settings.water1off);
-            updateUint8("water2on", settings.water2on);
-            updateUint8("water2off", settings.water2off);
-            updateUint8("flpNow", settings.flap);
-            updateUint8("timerOn", settings.timerOn);
-            updateUint8("timerOff", settings.timerOff);
-            updateInt("alarm0", settings.alarm0, true);
-            updateInt("alarm1", settings.alarm1, true);
-            updateInt("hyst0", settings.hysteresis0, true);
-            updateInt("hyst1", settings.hysteresis1, true);
-            updateUint8("deviceNum", settings.deviceNum);
-            updateUint8("program", settings.program);
-            updateUint8("modeHeater", settings.modeHeater);
-            updateUint8("modeHumidi", settings.modeHumidi);
-            updateUint8("modeRelay1", settings.modeRelay1);
-            updateUint8("modeRelay2", settings.modeRelay2);
-            updateUint8("modeRelay3", settings.modeRelay3);
+                updateInt("spT0on", settings.spT0on, true);
+                updateInt("spT0off", settings.spT0off, true);
+                updateInt("spT1on", settings.spT1on, true);
+                updateInt("spT1off", settings.spT1off, true);
+                updateUint8("water0on", settings.water0on);
+                updateUint8("water0off", settings.water0off);
+                updateUint8("water1on", settings.water1on);
+                updateUint8("water1off", settings.water1off);
+                updateUint8("water2on", settings.water2on);
+                updateUint8("water2off", settings.water2off);
+                updateUint8("flpNow", settings.flap);
+                updateUint8("timerOn", settings.timerOn);
+                updateUint8("timerOff", settings.timerOff);
+                updateInt("alarm0", settings.alarm0, true);
+                updateInt("alarm1", settings.alarm1, true);
+                updateInt("hyst0", settings.hysteresis0, true);
+                updateInt("hyst1", settings.hysteresis1, true);
+                updateUint8("deviceNum", settings.deviceNum);
+                updateUint8("program", settings.program);
+                updateUint8("modeHeater", settings.modeHeater);
+                updateUint8("modeHumidi", settings.modeHumidi);
+                updateUint8("modeRelay1", settings.modeRelay1);
+                updateUint8("modeRelay2", settings.modeRelay2);
+                updateUint8("modeRelay3", settings.modeRelay3);
 
-            saveSetPoint();
+                success = true;
+            }
+        }
+        
+        if (success) {
             server.send(200, "application/json", "{\"status\":\"ok\"}");
+            // Call saveSetPoint AFTER sending the response
+            saveSetPoint();
             return;
         }
     }
