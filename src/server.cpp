@@ -272,12 +272,12 @@ void handleManualControl() {
         JsonDocument doc;
         DeserializationError error = deserializeJson(doc, server.arg("plain"));
         if (!error) {
-            if (doc["rel1"].is<int8_t>()) { dataOut[0] = doc["rel1"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_LIGHT)) + dataOut[0]); }
-            if (doc["rel2"].is<int8_t>()) { dataOut[1] = doc["rel2"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_HEATER)) + dataOut[1]); }
-            if (doc["rel3"].is<int8_t>()) { dataOut[2] = doc["rel3"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_HUMIDI)) + dataOut[2]); }
-            if (doc["rel4"].is<int8_t>()) { dataOut[3] = doc["rel4"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY1)) + dataOut[3]); }
-            if (doc["rel5"].is<int8_t>()) { dataOut[4] = doc["rel5"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY2)) + dataOut[4]); }
-            if (doc["rel6"].is<int8_t>()) { dataOut[5] = doc["rel6"].as<int8_t>(); sysLogger.log(String(getMsg(MSG_MANUAL_RELAY3)) + dataOut[5]); }
+            if (doc["rel1"].is<int8_t>()) { dataOut[0] = doc["rel1"].as<int8_t>(); if (dataOut[0] != -1) LIGHT = (dataOut[0] == 1) ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_LIGHT)) + dataOut[0]); }
+            if (doc["rel2"].is<int8_t>()) { dataOut[1] = doc["rel2"].as<int8_t>(); if (dataOut[1] != -1) HEATER = (dataOut[1] == 1) ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HEATER)) + dataOut[1]); }
+            if (doc["rel3"].is<int8_t>()) { dataOut[2] = doc["rel3"].as<int8_t>(); if (dataOut[2] != -1) HUMIDI = (dataOut[2] == 1) ? PCF_ON : PCF_OFF; sysLogger.log(String(getMsg(MSG_MANUAL_HUMIDI)) + dataOut[2]); }
+            if (doc["rel4"].is<int8_t>()) { dataOut[3] = doc["rel4"].as<int8_t>(); if (dataOut[3] != -1) { RELAY1 = (dataOut[3] == 1) ? PCF_ON : PCF_OFF; pvTimeR1 = -1; } sysLogger.log(String(getMsg(MSG_MANUAL_RELAY1)) + dataOut[3]); }
+            if (doc["rel5"].is<int8_t>()) { dataOut[4] = doc["rel5"].as<int8_t>(); if (dataOut[4] != -1) { RELAY2 = (dataOut[4] == 1) ? PCF_ON : PCF_OFF; pvTimeR2 = -1; } sysLogger.log(String(getMsg(MSG_MANUAL_RELAY2)) + dataOut[4]); }
+            if (doc["rel6"].is<int8_t>()) { dataOut[5] = doc["rel6"].as<int8_t>(); if (dataOut[5] != -1) { RELAY3 = (dataOut[5] == 1) ? PCF_ON : PCF_OFF; pvTimeR3 = -1; } sysLogger.log(String(getMsg(MSG_MANUAL_RELAY3)) + dataOut[5]); }
             
             server.send(200, "application/json", "{\"status\":\"ok\"}");
             return;
