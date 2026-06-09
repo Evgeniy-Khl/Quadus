@@ -157,37 +157,42 @@ function fetchData() {
             // Logic for block colors
             const updateBlockColor = (id, err, alarm, defaultClass) => {
                 const el = document.getElementById(id);
+                if (!el) return;
                 el.className = 'sensor-block ' + defaultClass;
-                if (err == 1) el.classList.add('bg-error');
-                else if (alarm == 1) el.classList.add('bg-alarm');
+                if (err) el.classList.add('bg-error');
+                else if (alarm) el.classList.add('bg-alarm');
             };
             
             const checkAlarm = (val, min, max, alarm) => {
-                if (val === undefined || min === undefined || max === undefined || alarm === undefined) return 0;
-                return (val <= (min - alarm) || val >= (max + alarm)) ? 1 : 0;
+                if (val == null || min == null || max == null || alarm == null) return false;
+                val = Number(val);
+                min = Number(min);
+                max = Number(max);
+                alarm = Number(alarm);
+                return (val <= (min - alarm) || val >= (max + alarm));
             };
 
-            const alarm0 = checkAlarm(json.pvT0, json.spT0min, json.spT0max, json.alarm0) || json.error4;
-            updateBlockColor("rcorners0", json.error1, alarm0, "bg-normal");
+            const alarm0 = checkAlarm(json.pvT0, json.spT0min, json.spT0max, json.alarm0) || !!json.error4;
+            updateBlockColor("rcorners0", !!json.error1, alarm0, "bg-normal");
 
-            if (json.temperature1 === undefined) {
-                document.getElementById("rcorners1").style.display = 'none';
-            } else {
+            if (json.temperature1 !== undefined) {
                 document.getElementById("rcorners1").style.display = 'block';
                 document.getElementById("temperature1").innerHTML = json.temperature1;
                 document.getElementById("settemp1").innerHTML = json.settemp1;
-                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || json.error8;
-                updateBlockColor("rcorners1", json.error2, alarm1, "bg-normal");
+                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || !!json.error8;
+                updateBlockColor("rcorners1", !!json.error2, alarm1, "bg-normal");
+            } else {
+                document.getElementById("rcorners1").style.display = 'none';
             }
 
-            if (json.humidity === undefined) {
-                document.getElementById("rcorners2").style.display = 'none';
-            } else {
+            if (json.humidity !== undefined) {
                 document.getElementById("rcorners2").style.display = 'block';
                 document.getElementById("humidity").innerHTML = json.humidity;
                 document.getElementById("sethum").innerHTML = json.sethum;
-                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || json.error8;
-                updateBlockColor("rcorners2", json.error2, alarm1, "bg-humidity");
+                const alarm2 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || !!json.error8;
+                updateBlockColor("rcorners2", !!json.error2, alarm2, "bg-humidity");
+            } else {
+                document.getElementById("rcorners2").style.display = 'none';
             }
 
             document.getElementById("light").innerHTML = json.light;
