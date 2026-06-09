@@ -93,14 +93,14 @@ bool check_freeze(uint8_t i, float val){
  */
 void checkDs18b20(void){
 #ifdef DEBUG
-  // char buff[100];
+  char buff[100];
 #endif
   uint8_t startIdx = hasDHT22 ? 2 : 0;
   
   for (uint8_t i = 0; i < numberOfDS18; i++){
     uint8_t dsIdx = startIdx + i;
     int8_t alarmL = 0;
-    // bool calibrated = false;
+    bool calibrated = false;
     if (dsIdx >= MAX_DEVICE) break;
 
     float tempC = sensors.getTempC(sensorAddresses[i]);
@@ -127,8 +127,8 @@ void checkDs18b20(void){
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
     if(alarmH == TUNING){
       alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
-      ds[dsIdx].pvT += (alarmL);
-      // calibrated = true;
+      // ds[dsIdx].pvT += (alarmL);
+      calibrated = true;
     }
     // ---------- Check freeze ------------------------------------
     if(check_freeze(dsIdx, tempC)){

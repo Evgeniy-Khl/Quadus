@@ -234,10 +234,10 @@ extern TableBuff unTable;
 
 extern TM1638 module;
 
-#define T0ON      22
-#define T0OFF     24
-#define T1ON      18
-#define T1OFF     20
+#define T0ON      220
+#define T0OFF     240
+#define T1ON      180
+#define T1OFF     200
 #define WT0ON     10
 #define WT0OFF    1
 #define WT1ON     20
@@ -246,8 +246,8 @@ extern TM1638 module;
 #define WT2OFF    10
 #define TIMERON   5
 #define TIMEROFF  22
-#define ALARM0    5
-#define ALARM1    5
+#define ALARM0    10
+#define ALARM1    10
 
 extern const char* version;
 extern char displStr[18];

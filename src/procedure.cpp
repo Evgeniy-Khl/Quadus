@@ -106,28 +106,19 @@ void saveSetPoint() {
     obj["modeRelay2"] = settings.modeRelay2;
     obj["modeRelay3"] = settings.modeRelay3;
 
-    lcd.clear();
-    lcd.setCursor(0,0);
     File configFile = LittleFS.open("/setpoint.json", "w");
     if (!configFile) {
         MYDEBUG_PRINTLN("Failed to open file for writing");
-        myPrint(file_damaged,sizeof(file_damaged));
         sysLogger.log(getMsg(MSG_FS_OPEN_ERR));
         return;
     }
-    myPrint(config,sizeof(config));
-    lcd.setCursor(0,1);
     if (serializeJson(doc, configFile) == 0) {
         MYDEBUG_PRINTLN("Error writing to file");
-        myPrint(no_,sizeof(no_));
         sysLogger.log(getMsg(MSG_JSON_ERR));
     } else {
         MYDEBUG_PRINTLN("Configuration saved successfully.");
-        myPrint(saved,sizeof(saved));
         sysLogger.log(getMsg(MSG_CONFIG_SAVED));
     }
-    delay(300);
-    lcd.clear();
     configFile.close();
     logicManager.relaySwitch(1);
     logicManager.relaySwitch(2);
