@@ -159,40 +159,43 @@ void acceptEeprom() {
             if (!error) {
                 JsonObject obj = doc.as<JsonObject>();
                 
-                auto updateInt = [&](const char* key, int16_t& target, bool isScaled = false) {
-                    if (obj[key].is<float>() || obj[key].is<int>()) {
-                        if (isScaled) target = (int16_t)round(obj[key].as<float>() * 10.0);
-                        else target = obj[key].as<int>();
-                    }
+                auto getScaled = [&](const char* key, int16_t current) -> int16_t {
+                    if (obj[key].is<float>() || obj[key].is<int>()) return (int16_t)round(obj[key].as<float>() * 10.0);
+                    return current;
                 };
-                auto updateUint8 = [&](const char* key, uint8_t& target) {
-                    if (obj[key].is<int>()) target = obj[key].as<uint8_t>();
+                auto getInt = [&](const char* key, int16_t current) -> int16_t {
+                    if (obj[key].is<float>() || obj[key].is<int>()) return obj[key].as<int>();
+                    return current;
+                };
+                auto getUint8 = [&](const char* key, uint8_t current) -> uint8_t {
+                    if (obj[key].is<int>()) return obj[key].as<uint8_t>();
+                    return current;
                 };
 
-                updateInt("spT0on", settings.spT0on, true);
-                updateInt("spT0off", settings.spT0off, true);
-                updateInt("spT1on", settings.spT1on, true);
-                updateInt("spT1off", settings.spT1off, true);
-                updateUint8("water0on", settings.water0on);
-                updateUint8("water0off", settings.water0off);
-                updateUint8("water1on", settings.water1on);
-                updateUint8("water1off", settings.water1off);
-                updateUint8("water2on", settings.water2on);
-                updateUint8("water2off", settings.water2off);
-                updateUint8("flpNow", settings.flap);
-                updateUint8("timerOn", settings.timerOn);
-                updateUint8("timerOff", settings.timerOff);
-                updateInt("alarm0", settings.alarm0, true);
-                updateInt("alarm1", settings.alarm1, true);
-                updateInt("hyst0", settings.hysteresis0, true);
-                updateInt("hyst1", settings.hysteresis1, true);
-                updateUint8("deviceNum", settings.deviceNum);
-                updateUint8("program", settings.program);
-                updateUint8("modeHeater", settings.modeHeater);
-                updateUint8("modeHumidi", settings.modeHumidi);
-                updateUint8("modeRelay1", settings.modeRelay1);
-                updateUint8("modeRelay2", settings.modeRelay2);
-                updateUint8("modeRelay3", settings.modeRelay3);
+                settings.spT0on = getScaled("spT0on", settings.spT0on);
+                settings.spT0off = getScaled("spT0off", settings.spT0off);
+                settings.spT1on = getScaled("spT1on", settings.spT1on);
+                settings.spT1off = getScaled("spT1off", settings.spT1off);
+                settings.water0on = getUint8("water0on", settings.water0on);
+                settings.water0off = getUint8("water0off", settings.water0off);
+                settings.water1on = getUint8("water1on", settings.water1on);
+                settings.water1off = getUint8("water1off", settings.water1off);
+                settings.water2on = getUint8("water2on", settings.water2on);
+                settings.water2off = getUint8("water2off", settings.water2off);
+                settings.flap = getUint8("flpNow", settings.flap);
+                settings.timerOn = getUint8("timerOn", settings.timerOn);
+                settings.timerOff = getUint8("timerOff", settings.timerOff);
+                settings.alarm0 = getScaled("alarm0", settings.alarm0);
+                settings.alarm1 = getScaled("alarm1", settings.alarm1);
+                settings.hysteresis0 = getScaled("hyst0", settings.hysteresis0);
+                settings.hysteresis1 = getScaled("hyst1", settings.hysteresis1);
+                settings.deviceNum = getUint8("deviceNum", settings.deviceNum);
+                settings.program = getUint8("program", settings.program);
+                settings.modeHeater = getUint8("modeHeater", settings.modeHeater);
+                settings.modeHumidi = getUint8("modeHumidi", settings.modeHumidi);
+                settings.modeRelay1 = getUint8("modeRelay1", settings.modeRelay1);
+                settings.modeRelay2 = getUint8("modeRelay2", settings.modeRelay2);
+                settings.modeRelay3 = getUint8("modeRelay3", settings.modeRelay3);
 
                 success = true;
             }
