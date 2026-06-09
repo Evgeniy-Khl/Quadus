@@ -154,7 +154,7 @@
         </select>
 
         <button type="submit" class="button">ЗБЕРЕГТИ ЗМІНИ</button>
-        <a href="/" style="text-decoration:none;"><button type="button" class="button button-cancel">СКАСУВАТИ</button></a>
+        <button type="button" class="button button-cancel" onclick="cancelSetup()">СКАСУВАТИ</button>
     </form>
 </div>
 
@@ -192,8 +192,19 @@
                 });
         }
 
+        window.cancelSetup = function() {
+            msg.textContent = 'Завантаження головної...';
+            popup.classList.add('active');
+            window.location.href = "/";
+        };
+
         document.getElementById('settingsForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // Show loading popup instantly to prevent UI freeze
+            msg.textContent = 'Збереження параметрів...';
+            popup.classList.add('active');
+
             const formData = new FormData(this);
             const data = {};
             formData.forEach((v, k) => { data[k] = parseFloat(v); });
@@ -205,9 +216,18 @@
             })
             .then(r => {
                 if (r.ok) {
-                    alert('Налаштування збережено!');
-                    window.location.href = "/";
-                } else alert('Помилка при збереженні!');
+                    msg.textContent = 'Налаштування збережено!';
+                    setTimeout(() => {
+                        window.location.href = "/";
+                    }, 500);
+                } else {
+                    popup.classList.remove('active');
+                    alert('Помилка при збереженні!');
+                }
+            })
+            .catch(e => {
+                popup.classList.remove('active');
+                alert('Помилка мережі при збереженні!');
             });
         });
 

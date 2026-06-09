@@ -126,7 +126,7 @@ void saveSetPoint() {
         myPrint(saved,sizeof(saved));
         sysLogger.log(getMsg(MSG_CONFIG_SAVED));
     }
-    delay(3000);
+    delay(300);
     lcd.clear();
     configFile.close();
     logicManager.relaySwitch(1);
