@@ -10,6 +10,9 @@ All notable changes to the **Quadus Greenhouse Controller** project will be docu
 - Instant loading popups ('Збереження параметрів...', 'Завантаження головної...') in `setup.html` to provide immediate visual feedback and prevent browser freeze during configuration saves.
 
 ### Changed
+- **Relay Refactoring**: Repurposed `modeRelay1` and `modeRelay2` value `0` for Emergency modes (complementary Climate/Humidity control).
+- **Relay Mode Shifting**: Timer-based relay modes (Always, Light OFF, Light ON) for all relays are now mapped to values `1, 2, 3` respectively.
+- **Logic Refactoring**: Updated `LogicManager::checkDeviceState` to accept explicit hysteresis for improved reliability.
 - **Settings Refactoring**: `modeHeater` and `modeHumidi` now explicitly control the operating mode (0 = Heating/Humidifying, 1 = Cooling/Dehumidifying) instead of light-based relay permissions.
 - **Logic Refactoring**: Updated `LogicManager::checkDeviceState` and `processAlarm` to use explicit mode logic, removing previous light-dependent suppression for climate channels.
 - **UI Update**: Simplified `setup.html` and keypad interface to toggle between the two new operating modes, removing legacy "Always/Only with light/Only without light" options for climate.

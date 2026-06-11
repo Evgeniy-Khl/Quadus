@@ -141,9 +141,9 @@ void checkkey(uint8_t key){
     case 9: // setRelayMode()
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
-            case KEY_1: if(++settings.modeRelay1 > 2) settings.modeRelay1 = 0; break;
-            case KEY_2: if(++settings.modeRelay2 > 2) settings.modeRelay2 = 0; break;
-            case KEY_3: if(++settings.modeRelay3 > 2) settings.modeRelay3 = 0; break;
+            case KEY_1: if(++settings.modeRelay1 > 3) settings.modeRelay1 = 0; break;
+            case KEY_2: if(++settings.modeRelay2 > 3) settings.modeRelay2 = 0; break;
+            case KEY_3: if(++settings.modeRelay3 > 3) settings.modeRelay3 = 0; break;
             case KEY_6: doSave(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;

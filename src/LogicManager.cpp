@@ -34,7 +34,7 @@ void LogicManager::processClimate() {
         if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR));
         ERROR1 = 1;
     } else {
-        HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
+        HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater, settings.hysteresis0);
     }
 
     // Humidifier processing
@@ -44,7 +44,7 @@ void LogicManager::processClimate() {
         if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR));
         ERROR2 = 1;
     } else {
-        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
+        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi, settings.hysteresis1);
     }
 }
 
@@ -104,7 +104,40 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     }
 
     // Step 2: Check conditional permissions based on light status
+    if (cn < 3 && permit == 0) {
+        if (cn == 1) {
+            int16_t onT, offT;
+            uint8_t opMode;
+            if (settings.modeHeater == 0) { // Heat -> Emer Cool
+                opMode = 1; // Cool
+                onT = settings.spT0off + settings.alarm0;
+                offT = settings.spT0off;
+            } else { // Cool -> Emer Heat
+                opMode = 0; // Heat
+                onT = settings.spT0off - settings.alarm0;
+                offT = settings.spT0off;
+            }
+            RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode, settings.hysteresis0);
+        } else if (cn == 2) {
+            int16_t onH, offH;
+            uint8_t opMode;
+            if (settings.modeHumidi == 0) { // Humidify -> Emer Dehumidify
+                opMode = 1; // Dehumidify
+                onH = settings.spT1off + settings.alarm1;
+                offH = settings.spT1off;
+            } else { // Dehumidify -> Emer Humidify
+                opMode = 0; // Humidify
+                onH = settings.spT1off - settings.alarm1;
+                offH = settings.spT1off;
+            }
+            RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode, settings.hysteresis1);
+        }
+        return;
+    }
+
     // Operating mode bits: 0 = Always, 1 = Only when LIGHT is OFF, 2 = Only when LIGHT is ON
+    if (permit > 0) permit--;
+
     if (permit) {
         if (LIGHT == PCF_OFF && permit == 2) permit = 0;
         else if (LIGHT == PCF_ON && permit == 1) permit = 0;
@@ -150,12 +183,9 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     }
 }
 
-bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t mode) {
+bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t mode, int16_t hyst) {
     if (onTemp == offTemp) return PCF_OFF;
     
-    // Determine which hysteresis to use (T0 or T1)
-    int16_t hyst = (&onTemp == &settings.spT0on || &onTemp == &settings.spT0off) ? settings.hysteresis0 : settings.hysteresis1;
-
     if (mode == 0) { // Heating mode / Humidifying mode
         // Turn ON if temperature drops to or below onTemp
         if (currentTemp <= onTemp) return PCF_ON;
