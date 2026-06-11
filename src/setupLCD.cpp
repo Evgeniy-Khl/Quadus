@@ -8,25 +8,30 @@ void switchTimeOff(uint8_t item, uint8_t val);
 //---------- Ручное управление выходами --------------
 // LIGHT|HEATER|HUMIDI|RELAY1|RELAY2|RELAY3
 void setup1(){
-    int position = 3; // Текущая позиция для записи в строку
-    displStr[0] = ' ';
-    displStr[1] = ' ';
-    displStr[2] = ' ';
-    
-    for (uint8_t i = 0; i < 6; i++) {
+    uint8_t smbl[3]={0x20,0x20,0x20};
+    for (uint8_t i = 0; i < 3; i++) {
         if (dataOut[i] == -1) {
-            displStr[position++] = '-';
+            smbl[i] = 'A';
         } else if (dataOut[i] == 0) {
-            displStr[position++] = '0';
+            smbl[i] = '0';
         } else {
-            displStr[position++] = '1';
+            smbl[i] = '1';
         }
     }
-    displStr[position] = '\0'; // Завершаем строку
+    snprintf(displStr, sizeof(displStr), "\x43\xB3:%c \x48\xB4:%c \xA4\xB3:%c", smbl[0], smbl[1], smbl[2]);
     lcd.setCursor(0,0);
-    myPrint(manual_control,sizeof(manual_control));
-    // lcd.setCursor(0,1);
-    lcd.setCursor(4,1);
+    lcd.print(displStr);
+    for (uint8_t i = 3; i < 6; i++) {
+        if (dataOut[i] == -1) {
+            smbl[i-3] = 'A';
+        } else if (dataOut[i] == 0) {
+            smbl[i-3] = '0';
+        } else {
+            smbl[i-3] = '1';
+        }
+    }
+    snprintf(displStr, sizeof(displStr),"R1:%c R2:%c R3:%c",smbl[0],smbl[1],smbl[2]);
+    lcd.setCursor(0,1);
     lcd.print(displStr);
 }
 // ------------------- setupNum=2 ------------------------------
@@ -38,7 +43,7 @@ void setup2(){
     }
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),
-        "A \x79\xB3\x69\xBC\xBA\xBD\x2E %2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));   //t1 увiмкн. ??.?°C
+        "t1 \x79\xB3\x69\xBC\xBA\xBD\x2E%2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));   //t1 увiмкн.??.?°C
     lcd.print(displStr);
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
@@ -54,7 +59,7 @@ void setup3(){
     }
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),
-        "B \x79\xB3\x69\xBC\xBA\xBD\x2E %2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));   //t2 увiмкн. ??.?°C
+        "t2 \x79\xB3\x69\xBC\xBA\xBD\x2E%2d.%d\xDF\x43", editBuff0 / 10, abs(editBuff0 % 10));   //t2 увiмкн.??.?°C
     if(hasDHT22){
         displStr[0]  = '\xF4';  // #
         displStr[14] = '\x25';  // %

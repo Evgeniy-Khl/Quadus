@@ -47,21 +47,21 @@ void respondsValues() {
     }
     
     snprintf(txt, sizeof(txt), "%s %02u:%02u [%02u - %02u]", 
-             LIGHT == PCF_ON ? "↓" : "↑", 
+             LIGHT == PCF_OFF ? "↓" : "↑", 
              timeinfo->tm_hour, timeinfo->tm_min, 
              settings.timerOn, settings.timerOff);
     data["light"] = txt;
 
     auto formatTimer = [&](int16_t pvTime, bool relayState, int8_t manualMode, const char* label) {
-        if (manualMode != -1) return String(label) + (relayState == PCF_OFF ? " Manual OFF" : " Manual ON");
-        if (pvTime == -1) return String(label) + " no permission";
+        if (manualMode != -1) return String(label) + (relayState == PCF_OFF ? " Ручне OFF" : " Ручне ON");
+        if (pvTime == -1) return String(label) + " немає дозволу";
         if (relayState == PCF_OFF) { // OFF phase
             uint8_t day = pvTime / 1440;
             uint8_t hour = (pvTime % 1440) / 60;
             uint8_t min = pvTime % 60;
-            snprintf(txt, sizeof(txt), "↓ OFF %dd.%dh.%dm.", day, hour, min);
+            snprintf(txt, sizeof(txt), "↓ OFF %d діб %d год. %d хвл.", day, hour, min);
         } else { // ON phase
-            snprintf(txt, sizeof(txt), "↑ ON %d min.", pvTime);
+            snprintf(txt, sizeof(txt), "↑ ON %d хвл.", pvTime);
         }
         return String(txt);
     };
@@ -88,7 +88,7 @@ void respondsValues() {
 
     data["flap"] = String(pvFlap) + "%";
     
-    data["program"] = ((settings.program & 0xF) == 0) ? "none" : "#" + String(settings.program & 0xF);
+    data["program"] = ((settings.program & 0xF) == 0) ? "немає" : "#" + String(settings.program & 0xF);
     
     snprintf(txt, sizeof(txt), "%02d.%02d.%04d %02d:%02d:%02d",
              timeinfo->tm_mday, timeinfo->tm_mon + 1,

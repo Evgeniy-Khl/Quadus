@@ -149,19 +149,19 @@ struct Settings {
     uint8_t flap;       // Flap current position (0-100%)
     uint8_t timerOn;    // Lighting ON hour (0-24)
     uint8_t timerOff;   // Lighting OFF hour (0-24)
-    int16_t alarm0;     // Alarm deviation t0 (value * 10)
-    int16_t alarm1;     // Alarm deviation t1 (value * 10)
-    int16_t hysteresis0; // Hysteresis for T0 (value * 10)
-    int16_t hysteresis1; // Hysteresis for T1 (value * 10)
+    int16_t alarm0;     // Alarm deviation t0
+    int16_t alarm1;     // Alarm deviation t1
+    int16_t hysteresis0; // Hysteresis for t0
+    int16_t hysteresis1; // Hysteresis for t1
     uint8_t special;    // Flags for WiFi/Time/Reset
     uint8_t deviceNum;  // Device ID
     uint8_t program;    // Active program number
     uint8_t modeLight;    // Lighting relay mode
     uint8_t modeHeater;   // Heater relay mode
     uint8_t modeHumidi;   // Humidifier relay mode
-    uint8_t modeRelay1;   // Relay 3 mode and source
-    uint8_t modeRelay2;   // Relay 4 mode and source
-    uint8_t modeRelay3;   // Relay 5 mode and source
+    uint8_t modeRelay1;   // Relay 1 mode and source
+    uint8_t modeRelay2;   // Relay 2 mode and source
+    uint8_t modeRelay3;   // Relay 3 mode and source
 };
 #pragma pack(pop)
 
@@ -205,22 +205,22 @@ extern TableBuff unTable;
 #define errorsFlag      sysState.errorsFlag_m
 #define portFlag        sysState.portFlag_m
 
-#define ERROR1    sysState.errorsFlag_m.bitfield.a0
-#define ERROR2	  sysState.errorsFlag_m.bitfield.a1
-#define ERROR4	  sysState.errorsFlag_m.bitfield.a2
-#define ERROR8	  sysState.errorsFlag_m.bitfield.a3
+#define ERROR1    sysState.errorsFlag_m.bitfield.a0 // DEVICE_DISCONNECTED
+#define ERROR2	  sysState.errorsFlag_m.bitfield.a1 // DEVICE_DISCONNECTED
+#define ERROR4	  sysState.errorsFlag_m.bitfield.a2 // MSG_ALARM_T1_RANGE
+#define ERROR8	  sysState.errorsFlag_m.bitfield.a3 // MSG_ALARM_T2_RANGE
 #define ERROR10	  sysState.errorsFlag_m.bitfield.a4
 #define ERROR20	  sysState.errorsFlag_m.bitfield.a5
 #define OVERHEAT  sysState.errorsFlag_m.bitfield.a6
-#define FROZE	    sysState.errorsFlag_m.bitfield.a7
+#define FROZE	  sysState.errorsFlag_m.bitfield.a7
 
-#define REACHED0    sysState.portFlag_m.bitfield.a0
-#define REACHED1    sysState.portFlag_m.bitfield.a1
+#define REACHED0    sysState.portFlag_m.bitfield.a0 // MSG_CLIMATE_T1_REACHED
+#define REACHED1    sysState.portFlag_m.bitfield.a1 // MSG_CLIMATE_T2_REACHED
 #define TURNSECOND  sysState.portFlag_m.bitfield.a2
-#define RTCENABLE   sysState.portFlag_m.bitfield.a3
-#define WIFIENABLE	sysState.portFlag_m.bitfield.a4
+#define RTCENABLE   sysState.portFlag_m.bitfield.a3 // Couldn't find RTC!
+#define WIFIENABLE	sysState.portFlag_m.bitfield.a4 // Wi-Fi Local ip:
 #define RESERV      sysState.portFlag_m.bitfield.a5
-#define NEWSCREEN   sysState.portFlag_m.bitfield.a6
+#define NEWSCREEN   sysState.portFlag_m.bitfield.a6 // NEW SCREEN
 #define SAVING      sysState.portFlag_m.bitfield.a7
 
 #define PCF_ON      0
