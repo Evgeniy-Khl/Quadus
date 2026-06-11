@@ -5,10 +5,14 @@ All notable changes to the **Quadus Greenhouse Controller** project will be docu
 ## [Unreleased]
 
 ### Added
+- `HeaterMode` and `HumidiMode` enumerations in `include/main.h` for better code readability.
 - Real-time alarm color highlighting in `index.html` (orange pulse animation) calculated dynamically on the client side based on temperature and humidity thresholds.
 - Instant loading popups ('Збереження параметрів...', 'Завантаження головної...') in `setup.html` to provide immediate visual feedback and prevent browser freeze during configuration saves.
 
 ### Changed
+- **Settings Refactoring**: `modeHeater` and `modeHumidi` now explicitly control the operating mode (0 = Heating/Humidifying, 1 = Cooling/Dehumidifying) instead of light-based relay permissions.
+- **Logic Refactoring**: Updated `LogicManager::checkDeviceState` and `processAlarm` to use explicit mode logic, removing previous light-dependent suppression for climate channels.
+- **UI Update**: Simplified `setup.html` and keypad interface to toggle between the two new operating modes, removing legacy "Always/Only with light/Only without light" options for climate.
 - Transitioned manual relay control from a global `isManualOverride` flag to individual operating modes for each of the 6 relays (Auto, Always ON, Always OFF) using `dataOut`.
 - Redesigned `switch.html` with a 3-position radio button interface for each relay, featuring high-contrast active states.
 - Optimized manual relay API (`/set_relay`) to apply physical states instantaneously, bypassing the 1-minute logic loop delay.
@@ -45,7 +49,7 @@ All notable changes to the **Quadus Greenhouse Controller** project will be docu
 - Refactored time management to use the built-in ESP8266 `configTzTime()` mechanism.
 - `programm.cpp`: Enhanced `eepromWrBuff` with page boundary safety logic for AT24C32 (32-byte pages) to prevent data corruption during multi-byte writes.
 - `main.cpp`, `sensors.cpp`, `procedure.cpp`, `programm.cpp`, `server.cpp`: Translated all source code comments and technical documentation to English.
-- `main.cpp`: Refactored `setup()` and `loop()` to use `LogicManager` methods. Cleaned up redundant logic.      
+- `main.cpp`: Refactored `setup()` and `loop()` to use `LogicManager` methods. Cleaned up redundant logic.
 - `procedure.cpp` & `procedure.h`: Removed control logic functions now managed by `LogicManager`.
 - `my_settings.h`: Cleaned up global variable declarations to align with the new architecture.
 - `IMPROVEMENTS.md`: Updated roadmap with completed architecture tasks.
