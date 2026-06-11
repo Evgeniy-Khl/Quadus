@@ -134,6 +134,16 @@ enum LogMsgId {
 
 const char* getMsg(LogMsgId id);
 
+enum HeaterMode {
+    HEATER_MODE_HEAT = 0,
+    HEATER_MODE_COOL = 1
+};
+
+enum HumidiMode {
+    HUMIDI_MODE_HUMIDIFY = 0,
+    HUMIDI_MODE_DEHUMIDIFY = 1
+};
+
 #pragma pack(push, 1)
 struct Settings {
     int16_t spT0on; 	  // Setpoint T0 ON (value * 10)
@@ -157,8 +167,8 @@ struct Settings {
     uint8_t deviceNum;  // Device ID
     uint8_t program;    // Active program number
     uint8_t modeLight;    // Lighting relay mode
-    uint8_t modeHeater;   // Heater relay mode
-    uint8_t modeHumidi;   // Humidifier relay mode
+    uint8_t modeHeater;   // Heater relay mode: 0=Heat, 1=Cool
+    uint8_t modeHumidi;   // Humidifier relay mode: 0=Humidify, 1=Dehumidify
     uint8_t modeRelay1;   // Relay 1 mode and source
     uint8_t modeRelay2;   // Relay 2 mode and source
     uint8_t modeRelay3;   // Relay 3 mode and source

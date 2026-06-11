@@ -150,33 +150,24 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     }
 }
 
-bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t permit) {
-    if (permit) {
-        if (LIGHT == PCF_OFF && permit == 2) permit = 0;
-        else if (LIGHT == PCF_ON && permit == 1) permit = 0;
-    }
+bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t mode) {
+    if (onTemp == offTemp) return PCF_OFF;
+    
+    // Determine which hysteresis to use (T0 or T1)
+    int16_t hyst = (&onTemp == &settings.spT0on || &onTemp == &settings.spT0off) ? settings.hysteresis0 : settings.hysteresis1;
 
-    if (permit == 0) {
-        if (onTemp == offTemp) return PCF_OFF;
-        
-        // Determine which hysteresis to use (T0 or T1)
-        int16_t hyst = (&onTemp == &settings.spT0on || &onTemp == &settings.spT0off) ? settings.hysteresis0 : settings.hysteresis1;
-
-        if (onTemp < offTemp) { // Heating mode
-            // Turn ON if temperature drops to or below onTemp
-            if (currentTemp <= onTemp) return PCF_ON;
-            // Turn OFF if temperature reaches offTemp - hyst
-            if (currentTemp >= (offTemp - hyst)) return PCF_OFF;
-        } else { // Cooling mode
-            // Turn ON if temperature reaches or exceeds onTemp
-            if (currentTemp >= onTemp) return PCF_ON;
-            // Turn OFF if temperature drops to offTemp + hyst
-            if (currentTemp <= (offTemp + hyst)) return PCF_OFF;
-        }
-        return previousState;
-    } else {
-        return PCF_OFF;
+    if (mode == 0) { // Heating mode / Humidifying mode
+        // Turn ON if temperature drops to or below onTemp
+        if (currentTemp <= onTemp) return PCF_ON;
+        // Turn OFF if temperature reaches offTemp - hyst
+        if (currentTemp >= (offTemp - hyst)) return PCF_OFF;
+    } else { // Cooling mode / Dehumidifying mode
+        // Turn ON if temperature reaches or exceeds onTemp
+        if (currentTemp >= onTemp) return PCF_ON;
+        // Turn OFF if temperature drops to offTemp + hyst
+        if (currentTemp <= (offTemp + hyst)) return PCF_OFF;
     }
+    return previousState;
 }
 
 bool LogicManager::checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t offHour) {
@@ -186,7 +177,7 @@ bool LogicManager::checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t 
 }
 
 void LogicManager::processAlarm(uint8_t cn) {
-    int16_t val, maxVal, minVal, alarmVal, permit;
+    int16_t val, maxVal, minVal, alarmVal;
     bool reached, beep = false;
     val = ds[cn].pvT;
     
@@ -194,47 +185,38 @@ void LogicManager::processAlarm(uint8_t cn) {
         maxVal = max(settings.spT1on, settings.spT1off);
         minVal = min(settings.spT1on, settings.spT1off);
         alarmVal = settings.alarm1;
-        permit = settings.modeHumidi;
         reached = REACHED1;
     } else {
         maxVal = max(settings.spT0on, settings.spT0off);
         minVal = min(settings.spT0on, settings.spT0off);
         alarmVal = settings.alarm0;
-        permit = settings.modeHeater;
         reached = REACHED0;
     }
 
-    if (permit) {
-        if (LIGHT == PCF_OFF && permit == 2) permit = 0;
-        else if (LIGHT == PCF_ON && permit == 1) permit = 0;
+    if (reached) {
+        if (val <= (minVal - alarmVal) || val >= (maxVal + alarmVal)) beep = true;
+    } else if (val >= minVal && val <= maxVal) {
+        reached = true;
     }
 
-    if (permit == 0) {
-        if (reached) {
-            if (val <= (minVal - alarmVal) || val >= (maxVal + alarmVal)) beep = true;
-        } else if (val >= minVal && val <= maxVal) {
-            reached = true;
-        }
+    if (cn) {
+        if (!REACHED1 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
+        REACHED1 = reached;
+        if (!ERROR8 && beep) sysLogger.log(getMsg(MSG_ALARM_T2_RANGE));
+        ERROR8 = beep;
+    } else {
+        if (!REACHED0 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED));
+        REACHED0 = reached;
+        if (!ERROR4 && beep) sysLogger.log(getMsg(MSG_ALARM_T1_RANGE));
+        ERROR4 = beep;
+    }
 
-        if (cn) {
-            if (!REACHED1 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
-            REACHED1 = reached;
-            if (!ERROR8 && beep) sysLogger.log(getMsg(MSG_ALARM_T2_RANGE));
-            ERROR8 = beep;
-        } else {
-            if (!REACHED0 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED));
-            REACHED0 = reached;
-            if (!ERROR4 && beep) sysLogger.log(getMsg(MSG_ALARM_T1_RANGE));
-            ERROR4 = beep;
-        }
-
-        if (errorsFlag.value) {
-            uint8_t duration = (errorsFlag.value == 0x03) ? 100 : 50;
-            if (disableBeep == 0) beeperOn(duration);
-            else disableBeep--;
-        } else {
-            disableBeep = 0;
-        }
+    if (errorsFlag.value) {
+        uint8_t duration = (errorsFlag.value == 0x03) ? 100 : 50;
+        if (disableBeep == 0) beeperOn(duration);
+        else disableBeep--;
+    } else {
+        disableBeep = 0;
     }
 }
 

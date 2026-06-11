@@ -152,8 +152,8 @@ void checkkey(uint8_t key){
     case 10:  // setClimatMode()
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
-            case KEY_1: if(++settings.modeHeater > 2) settings.modeHeater = 0; break;
-            case KEY_2: if(++settings.modeHumidi > 2) settings.modeHumidi = 0; break;
+            case KEY_1: if(++settings.modeHeater > 1) settings.modeHeater = 0; break;
+            case KEY_2: if(++settings.modeHumidi > 1) settings.modeHumidi = 0; break;
             case KEY_6: doSave(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;

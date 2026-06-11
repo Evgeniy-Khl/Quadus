@@ -101,11 +101,10 @@
         <input type="number" name="hyst0" id="hyst0" required min="0.1" max="10" step="0.1">
         <label>Тривога t1 дельта (°C):</label>
         <input type="number" name="alarm0" id="alarm0" min="0" max="99" step="0.1" required>
-        <label>Дозвіл каналу t1:</label>
+        <label>Режим каналу t1:</label>
         <select name="modeHeater" id="modeHeater">
-            <option value="0">ЗАВЖДИ</option>
-            <option value="1">ТІЛЬКИ ЗІ СВІТЛОМ</option>
-            <option value="2">ТІЛЬКИ БЕЗ СВІТЛА</option>
+            <option value="0">НАГРІВ</option>
+            <option value="1">ОХОЛОДЖЕННЯ</option>
         </select>
 
         <div class="group-title">Клімат T2 / Вологість</div>
@@ -117,11 +116,10 @@
         <input type="number" name="hyst1" id="hyst1" required min="0.1" max="10" step="0.1">
         <label>Тривога t2 дельта (°C/%):</label>
         <input type="number" name="alarm1" id="alarm1" min="0" max="99" step="0.1" required>
-        <label>Дозвіл каналу t2:</label>
+        <label>Режим каналу t2:</label>
         <select name="modeHumidi" id="modeHumidi">
-            <option value="0">ЗАВЖДИ</option>
-            <option value="1">ТІЛЬКИ ЗІ СВІТЛОМ</option>
-            <option value="2">ТІЛЬКИ БЕЗ СВІТЛА</option>
+            <option value="0">ЗВОЛОЖЕННЯ</option>
+            <option value="1">ОСУШЕННЯ</option>
         </select>
 
         <div class="group-title">Освітлення</div>
