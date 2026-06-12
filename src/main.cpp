@@ -118,6 +118,12 @@ void setup(){
     logicManager.processIrrigation();
     logicManager.processLighting();
   }
+  #ifdef DEBUG
+    ds[0].pvT = 200;
+    ds[0].pvErr = 0;
+    ds[1].pvT = 160;
+    ds[1].pvErr = 0;
+  #endif
 }
 
 void loop(){
@@ -160,8 +166,24 @@ void loop(){
     }
     if(halfSecond & 2){//-------- NEW SECOND -----------------------
       countSeconds++; errorsFlag.value = 0;
-      sensorCheck();
-
+      #ifndef DEBUG  
+        sensorCheck();                                                  // Опрос датчиков должен быть всегда
+      #else
+        #define MAXPOINT 20
+        // В режиме отладки можно оставить симуляцию, если датчики не подключены
+        if(HEATER == PCF_ON){
+          if(++ds[0].pvErr > MAXPOINT) ds[0].pvErr = MAXPOINT;
+        }  else {
+          if(--ds[0].pvErr < -MAXPOINT) ds[0].pvErr = -MAXPOINT;
+        }
+        if(ds[0].pvErr > 0) ds[0].pvT++; else ds[0].pvT--;
+        if(HUMIDI == PCF_ON) {
+          if(++ds[1].pvErr > MAXPOINT) ds[1].pvErr = MAXPOINT;
+        }  else {
+          if(--ds[1].pvErr < -MAXPOINT) ds[1].pvErr = -MAXPOINT;
+        }
+        if(ds[1].pvErr > 0) ds[1].pvT++; else ds[1].pvT--;
+      #endif
       logicManager.processClimate();
       
       // Fast response for auxiliary modes (thermostat/hygrostat)
