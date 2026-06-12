@@ -16,7 +16,7 @@ void displ0(){
 }
 //---------- Температура датчиков и RH --------------
 void displ1(){
-    // uint8_t permit;
+    char txt[10];
     if(!hasDHT22 && numberOfDS18 == 0){
         lcd.setCursor(0,0);
         myPrint(sensorsWord,sizeof(sensorsWord));
@@ -34,24 +34,14 @@ void displ1(){
             snprintf(displStr, sizeof(displStr),"t1=%2d.%d ", ds[0].pvT / 10, abs(ds[0].pvT % 10));
             lcd.print(displStr);
         
-            // permit = settings.modeHeater;
-            // if(permit){
-            //     if(LIGHT == PCF_OFF && permit == 2) permit = 0;
-            //     else if(LIGHT == PCF_ON && permit == 1) permit = 0;
-            // }
-            // if(permit == 0){
-            //     snprintf(displStr, sizeof(displStr),"\xD5%d.%d-%d.%d", 
-            //              settings.spT0on / 10, abs(settings.spT0on % 10),
-            //              settings.spT0off / 10, abs(settings.spT0off % 10));
-            //     if(ERROR4) displStr[0] = '!';
-            // } else {
-            //     for (uint8_t i = 0; i < 8; i++){
-            //         displStr[i] = ' ';
-            //     }
-            //     displStr[8] = '\0';
-            // }
-            if(ERROR4) lcd.print("ТРИВОГА!");   // MSG_ALARM_T1_RANGE
-            else if(HEATER==PCF_ON) lcd.print("\x48\x61\xB4\x70\x69\xB3"); // Нагрiв
+            if(settings.modeHeater == HEATER_MODE_HEAT){
+                sprintf(txt,"\x48\x61\xB4\x70\x69\xB3"); // Нагрiв
+            } else {
+                sprintf(txt,"\x4F\x78\x6F\xBB\x6F\xE3\xB6\x2E"); // Охолодж.
+            }
+            lcd.setCursor(8,0);
+            if(ERROR4) myPrint(alarm, sizeof(alarm));
+            else if(HEATER==PCF_ON) lcd.print(txt);
             else lcd.print("      ");
         }
         //-------------------------------------------------------------------------------------------------------------
@@ -69,25 +59,15 @@ void displ1(){
             }
             lcd.print(displStr);
 
-            // permit = settings.modeHumidi;
-            // if(permit){
-            //     if(LIGHT == PCF_OFF && permit == 2) permit = 0;
-            //     else if(LIGHT == PCF_ON && permit == 1) permit = 0;
-            // }
-            // if(permit == 0){
-            //     snprintf(displStr, sizeof(displStr),"\xD5%d.%d-%d.%d", 
-            //              settings.spT1on / 10, abs(settings.spT1on % 10),
-            //              settings.spT1off / 10, abs(settings.spT1off % 10));
-            //     if(ERROR8) displStr[0] = '!';
-            // } else {
-            //     for (uint8_t i = 0; i < 8; i++){
-            //         displStr[i] = ' ';
-            //     }
-            //     displStr[8] = '\0';
-            // }
-            if(ERROR8) lcd.print("ТРИВОГА!");   // MSG_ALARM_T1_RANGE
-            else if(HUMIDI==PCF_ON) lcd.print("\xA4\xB3\x6F\xBB\x6F\xB6\x2E"); // Зволож.
-            else lcd.print("       ");
+            if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
+                sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E"); // Зволож.
+            } else {
+                sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E"); // Осушен.
+            }
+            lcd.setCursor(8,1);
+            if(ERROR8) myPrint(alarm, sizeof(alarm));
+            else if(HUMIDI==PCF_ON) lcd.print(txt); 
+            else lcd.print("          ");
         }
     }
 }

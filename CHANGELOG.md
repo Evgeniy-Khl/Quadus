@@ -2,6 +2,31 @@
 
 All notable changes to the **Quadus Greenhouse Controller** project will be documented in this file.
 
+## [2026-06-12]
+
+### Added
+- **Web Interface (UI/UX)**:
+    - `data/setup.html`: Expanded relay configuration to support 3 channels (Relay 1, 2, 3).
+    - `data/setup.html`: Added operating mode selection for each relay (Auxiliary/Thermostat, Timer Always, Timer No Light, Timer With Light).
+    - `data/index.html`: Dynamic status labels (changed "Timer" to "Relay").
+    - `data/index.html`: Dynamic icons (⏰ for timer modes, 🛠️ for auxiliary mode).
+    - `data/index.html`: Improved status display logic (compact state for auxiliary, full countdown for timers).
+- **Core Logic**:
+    - `src/main.cpp`: Implemented per-second polling for Relay 1 and Relay 2 when in auxiliary mode for faster sensor response.
+- **Server**:
+    - `src/server.cpp`: Added relay mode indices (`mR1`, `mR2`, `mR3`) to the `/getvalues` JSON response.
+
+### Fixed
+- **System Time & RTC**:
+    - `src/main.cpp`: Corrected initialization order. Timezone (TZ) and RTC synchronization now happen at the very start of `setup()`.
+    - `src/main.cpp`: System clock is now synchronized with RTC immediately, ensuring correct local time/DST from the first log entry.
+    - `src/procedure.cpp`: Refactored `initEnvironment()` to remove redundant RTC initialization.
+- **Logging**:
+    - `src/Logger.cpp`: Fixed `getTimestamp()` to correctly handle the year 2000 onwards (`tm_year >= 100`).
+    - Fixed "zero time" `[00.00 00:00:00]` issue in initial startup logs.
+- **Stability**:
+    - `src/main.cpp`: Removed a corrupted duplicate function definition that caused a compilation error.
+
 ## [Unreleased]
 
 ### Added
