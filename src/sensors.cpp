@@ -92,15 +92,15 @@ bool check_freeze(uint8_t i, float val){
  * If DHT22 is NOT present, DS18B20 values start from ds[0] (backward compatibility).
  */
 void checkDs18b20(void){
-#ifdef DEBUG
-  char buff[100];
-#endif
+// #ifdef DEBUG
+//   char buff[100];
+// #endif
   uint8_t startIdx = hasDHT22 ? 2 : 0;
   
   for (uint8_t i = 0; i < numberOfDS18; i++){
     uint8_t dsIdx = startIdx + i;
-    int8_t alarmL = 0;
-    bool calibrated = false;
+    // int8_t alarmL = 0;
+    // bool calibrated = false;
     if (dsIdx >= MAX_DEVICE) break;
 
     float tempC = sensors.getTempC(sensorAddresses[i]);
@@ -126,9 +126,9 @@ void checkDs18b20(void){
     // ---------- Calibration using Alarm registers ---------------
     uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
     if(alarmH == TUNING){
-      alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
+      // alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
       // ds[dsIdx].pvT += (alarmL);
-      calibrated = true;
+      // calibrated = true;
     }
     // ---------- Check freeze ------------------------------------
     if(check_freeze(dsIdx, tempC)){

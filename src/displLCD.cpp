@@ -16,7 +16,7 @@ void displ0(){
 }
 //---------- Температура датчиков и RH --------------
 void displ1(){
-    uint8_t permit;
+    // uint8_t permit;
     if(!hasDHT22 && numberOfDS18 == 0){
         lcd.setCursor(0,0);
         myPrint(sensorsWord,sizeof(sensorsWord));
