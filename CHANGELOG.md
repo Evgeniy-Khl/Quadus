@@ -26,6 +26,8 @@ All notable changes to the **Quadus Greenhouse Controller** project will be docu
     - Fixed "zero time" `[00.00 00:00:00]` issue in initial startup logs.
 - **Stability**:
     - `src/main.cpp`: Removed a corrupted duplicate function definition that caused a compilation error.
+- **Display**:
+    - `src/displLCD.cpp`: Fixed inverted logic for "Heating/Cooling" and "Humidifying/Dehumidifying" labels on the LCD screen.
 
 ## [Unreleased]
 
