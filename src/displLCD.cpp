@@ -75,12 +75,17 @@ void displ1(){
 void displ2(){
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr)," CB %02u:%02u[%u\x2D%u]",timeinfo->tm_hour,timeinfo->tm_min, settings.timerOn, settings.timerOff);
-    if(LIGHT == PCF_ON) displStr[0] = '\xDA'; // ↓
-    else displStr[0] = '\xD9';      // ↑
+    if(LIGHT == PCF_ON) displStr[0] = '\xD9'; // ↑
+    else displStr[0] = '\xDA';      // ↓
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    if(pvTimeR1 == -1){
-        lcd.print("T1 "); myPrint(no_permissions,sizeof(no_permissions));
+    if(settings.modeRelay1 == 0){
+        if(RELAY1 == PCF_OFF){    //-- OFF --
+            snprintf(displStr, sizeof(displStr),"\xDAT1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+        } else {      //-- ON --
+            snprintf(displStr, sizeof(displStr),"\xD9T1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+        }
+        lcd.print(displStr);
     } else {
         if(RELAY1 == PCF_OFF){    //-- OFF --
             uint8_t day = pvTimeR1 / 1440;
@@ -96,8 +101,13 @@ void displ2(){
 //---------- Остаток времени до переключения R2, R3 --------------
 void displ3(){
     lcd.setCursor(0,0);
-    if(pvTimeR2 == -1){
-        lcd.print("T2 "); myPrint(no_permissions,sizeof(no_permissions));
+    if(settings.modeRelay2 == 0){
+        if(RELAY2 == PCF_OFF){    //-- OFF --
+            snprintf(displStr, sizeof(displStr),"\xDAT2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+        } else {      //-- ON --
+            snprintf(displStr, sizeof(displStr),"\xD9T2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+        }
+        lcd.print(displStr);
     } else {
         if(RELAY2 == PCF_OFF){    //-- OFF --
             uint8_t day = pvTimeR2 / 1440;
@@ -124,28 +134,45 @@ void displ3(){
         lcd.print(displStr);
     } 
 }
-//---------- Текушие ошибки --------------
+//---------- Статус выхода --------------
 void displ4(){
+    uint8_t smbl[3]={0x20,0x20,0x20}, port=0, out = sysState.portOut_m.value;
+    for (uint8_t i = 0; i < 3; i++) {
+        port = 1<<i;
+        if (out & port) {
+            smbl[i] = '\xDA';
+        } else {
+            smbl[i] = '\xD9';
+        }
+    }
+    snprintf(displStr, sizeof(displStr), "\x43\xB3:%c \x48\xB4:%c \xA4\xB3:%c", smbl[0], smbl[1], smbl[2]);
     lcd.setCursor(0,0);
-    myPrint(error_,sizeof(error_));
-    uint8_t er = errorsFlag.value;
-    uint8_t x = 1, i, count = 0;
-    for (i = 0; i < 8; i++){
-        if(er & 1) {lcd.print(x); lcd.print(";"); if(++count == 4) break;}
-        er >>= 1; x <<= 1;
+    lcd.print(displStr);
+    for (uint8_t i = 3; i < 6; i++) {
+        port = 1<<i;
+        if (out & port) {
+            smbl[i-3] = '\xDA';
+        } else {
+            smbl[i-3] = '\xD9';
+        }
     }
+    snprintf(displStr, sizeof(displStr),"R1:%c R2:%c R3:%c",smbl[0],smbl[1],smbl[2]);
     lcd.setCursor(0,1);
-    for (;i < 8; i++){
-        er >>= 1; x <<= 1;
-        if(er & 1) {lcd.print(x); lcd.print(";");}
-    }
+    lcd.print(displStr);
 }
-
+//---------- Уставки температуры --------------
 void displ5(){
     lcd.setCursor(0,0);
-    lcd.print("displ5()");
+    lcd.print("t1 ");
+    snprintf(displStr, sizeof(displStr),"[%d.%d-%d.%d]", 
+                         settings.spT0on / 10, abs(settings.spT0on % 10),
+                         settings.spT0off / 10, abs(settings.spT0off % 10));
+    lcd.print(displStr);
     lcd.setCursor(0,1);
-    sprintf(displStr,"min:%3u; k=%3u",minutes,keys);
+    lcd.print("t2 ");
+    snprintf(displStr, sizeof(displStr),"[%d.%d-%d.%d]", 
+                         settings.spT1on / 10, abs(settings.spT1on % 10),
+                         settings.spT1off / 10, abs(settings.spT1off % 10));
     lcd.print(displStr);
 }
 

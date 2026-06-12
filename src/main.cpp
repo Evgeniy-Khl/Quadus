@@ -110,7 +110,8 @@ void setup(){
   digitalWrite(BEEP_PIN, HIGH); // Turn off beeper
   pinMode(BEEP_PIN, OUTPUT);    // Set beeper pin as output for LED only
   
-  delay(3000);  
+  delay(3000);
+  displNum = 1;  
   lcd.clear();
   displSwitch();
   portOut.value = 0xFF;
