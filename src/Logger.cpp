@@ -44,7 +44,7 @@ void Logger::maintain() {
 }
 
 String Logger::getTimestamp() {
-    if (timeinfo && timeinfo->tm_year > 100) {
+    if (timeinfo && timeinfo->tm_year >= 100) {
         char buf[25];
         snprintf(buf, sizeof(buf), "[%02d.%02d %02d:%02d:%02d]", 
                  timeinfo->tm_mday, timeinfo->tm_mon + 1,

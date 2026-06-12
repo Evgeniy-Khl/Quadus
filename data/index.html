@@ -196,9 +196,25 @@ function fetchData() {
             }
 
             document.getElementById("light").innerHTML = json.light;
-            document.getElementById("timer1").innerHTML = json.timer1;
-            document.getElementById("timer2").innerHTML = json.timer2;
-            document.getElementById("timer3").innerHTML = json.timer3;
+            
+            const relayModes = ["Допоміжний режим", "Завжди", "Без світла", "Зі світлом"];
+            
+            const formatRelayStatus = (mode, timerStr, isRelay3 = false) => {
+                if (!isRelay3 && mode === 0) {
+                    // For Relays 1 & 2 in mode 0, show auxiliary mode and only ON/OFF state
+                    const state = timerStr.includes("ON") ? "↑ ON" : "↓ OFF";
+                    return `[${relayModes[0]}] ${state}`;
+                }
+                // For Relay 3 or other modes, show mode name and full timer info
+                // If Relay 3 is in mode 0, we label it as "Завжди"
+                const label = (isRelay3 && mode === 0) ? "Завжди" : (relayModes[mode] || '--');
+                return `[${label}] ${timerStr.split(' ').slice(1).join(' ')}`;
+            };
+
+            document.getElementById("timer1").innerHTML = formatRelayStatus(json.mR1, json.timer1);
+            document.getElementById("timer2").innerHTML = formatRelayStatus(json.mR2, json.timer2);
+            document.getElementById("timer3").innerHTML = formatRelayStatus(json.mR3, json.timer3, true);
+            
             document.getElementById("flap").innerHTML = json.flap;
             document.getElementById("program").innerHTML = json.program;
             document.getElementById("currDay").innerHTML = json.currDay;
@@ -216,6 +232,22 @@ function fetchData() {
             setLed('led4', json.led4, "#2ecc71");
             setLed('led5', json.led5, "#2ecc71");
             setLed('led6', json.led6, "#e74c3c");
+
+            // Dynamic Icons based on Mode
+            const updateRelayIcon = (id, mode, isRelay3 = false) => {
+                const el = document.getElementById(id);
+                if (isRelay3 || mode > 0) {
+                    el.innerHTML = "&#9200;"; // Timer (Clock)
+                    el.title = isRelay3 ? "Реле 3 (Таймер)" : `Реле ${id.slice(-1) - 2} (Таймер)`;
+                } else {
+                    el.innerHTML = "&#128736;"; // Helper (Tools)
+                    el.title = `Реле ${id.slice(-1) - 2} (Допоміжний)`;
+                }
+            };
+
+            updateRelayIcon('led3', json.mR1);
+            updateRelayIcon('led4', json.mR2);
+            updateRelayIcon('led5', json.mR3, true);
 			
             const btn = document.getElementById("programButton");
             if (json.program === "none" || json.program === "немає") {

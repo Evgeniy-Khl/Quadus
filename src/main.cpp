@@ -24,8 +24,25 @@ void setup(){
   #ifdef DEBUG
     Serial.begin(115200);                   // Initialize serial for debugging
   #endif
+
+  // --- Initialize Timezone and Sync System Time from RTC immediately ---
+  setenv("TZ", tzInfo, 1);
+  tzset();
+
+  if (rtc.begin()) {
+    RTCENABLE = true;
+    time_t utc_time = rtc.now().unixtime();
+    timeinfo = localtime(&utc_time);
+    rtcTimeSet = true;
+    
+    // Set system time from RTC for core time functions
+    struct timeval tv = { .tv_sec = utc_time };
+    settimeofday(&tv, nullptr);
+  } else {
+    RTCENABLE = false;
+  }
+
   //--------------------------------- initialize the LCD -----------------------------------
-  lcd.begin();  // Wire.begin() is called inside. Initialize I2C (SDA, SCL default for ESP8266 - GPIO4, GPIO5)
 
   uint8_t temp = writePCF8574(0xFF);    // Set all pins LOW (if used as outputs)
 
@@ -99,8 +116,6 @@ void setup(){
   portOut.value = 0xFF;
   if(RTCENABLE){
     logicManager.processIrrigation();
-    time_t utc_time = rtc.now().unixtime();
-    timeinfo = localtime(&utc_time);
     logicManager.processLighting();
   }
 }
@@ -148,6 +163,11 @@ void loop(){
       sensorCheck();
 
       logicManager.processClimate();
+      
+      // Fast response for auxiliary modes (thermostat/hygrostat)
+      if ((settings.modeRelay1 & 0x03) == 0) logicManager.relaySwitch(1);
+      if ((settings.modeRelay2 & 0x03) == 0) logicManager.relaySwitch(2);
+
       logicManager.processAlarms();
       logicManager.updateStatusLeds();
 

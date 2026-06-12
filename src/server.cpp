@@ -69,6 +69,10 @@ void respondsValues() {
     data["timer1"] = formatTimer(pvTimeR1, RELAY1, dataOut[3], "T1");
     data["timer2"] = formatTimer(pvTimeR2, RELAY2, dataOut[4], "T2");
     data["timer3"] = formatTimer(pvTimeR3, RELAY3, dataOut[5], "T3");
+
+    data["mR1"] = settings.modeRelay1 & 0x0F;
+    data["mR2"] = settings.modeRelay2 & 0x0F;
+    data["mR3"] = settings.modeRelay3 & 0x0F;
     
     data["error1"] = ERROR1;
     data["error2"] = ERROR2;

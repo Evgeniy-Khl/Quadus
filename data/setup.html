@@ -128,16 +128,80 @@
         <label>Вимкнути о (год):</label>
         <input type="number" name="timerOff" id="timerOff" min="0" max="23">
 
-        <div class="group-title">Таймери поливу</div>
-        <label>Таймер 1 (хвл):</label>
-        <input type="number" name="water0on" id="water0on" min="1" max="99">
-        <label>Період 1:</label>
-        <select name="water0off" id="water0off">
-            <option value="0">НЕМАЄ</option><option value="1">1 год</option><option value="2">2 год</option>
-            <option value="3">3 год</option><option value="4">4 год</option><option value="5">6 год</option>
-            <option value="6">8 год</option><option value="7">10 год</option><option value="8">12 год</option>
-            <option value="9">24 год</option><option value="10">2 доби</option><option value="11">3 доби</option>
+        <div class="group-title">Таймери (Реле 1, 2, 3)</div>
+        
+        <label>Режим Реле 1 (T1):</label>
+        <select name="modeRelay1" id="modeRelay1">
+            <option value="0">АВАРІЙНИЙ (Охолодження)</option>
+            <option value="1">Таймер - ЗАВЖДИ</option>
+            <option value="2">Таймер - БЕЗ СВІТЛА</option>
+            <option value="3">Таймер - ЗІ СВІТЛОМ</option>
         </select>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Робота (хвл):</label>
+                <input type="number" name="water0on" id="water0on" min="1" max="99">
+            </div>
+            <div style="flex: 1;">
+                <label>Період:</label>
+                <select name="water0off" id="water0off">
+                    <option value="0">НЕМАЄ</option><option value="1">1 год</option><option value="2">2 год</option>
+                    <option value="3">3 год</option><option value="4">4 год</option><option value="5">6 год</option>
+                    <option value="6">8 год</option><option value="7">10 год</option><option value="8">12 год</option>
+                    <option value="9">24 год</option><option value="10">2 доби</option><option value="11">3 доби</option>
+                </select>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+
+        <label>Режим Реле 2 (T2):</label>
+        <select name="modeRelay2" id="modeRelay2">
+            <option value="0">АВАРІЙНИЙ (Зволоження)</option>
+            <option value="1">Таймер - ЗАВЖДИ</option>
+            <option value="2">Таймер - БЕЗ СВІТЛА</option>
+            <option value="3">Таймер - ЗІ СВІТЛОМ</option>
+        </select>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Робота (хвл):</label>
+                <input type="number" name="water1on" id="water1on" min="1" max="99">
+            </div>
+            <div style="flex: 1;">
+                <label>Період:</label>
+                <select name="water1off" id="water1off">
+                    <option value="0">НЕМАЄ</option><option value="1">1 год</option><option value="2">2 год</option>
+                    <option value="3">3 год</option><option value="4">4 год</option><option value="5">6 год</option>
+                    <option value="6">8 год</option><option value="7">10 год</option><option value="8">12 год</option>
+                    <option value="9">24 год</option><option value="10">2 доби</option><option value="11">3 доби</option>
+                </select>
+            </div>
+        </div>
+
+        <hr style="border: 0; border-top: 1px solid rgba(255,255,255,0.1); margin: 15px 0;">
+
+        <label>Режим Реле 3 (T3):</label>
+        <select name="modeRelay3" id="modeRelay3">
+            <option value="0">Таймер - ЗАВЖДИ</option>
+            <option value="1">Таймер - ЗАВЖДИ</option>
+            <option value="2">Таймер - БЕЗ СВІТЛА</option>
+            <option value="3">Таймер - ЗІ СВІТЛОМ</option>
+        </select>
+        <div style="display: flex; gap: 10px;">
+            <div style="flex: 1;">
+                <label>Робота (хвл):</label>
+                <input type="number" name="water2on" id="water2on" min="1" max="99">
+            </div>
+            <div style="flex: 1;">
+                <label>Період:</label>
+                <select name="water2off" id="water2off">
+                    <option value="0">НЕМАЄ</option><option value="1">1 год</option><option value="2">2 год</option>
+                    <option value="3">3 год</option><option value="4">4 год</option><option value="5">6 год</option>
+                    <option value="6">8 год</option><option value="7">10 год</option><option value="8">12 год</option>
+                    <option value="9">24 год</option><option value="10">2 доби</option><option value="11">3 доби</option>
+                </select>
+            </div>
+        </div>
 
         <div class="group-title">Системні</div>
         <label>Заслінка (%):</label>

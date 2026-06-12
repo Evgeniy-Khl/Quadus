@@ -270,31 +270,23 @@ void reset(void){
  * @brief Initialize RTC and system environment.
  */
 void initEnvironment(void){
-  if(rtc.begin()){
-    RTCENABLE = 1;
+  if (RTCENABLE) {
     if (rtc.lostPower()) {
         MYDEBUG_PRINTLN("RTC lost power, forcing initial time sync.");
-        bool res = syncTime();
-        if(res){
+        if(syncTime()){
           MYDEBUG_PRINTLN("MANUAL time setup required.");
           manualTimeSet();
         }
     } else if(settings.special & 0x04){
         settings.special &= 0xFB;
         saveSetPoint();
-        bool res = syncTime();
-        if(res){
+        if(syncTime()){
           MYDEBUG_PRINTLN("MANUAL time setup required.");
           manualTimeSet();
         }
     } else {
         MYDEBUG_PRINTLN("RTC has power, time should be valid.");
-        time_t t = rtc.now().unixtime();
-        timeval tv = {(long)t, 0};
-        settimeofday(&tv, nullptr);           // Set system CPU clock
-
-        configTime(tzInfo, ntpServer);        // Apply TZ and start background NTP
-        MYDEBUG_PRINTLN("System time set from RTC. TZ rule applied.");
+        // configTime is now handled in setup() via setenv/tzset
     }
     testProgs();
   } else MYDEBUG_PRINTLN("Couldn't find RTC!"); 
