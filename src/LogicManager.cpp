@@ -34,7 +34,7 @@ void LogicManager::processClimate() {
         if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR));
         ERROR1 = 1;
     } else {
-        HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater, settings.hysteresis0);
+        HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
     }
 
     // Humidifier processing
@@ -44,7 +44,7 @@ void LogicManager::processClimate() {
         if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR));
         ERROR2 = 1;
     } else {
-        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi, settings.hysteresis1);
+        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }
 }
 
@@ -110,27 +110,27 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
             uint8_t opMode;
             if (settings.modeHeater == 0) { // Heat -> Emer Cool
                 opMode = 1; // Cool
-                onT = settings.spT0off + settings.alarm0;
+                onT = settings.spT0off + settings.hysteresis0;
                 offT = settings.spT0off;
             } else { // Cool -> Emer Heat
                 opMode = 0; // Heat
-                onT = settings.spT0off - settings.alarm0;
+                onT = settings.spT0off - settings.hysteresis0;
                 offT = settings.spT0off;
             }
-            RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode, settings.hysteresis0);
+            RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode);
         } else if (cn == 2) {
             int16_t onH, offH;
             uint8_t opMode;
             if (settings.modeHumidi == 0) { // Humidify -> Emer Dehumidify
                 opMode = 1; // Dehumidify
-                onH = settings.spT1off + settings.alarm1;
+                onH = settings.spT1off + settings.hysteresis1;
                 offH = settings.spT1off;
             } else { // Dehumidify -> Emer Humidify
                 opMode = 0; // Humidify
-                onH = settings.spT1off - settings.alarm1;
+                onH = settings.spT1off - settings.hysteresis1;
                 offH = settings.spT1off;
             }
-            RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode, settings.hysteresis1);
+            RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode);
         }
         return;
     }
@@ -183,19 +183,15 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
     }
 }
 
-bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t mode, int16_t hyst) {
+bool LogicManager::checkDeviceState(bool previousState, int16_t currentTemp, int16_t onTemp, int16_t offTemp, uint8_t mode) {
     if (onTemp == offTemp) return PCF_OFF;
-    
+
     if (mode == 0) { // Heating mode / Humidifying mode
-        // Turn ON if temperature drops to or below onTemp
         if (currentTemp <= onTemp) return PCF_ON;
-        // Turn OFF if temperature reaches offTemp - hyst
-        if (currentTemp >= (offTemp - hyst)) return PCF_OFF;
+        if (currentTemp >= offTemp) return PCF_OFF;
     } else { // Cooling mode / Dehumidifying mode
-        // Turn ON if temperature reaches or exceeds onTemp
         if (currentTemp >= onTemp) return PCF_ON;
-        // Turn OFF if temperature drops to offTemp + hyst
-        if (currentTemp <= (offTemp + hyst)) return PCF_OFF;
+        if (currentTemp <= offTemp) return PCF_OFF;
     }
     return previousState;
 }
