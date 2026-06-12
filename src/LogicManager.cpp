@@ -30,9 +30,6 @@ void LogicManager::processClimate() {
     // Heater processing
     if (dataOut[1] != -1) {
         HEATER = (dataOut[1] == 1) ? PCF_ON : PCF_OFF;
-    } else if (ds[0].pvT > 1250) { // 125.0°C
-        if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR));
-        ERROR1 = 1;
     } else {
         HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
     }
@@ -40,9 +37,6 @@ void LogicManager::processClimate() {
     // Humidifier processing
     if (dataOut[2] != -1) {
         HUMIDI = (dataOut[2] == 1) ? PCF_ON : PCF_OFF;
-    } else if (ds[1].pvT > 1250) { // 125.0°C or 125.0% RH
-        if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR));
-        ERROR2 = 1;
     } else {
         HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }
@@ -229,11 +223,13 @@ void LogicManager::processAlarm(uint8_t cn) {
         if (!REACHED1 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
         REACHED1 = reached;
         if (!ERROR8 && beep) sysLogger.log(getMsg(MSG_ALARM_T2_RANGE));
+        if (ERROR8 && !beep) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
         ERROR8 = beep;
     } else {
         if (!REACHED0 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED));
         REACHED0 = reached;
         if (!ERROR4 && beep) sysLogger.log(getMsg(MSG_ALARM_T1_RANGE));
+        if (ERROR4 && !beep) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED));
         ERROR4 = beep;
     }
 

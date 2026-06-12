@@ -109,8 +109,8 @@ void checkDs18b20(void){
       if(++ds[dsIdx].errDevice > 5){
         ds[dsIdx].errDevice = 5;
         switch (dsIdx){
-        case 0: ERROR1 = 1; break;
-        case 1: ERROR2 = 1; break;
+        case 0: if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR)); ERROR1 = 1; break;
+        case 1: if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR)); ERROR2 = 1; break;
         }
       }
     }
@@ -118,8 +118,8 @@ void checkDs18b20(void){
       ds[dsIdx].pvT = round(tempC * 10.0);
       ds[dsIdx].errDevice = 0;
       switch (dsIdx){
-      case 0: ERROR1 = 0; break;
-      case 1: ERROR2 = 0; break;
+      case 0: if (ERROR1) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED)); ERROR1 = 0; break;
+      case 1: if (ERROR2) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED)); ERROR2 = 0; break;
       }
     }
 
