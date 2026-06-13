@@ -100,7 +100,7 @@ void setup(){
   }
   if (numberOfDS18 > 0) {
       lcd.print("DS18B20: "); lcd.print(numberOfDS18);
-      sysLogger.log(getMsg(MSG_DS18B20_FOUND) + ' ' + String(numberOfDS18));
+      sysLogger.log(String(getMsg(MSG_DS18B20_FOUND)) + ": " + String(numberOfDS18));
   }
   if (!hasDHT22 && numberOfDS18 == 0) {
       myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
