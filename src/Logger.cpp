@@ -38,7 +38,7 @@ void Logger::maintain() {
             // Very simple rotation: delete if too big
             // In a more complex version, we could keep the last 50% of the file
             clear();
-            log("Log rotated due to size limit.");
+            log(getMsg(MSG_LOG_ROTATED));
         }
     }
 }

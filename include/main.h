@@ -129,7 +129,8 @@ enum LogMsgId {
     MSG_MANUAL_RELAY3,
     MSG_AUTO_RESTORED,
     MSG_ON,
-    MSG_OFF
+    MSG_OFF,
+    MSG_LOG_ROTATED
 };
 
 const char* getMsg(LogMsgId id);

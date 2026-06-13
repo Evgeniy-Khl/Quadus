@@ -165,8 +165,12 @@ void loop(){
         displSwitch();
       }
     }
-    if(halfSecond & 2){//-------- NEW SECOND -----------------------
-      countSeconds++; errorsFlag.value = 0;
+    if(halfSecond % 2 == 0){//-------- NEW SECOND -----------------------
+      countSeconds++; 
+      if(RTCENABLE){
+        time_t utc_time = rtc.now().unixtime();
+        timeinfo = localtime(&utc_time);
+      }
       #ifndef DEBUG  
         sensorCheck();                                                  // Опрос датчиков должен быть всегда
       #else
@@ -199,9 +203,6 @@ void loop(){
     if(halfSecond > 119){//------ NEW MINUTE ------------------------
       halfSecond = 0; countSeconds = 0; minutes++;
       if(RTCENABLE){
-        time_t utc_time = rtc.now().unixtime();
-        timeinfo = localtime(&utc_time);
-
         logicManager.processLighting();
         logicManager.processIrrigation();
 

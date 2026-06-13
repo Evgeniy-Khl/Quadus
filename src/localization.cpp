@@ -25,7 +25,8 @@ const char* const strings[] = {
     "Ручное: Реле3 ",
     "Автоматическое управление восстановлено.",
     "ВКЛ",
-    "ВЫКЛ"
+    "ВЫКЛ",
+    "Лог очищен (лимит размера)."
 };
 #elif defined(LANG_UA)
 const char* const strings[] = {
@@ -52,7 +53,8 @@ const char* const strings[] = {
     "Ручне: Реле1 ",
     "Автоматичне управління відновлено.",
     "УВІМК",
-    "ВИМК"
+    "ВИМК",
+    "Лог очищено (ліміт розміру)."
 };
 #else // Default to English (LANG_EN)
 const char* const strings[] = {
@@ -79,7 +81,8 @@ const char* const strings[] = {
     "Manual: Relay3 ",
     "Automatic control restored.",
     "ON",
-    "OFF"
+    "OFF",
+    "Log rotated (size limit)."
 };
 #endif
 
