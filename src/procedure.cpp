@@ -238,10 +238,10 @@ void reset(void){
     settings.flap = 0;
     settings.timerOn = TIMERON;
     settings.timerOff = TIMEROFF;
-    settings.alarm0 = ALARM0 * 10;
-    settings.alarm1 = ALARM1 * 10;
-    settings.hysteresis0 = 5;
-    settings.hysteresis1 = 5;
+    settings.alarm0 = ALARM0;
+    settings.alarm1 = ALARM1;
+    settings.hysteresis0 = HYSTER0;
+    settings.hysteresis1 = HYSTER1;
     settings.special = 0;
     settings.deviceNum = 0;
     settings.program = 0;

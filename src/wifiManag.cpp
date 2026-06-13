@@ -15,12 +15,10 @@ void initWiFiManag(void){
     //---- Устанавливаем таймаут для портала конфигурации в секундах ----
     lcd.clear();
     lcd.setCursor(0,0);
-    myPrint(connect,sizeof(connect));
-    lcd.print(" WiFi");
+    myPrint(settingUp,sizeof(settingUp));   // Налаштування
+    snprintf(displStr, sizeof(displStr),"WiFi %2u \x63\x65\xBA\x2E",tt);    // WiFi 60 cek.
     lcd.setCursor(0,1);
-    myPrint(timeout_,sizeof(timeout_));
-    lcd.print(tt);
-    lcd.print(" cek.");
+    lcd.print(displStr);
     wifiManager.setConfigPortalTimeout(tt);  
     //-------------------------------------------------------------------
     // Пытаемся подключиться
