@@ -43,7 +43,7 @@ void setup(){
   }
 
   //--------------------------------- initialize the LCD -----------------------------------
-
+  lcd.begin();  // Wire.begin() is called inside. Initialize I2C (SDA, SCL default for ESP8266 - GPIO4, GPIO5)
   uint8_t temp = writePCF8574(0xFF);    // Set all pins LOW (if used as outputs)
 
   // Turn on the backlight and print a message.
