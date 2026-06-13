@@ -388,7 +388,8 @@ void manualTimeSet(){
           if (keys == KEY_3) {
               rtc.adjust(tempTime);
               lcd.setCursor(0,1);
-              myPrint(time_saved,sizeof(time_saved));
+              myPrint(time_,sizeof(time_));
+              myPrint(saved,sizeof(saved));
               MYDEBUG_PRINTLN("Time saved!");
               delay(1000);
               return;

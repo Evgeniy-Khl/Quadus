@@ -9,10 +9,10 @@ void displ0(){
       sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeinfo->tm_mday,timeinfo->tm_mon+1,
                         (timeinfo->tm_year+1900)%100,timeinfo->tm_hour,timeinfo->tm_min);
       lcd.print(displStr);
-    } else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" TC");}
+    } else {lcd.print("RTC "); myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));}
     lcd.setCursor(0,1);
     if(WIFIENABLE) lcd.print(WiFi.localIP());
-    else {myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); lcd.print(" WF");}
+    else {lcd.print("WiFi "); myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));}
 }
 //---------- Температура датчиков и RH --------------
 void displ1(){
@@ -81,9 +81,9 @@ void displ2(){
     lcd.setCursor(0,1);
     if(settings.modeRelay1 == 0){
         if(RELAY1 == PCF_OFF){    //-- OFF --
-            snprintf(displStr, sizeof(displStr),"\xDAT1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+            snprintf(displStr, sizeof(displStr),"\xDAR1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+            snprintf(displStr, sizeof(displStr),"\xD9R1 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
         }
         lcd.print(displStr);
     } else {
@@ -91,9 +91,9 @@ void displ2(){
             uint8_t day = pvTimeR1 / 1440;
             uint8_t hour = (pvTimeR1 % 1440) / 60;
             uint8_t min = pvTimeR1 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT1 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
+            snprintf(displStr, sizeof(displStr),"\xDAR1 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1);
+            snprintf(displStr, sizeof(displStr),"\xD9R1 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR1);
         }
         lcd.print(displStr); 
     } 
@@ -103,9 +103,9 @@ void displ3(){
     lcd.setCursor(0,0);
     if(settings.modeRelay2 == 0){
         if(RELAY2 == PCF_OFF){    //-- OFF --
-            snprintf(displStr, sizeof(displStr),"\xDAT2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+            snprintf(displStr, sizeof(displStr),"\xDAR2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
+            snprintf(displStr, sizeof(displStr),"\xD9R2 \xE0\x6F\xBE\x6F\xBC\x69\xB6\xBD\xB8\xB9");  // Допомiжний
         }
         lcd.print(displStr);
     } else {
@@ -113,9 +113,9 @@ void displ3(){
             uint8_t day = pvTimeR2 / 1440;
             uint8_t hour = (pvTimeR2 % 1440) / 60;
             uint8_t min = pvTimeR2 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT2 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
+            snprintf(displStr, sizeof(displStr),"\xDAR2 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2);
+            snprintf(displStr, sizeof(displStr),"\xD9R2 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR2);
         }
         lcd.print(displStr);
     } 
@@ -127,9 +127,9 @@ void displ3(){
             uint8_t day = pvTimeR3 / 1440;
             uint8_t hour = (pvTimeR3 % 1440) / 60;
             uint8_t min = pvTimeR3 % 60;
-            snprintf(displStr, sizeof(displStr),"\xDAT3 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
+            snprintf(displStr, sizeof(displStr),"\xDAR3 %u \xE3\xB2\x2E %02u:%02u ",day,hour,min);
         } else {      //-- ON --
-            snprintf(displStr, sizeof(displStr),"\xD9T3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3);
+            snprintf(displStr, sizeof(displStr),"\xD9R3 \x79\xB3\x69\xBC\x2E%2u\x78\xB3\xBB\x2E",pvTimeR3);
         }
         lcd.print(displStr);
     } 
