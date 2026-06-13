@@ -48,6 +48,7 @@ void setup(){
 
   // Turn on the backlight and print a message.
   lcd.backlight();
+  myPrint(quadus_, sizeof(quadus_));
   lcd.print(version);
   if(temp){
     lcd.clear();
@@ -98,8 +99,8 @@ void setup(){
       sysLogger.log(getMsg(MSG_DHT22_FOUND));
   }
   if (numberOfDS18 > 0) {
-      lcd.print("DS:"); lcd.print(numberOfDS18);
-      sysLogger.log(String(numberOfDS18) + getMsg(MSG_DS18B20_FOUND));
+      lcd.print("DS18B20: "); lcd.print(numberOfDS18);
+      sysLogger.log(getMsg(MSG_DS18B20_FOUND) + ' ' + String(numberOfDS18));
   }
   if (!hasDHT22 && numberOfDS18 == 0) {
       myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 

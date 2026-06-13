@@ -128,8 +128,6 @@ enum LogMsgId {
     MSG_MANUAL_RELAY2,
     MSG_MANUAL_RELAY3,
     MSG_AUTO_RESTORED,
-    MSG_ON,
-    MSG_OFF,
     MSG_LOG_ROTATED
 };
 
@@ -308,7 +306,7 @@ void setupSwitch();
 void myPrint(const uint8_t* str, uint8_t size);
 void testProgs();
 
-extern const uint8_t error_[8], alarm[8], connect[10], config[12], no_[3], saved[10], timeout_[9], manual_control[15], 
+extern const uint8_t quadus_[7], error_[8], alarm[8], connect[10], config[12], no_[3], saved[10], timeout_[9], manual_control[15], 
                         restored[10], save_time[13], time_[4], no_permissions[13], sensorsWord[7], settingUp[12];
 
 #endif /* __MAIN_H */

@@ -10,7 +10,7 @@ const char* const strings[] = {
     "ТРЕВОГА: Температура T1 вне диапазона!",
     "Запуск системы. Версия: ",
     "Датчики: DHT22 обнаружен",
-    "Датчики: x DS18B20 обнаружено",
+    "Датчики: DS18B20 обнаружено",
     "Датчики: НЕ ОБНАРУЖЕНЫ",
     "Ежедневная синхронизация RTC успешна.",
     "ОШИБКА: Файловой системы",
@@ -24,8 +24,6 @@ const char* const strings[] = {
     "Ручное: Реле2 ",
     "Ручное: Реле3 ",
     "Автоматическое управление восстановлено.",
-    "ВКЛ",
-    "ВЫКЛ",
     "Лог очищен (лимит размера)."
 };
 #elif defined(LANG_UA)
@@ -38,7 +36,7 @@ const char* const strings[] = {
     "ТРИВОГА: Температура T1 поза діапазоном!",
     "Запуск системи. Версія: ",
     "Датчики: DHT22 виявлено",
-    "Датчики: x DS18B20 виявлено",
+    "Датчики: DS18B20 виявлено",
     "Датчики: НЕ ВИЯВЛЕНО",
     "Щоденна синхронізація RTC успішна.",
     "ПОМИЛКА: Файлової системи",
@@ -52,8 +50,6 @@ const char* const strings[] = {
     "Ручне: Реле1 ",
     "Ручне: Реле1 ",
     "Автоматичне управління відновлено.",
-    "УВІМК",
-    "ВИМК",
     "Лог очищено (ліміт розміру)."
 };
 #else // Default to English (LANG_EN)
@@ -66,7 +62,7 @@ const char* const strings[] = {
     "ALARM: T1 temperature out of range!",
     "System startup. Version: ",
     "Sensors: DHT22 detected",
-    "Sensors: x DS18B20 detected",
+    "Sensors: DS18B20 detected",
     "Sensors: NONE found",
     "Daily RTC sync successful.",
     "ERROR: File system",
@@ -80,8 +76,6 @@ const char* const strings[] = {
     "Manual: Relay2 ",
     "Manual: Relay3 ",
     "Automatic control restored.",
-    "ON",
-    "OFF",
     "Log rotated (size limit)."
 };
 #endif
