@@ -67,7 +67,10 @@ void displ1(){
             lcd.setCursor(8,1);
             if(ERROR8) myPrint(alarm, sizeof(alarm));
             else if(HUMIDI==PCF_ON) lcd.print(txt); 
-            else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
+            else {
+                snprintf(txt, sizeof(txt),"RH=%2d.%d%%", pvRH / 10, abs(pvRH % 10));
+                lcd.print(txt);
+            }
         }
     }
 }
