@@ -89,6 +89,17 @@
     }
     .bg-alarm { background: rgba(230, 126, 34, 0.4); border: 1px solid #e67e22; animation: pulse 2s infinite; }
 
+    .error-msg {
+      background: rgba(231, 76, 60, 0.2);
+      border-left: 4px solid #e74c3c;
+      padding: 8px;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: #ff9f94;
+      border-radius: 4px;
+      text-align: left;
+    }
+
     .ukraine-flag { width: 30px; vertical-align: middle; margin-left: 10px; border-radius: 3px; }
   </style>
 </head>
@@ -128,6 +139,7 @@
     </table>
 
     <div class="status-container">
+      <div id="error-list" style="display: none; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; margin-bottom: 10px;"></div>
       <div class="status-row"><span>Освітлення:</span> <span id="light">--</span></div>
       <div class="status-row"><span>Реле 1:</span> <span id="timer1">--</span></div>
       <div class="status-row"><span>Реле 2:</span> <span id="timer2">--</span></div>
@@ -163,24 +175,14 @@ function fetchData() {
                 else if (alarm) el.classList.add('bg-alarm');
             };
             
-            const checkAlarm = (val, min, max, alarm) => {
-                if (val == null || min == null || max == null || alarm == null) return false;
-                val = Number(val);
-                min = Number(min);
-                max = Number(max);
-                alarm = Number(alarm);
-                return (val <= (min - alarm) || val >= (max + alarm));
-            };
-
-            const alarm0 = checkAlarm(json.pvT0, json.spT0min, json.spT0max, json.alarm0) || !!json.error4;
-            updateBlockColor("rcorners0", !!json.error1, alarm0, "bg-normal");
+            const e = json.errorsFlag || 0;
+            updateBlockColor("rcorners0", e & 0x01, e & 0x04, "bg-normal");
 
             if (json.temperature1 !== undefined) {
                 document.getElementById("rcorners1").style.display = 'block';
                 document.getElementById("temperature1").innerHTML = json.temperature1;
                 document.getElementById("settemp1").innerHTML = json.settemp1;
-                const alarm1 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || !!json.error8;
-                updateBlockColor("rcorners1", !!json.error2, alarm1, "bg-normal");
+                updateBlockColor("rcorners1", e & 0x02, e & 0x08, "bg-normal");
             } else {
                 document.getElementById("rcorners1").style.display = 'none';
             }
@@ -189,11 +191,36 @@ function fetchData() {
                 document.getElementById("rcorners2").style.display = 'block';
                 document.getElementById("humidity").innerHTML = json.humidity;
                 document.getElementById("sethum").innerHTML = json.sethum;
-                const alarm2 = checkAlarm(json.pvT1, json.spT1min, json.spT1max, json.alarm1) || !!json.error8;
-                updateBlockColor("rcorners2", !!json.error2, alarm2, "bg-humidity");
+                updateBlockColor("rcorners2", e & 0x02, e & 0x08, "bg-humidity");
             } else {
                 document.getElementById("rcorners2").style.display = 'none';
             }
+
+            // Error messages list
+            const errorLabels = [
+                "Помилка датчика №1", // bit 0
+                "Помилка датчика №2", // bit 1
+                "ТРИВОГА: t1 поза діапазоном!", // bit 2
+                "ТРИВОГА: t2/RH поза діапазоном!", // bit 3
+                "Системна помилка 4", // bit 4
+                "Системна помилка 5", // bit 5
+                "ПЕРЕГРІВ!", // bit 6
+                "ЗАМОРОЗКА!" // bit 7
+            ];
+
+            const errorList = document.getElementById("error-list");
+            errorList.innerHTML = "";
+            let hasAnyError = false;
+            for (let i = 0; i < 8; i++) {
+                if (e & (1 << i)) {
+                    const div = document.createElement("div");
+                    div.className = "error-msg";
+                    div.innerText = errorLabels[i];
+                    errorList.appendChild(div);
+                    hasAnyError = true;
+                }
+            }
+            errorList.style.display = hasAnyError ? "block" : "none";
 
             document.getElementById("light").innerHTML = json.light;
             

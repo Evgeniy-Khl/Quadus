@@ -74,6 +74,7 @@ void respondsValues() {
     data["mR2"] = settings.modeRelay2 & 0x0F;
     data["mR3"] = settings.modeRelay3 & 0x0F;
     
+    data["errorsFlag"] = errorsFlag.value;
     data["error1"] = ERROR1;
     data["error2"] = ERROR2;
     data["error4"] = ERROR4;
