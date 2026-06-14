@@ -46,10 +46,16 @@ void respondsValues() {
         data["settemp1"] = txt;
     }
     
-    snprintf(txt, sizeof(txt), "%s %02u:%02u [%02u - %02u]", 
-             LIGHT == PCF_OFF ? "↓" : "↑", 
-             timeinfo->tm_hour, timeinfo->tm_min, 
-             settings.timerOn, settings.timerOff);
+    if (timeinfo) {
+        snprintf(txt, sizeof(txt), "%s %02u:%02u [%02u - %02u]", 
+                 LIGHT == PCF_OFF ? "↓" : "↑", 
+                 timeinfo->tm_hour, timeinfo->tm_min, 
+                 settings.timerOn, settings.timerOff);
+    } else {
+        snprintf(txt, sizeof(txt), "%s 00:00 [%02u - %02u]", 
+                 LIGHT == PCF_OFF ? "↓" : "↑", 
+                 settings.timerOn, settings.timerOff);
+    }
     data["light"] = txt;
 
     auto formatTimer = [&](int16_t pvTime, bool relayState, int8_t manualMode, const char* label) {
@@ -95,10 +101,14 @@ void respondsValues() {
     
     data["program"] = ((settings.program & 0xF) == 0) ? "немає" : "#" + String(settings.program & 0xF);
     
-    snprintf(txt, sizeof(txt), "%02d.%02d.%04d %02d:%02d:%02d",
-             timeinfo->tm_mday, timeinfo->tm_mon + 1,
-             timeinfo->tm_year + 1900, timeinfo->tm_hour,
-             timeinfo->tm_min, timeinfo->tm_sec);
+    if (timeinfo) {
+        snprintf(txt, sizeof(txt), "%02d.%02d.%04d %02d:%02d:%02d",
+                 timeinfo->tm_mday, timeinfo->tm_mon + 1,
+                 timeinfo->tm_year + 1900, timeinfo->tm_hour,
+                 timeinfo->tm_min, timeinfo->tm_sec);
+    } else {
+        snprintf(txt, sizeof(txt), "00.00.0000 00:00:00");
+    }
     data["currDay"] = txt;
     
     data["led0"] = dataLed[0] ? "ON" : "OFF";
