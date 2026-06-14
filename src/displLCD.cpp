@@ -53,9 +53,9 @@ void displ1(){
                 lcd.write(' ');
             }
         } else {
-            snprintf(displStr, sizeof(displStr),"t2=%2d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+            snprintf(displStr, sizeof(displStr),"t2=%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             if(hasDHT22){
-                snprintf(displStr, sizeof(displStr), "Rh=%d.%d%% ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+                snprintf(displStr, sizeof(displStr), "%% =%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
             }
             lcd.print(displStr);
 
@@ -67,10 +67,11 @@ void displ1(){
             lcd.setCursor(8,1);
             if(ERROR8) myPrint(alarm, sizeof(alarm));
             else if(HUMIDI==PCF_ON) lcd.print(txt); 
-            else {
-                snprintf(txt, sizeof(txt),"RH=%2d.%d%%", pvRH / 10, abs(pvRH % 10));
+            else if(!hasDHT22){
+                snprintf(txt, sizeof(txt),"Rh=%2d.%d%%", pvRH / 10, abs(pvRH % 10));
                 lcd.print(txt);
             }
+            else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
         }
     }
 }
@@ -172,7 +173,7 @@ void displ5(){
                          settings.spT0off / 10, abs(settings.spT0off % 10));
     lcd.print(displStr);
     lcd.setCursor(0,1);
-    lcd.print("t2 ");
+    if(hasDHT22) lcd.print("%  "); else lcd.print("t2 ");
     snprintf(displStr, sizeof(displStr),"[%d.%d-%d.%d]", 
                          settings.spT1on / 10, abs(settings.spT1on % 10),
                          settings.spT1off / 10, abs(settings.spT1off % 10));
