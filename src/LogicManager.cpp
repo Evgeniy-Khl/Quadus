@@ -46,7 +46,7 @@ void LogicManager::processClimate() {
             uint8_t rh = tableRH(ds[0].pvT, ds[1].pvT);
             if (rh <= 100) pvRH = rh * 10;
         }
-        HUMIDI = checkDeviceState(HUMIDI, pvRH, settings.spT1on, settings.spT1off, settings.modeHumidi);
+        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }
 }
 
