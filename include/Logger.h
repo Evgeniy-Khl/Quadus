@@ -5,7 +5,7 @@
 #include <LittleFS.h>
 
 #define LOG_FILE "/system.log"
-#define MAX_LOG_SIZE 10240 // 10KB limit
+#define MAX_LOG_SIZE 51200 // 50KB limit
 
 /**
  * @brief Class for managing system event logs in LittleFS.

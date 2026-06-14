@@ -330,7 +330,13 @@ void handleGetRelayStates() {
 }
 
 void handleGetLogs() {
-    server.send(200, "text/plain", sysLogger.getLogs());
+    if (LittleFS.exists(LOG_FILE)) {
+        File f = LittleFS.open(LOG_FILE, "r");
+        server.streamFile(f, "text/plain");
+        f.close();
+    } else {
+        server.send(200, "text/plain", "No logs found.");
+    }
 }
 
 void handleClearLogs() {
