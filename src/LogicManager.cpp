@@ -38,7 +38,15 @@ void LogicManager::processClimate() {
     if (dataOut[2] != -1) {
         HUMIDI = (dataOut[2] == 1) ? PCF_ON : PCF_OFF;
     } else {
-        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
+        if (hasDHT22) {
+            pvRH = ds[1].pvT;
+        } else if (numberOfDS18 >= 2) {
+            // Calculate RH using dry/wet bulb temperatures
+            // ds[0].pvT is dry, ds[1].pvT is wet
+            uint8_t rh = tableRH(ds[0].pvT, ds[1].pvT);
+            if (rh <= 100) pvRH = rh * 10;
+        }
+        HUMIDI = checkDeviceState(HUMIDI, pvRH, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }
 }
 

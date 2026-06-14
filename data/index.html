@@ -121,7 +121,7 @@
     </div>
 
     <div id="rcorners2" class="sensor-block">
-      <span class="sensor-label">Вологість</span>
+      <span class="sensor-label" id="humidity-label">Вологість</span>
       <span class="temp-val" id="humidity">--</span><span class="units" style="font-size: 1.5rem;">%</span>
       <span class="temp-set" id="sethum">[--]</span>
     </div>
@@ -191,6 +191,8 @@ function fetchData() {
                 document.getElementById("rcorners2").style.display = 'block';
                 document.getElementById("humidity").innerHTML = json.humidity;
                 document.getElementById("sethum").innerHTML = json.sethum;
+                document.getElementById("sethum").style.display = json.isTableRH ? 'none' : 'inline';
+                document.getElementById("humidity-label").innerHTML = json.isTableRH ? "Вологість (таблиця)" : "Вологість";
                 updateBlockColor("rcorners2", e & 0x02, e & 0x08, "bg-humidity");
             } else {
                 document.getElementById("rcorners2").style.display = 'none';
@@ -227,15 +229,16 @@ function fetchData() {
             const relayModes = ["Допоміжний режим", "Завжди", "Без світла", "Зі світлом"];
             
             const formatRelayStatus = (mode, timerStr, isRelay3 = false) => {
+                if (!timerStr) return '--';
                 if (!isRelay3 && mode === 0) {
                     // For Relays 1 & 2 in mode 0, show auxiliary mode and only ON/OFF state
                     const state = timerStr.includes("ON") ? "↑ ON" : "↓ OFF";
-                    return `[${relayModes[0]}] ${state}`;
+                    return `[${relayModes[mode] || relayModes[0]}] ${state}`;
                 }
                 // For Relay 3 or other modes, show mode name and full timer info
-                // If Relay 3 is in mode 0, we label it as "Завжди"
                 const label = (isRelay3 && mode === 0) ? "Завжди" : (relayModes[mode] || '--');
-                return `[${label}] ${timerStr.split(' ').slice(1).join(' ')}`;
+                const timeInfo = timerStr.split(' ').slice(1).join(' ') || timerStr;
+                return `[${label}] ${timeInfo}`;
             };
 
             document.getElementById("timer1").innerHTML = formatRelayStatus(json.mR1, json.timer1);

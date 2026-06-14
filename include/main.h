@@ -95,6 +95,7 @@ struct SystemState {
     int16_t pvTimeR3_m = 0;
     uint8_t pvFlap_m = 0;
     uint8_t numberOfDS18_m = 0;
+    int16_t pvRH_m = 0;
     bool hasDHT22_m = false;
 };
 
@@ -209,6 +210,7 @@ extern TableBuff unTable;
 #define pvTimeR3        sysState.pvTimeR3_m
 #define pvFlap          sysState.pvFlap_m
 #define numberOfDS18    sysState.numberOfDS18_m
+#define pvRH            sysState.pvRH_m
 #define hasDHT22        sysState.hasDHT22_m
 #define portOut         sysState.portOut_m
 #define errorsFlag      sysState.errorsFlag_m

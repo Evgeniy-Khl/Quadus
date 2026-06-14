@@ -30,20 +30,31 @@ void respondsValues() {
     data["settemp0"] = txt;
 
     if(hasDHT22){
-        snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+        snprintf(txt, sizeof(txt), "%d.%d", pvRH / 10, abs(pvRH % 10));
         data["humidity"] = txt;
         snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
                  settings.spT1on / 10, abs(settings.spT1on % 10),
                  settings.spT1off / 10, abs(settings.spT1off % 10));
         data["sethum"] = txt;
+        data["isTableRH"] = false;
     }
     else {
         snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
         data["temperature1"] = txt;
+        
         snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
                  settings.spT1on / 10, abs(settings.spT1on % 10),
                  settings.spT1off / 10, abs(settings.spT1off % 10));
         data["settemp1"] = txt;
+        
+        if (numberOfDS18 >= 2) {
+            snprintf(txt, sizeof(txt), "%d.%d", pvRH / 10, abs(pvRH % 10));
+            data["humidity"] = txt;
+            data["sethum"] = data["settemp1"];
+            data["isTableRH"] = true;
+        } else {
+            data["isTableRH"] = false;
+        }
     }
     
     if (timeinfo) {
