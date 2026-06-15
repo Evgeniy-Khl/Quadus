@@ -163,7 +163,17 @@ function fetchData() {
         .then(response => response.json())
         .then(json => {
             document.getElementById("model").innerHTML = json.model;
-            document.getElementById("temperature0").innerHTML = json.temperature0;
+            
+            const e = json.errorsFlag || 0;
+
+            // Temperature 0 / DHT22 Temp
+            if (e & 0x01) {
+                document.getElementById("temperature0").innerHTML = "ПОМИЛКА";
+                document.querySelector("#rcorners0 .units").style.display = 'none';
+            } else {
+                document.getElementById("temperature0").innerHTML = json.temperature0;
+                document.querySelector("#rcorners0 .units").style.display = 'inline';
+            }
             document.getElementById("settemp0").innerHTML = json.settemp0;
             
             // Logic for block colors
@@ -175,12 +185,17 @@ function fetchData() {
                 else if (alarm) el.classList.add('bg-alarm');
             };
             
-            const e = json.errorsFlag || 0;
             updateBlockColor("rcorners0", e & 0x01, e & 0x04, "bg-normal");
 
             if (json.temperature1 !== undefined) {
                 document.getElementById("rcorners1").style.display = 'block';
-                document.getElementById("temperature1").innerHTML = json.temperature1;
+                if (e & 0x02) {
+                    document.getElementById("temperature1").innerHTML = "ПОМИЛКА";
+                    document.querySelector("#rcorners1 .units").style.display = 'none';
+                } else {
+                    document.getElementById("temperature1").innerHTML = json.temperature1;
+                    document.querySelector("#rcorners1 .units").style.display = 'inline';
+                }
                 document.getElementById("settemp1").innerHTML = json.settemp1;
                 updateBlockColor("rcorners1", e & 0x02, e & 0x08, "bg-normal");
             } else {
@@ -189,7 +204,13 @@ function fetchData() {
 
             if (json.humidity !== undefined) {
                 document.getElementById("rcorners2").style.display = 'block';
-                document.getElementById("humidity").innerHTML = json.humidity;
+                if (e & 0x02) {
+                    document.getElementById("humidity").innerHTML = "ПОМИЛКА";
+                    document.querySelector("#rcorners2 .units").style.display = 'none';
+                } else {
+                    document.getElementById("humidity").innerHTML = json.humidity;
+                    document.querySelector("#rcorners2 .units").style.display = 'inline';
+                }
                 document.getElementById("sethum").innerHTML = json.sethum;
                 document.getElementById("sethum").style.display = json.isTableRH ? 'none' : 'inline';
                 document.getElementById("humidity-label").innerHTML = json.isTableRH ? "Вологість (таблиця)" : "Вологість";

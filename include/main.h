@@ -86,7 +86,7 @@ union Byte {
  * Member names have _m suffix to avoid macro collisions.
  */
 struct SystemState {
-    Ds ds_m[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0}};
+    Ds ds_m[MAX_DEVICE] = {{1990,0,0,0,0},{1990,0,0,0,0}};
     union Byte portOut_m;
     union Byte errorsFlag_m;
     union Byte portFlag_m;
@@ -228,11 +228,11 @@ extern TableBuff unTable;
 
 #define REACHED0    sysState.portFlag_m.bitfield.a0 // MSG_CLIMATE_T1_REACHED
 #define REACHED1    sysState.portFlag_m.bitfield.a1 // MSG_CLIMATE_T2_REACHED
-#define TURNSECOND  sysState.portFlag_m.bitfield.a2
+#define NEWSCREEN   sysState.portFlag_m.bitfield.a2 // NEW SCREEN
 #define RTCENABLE   sysState.portFlag_m.bitfield.a3 // Couldn't find RTC!
 #define WIFIENABLE	sysState.portFlag_m.bitfield.a4 // Wi-Fi Local ip:
-#define RESERV      sysState.portFlag_m.bitfield.a5
-#define NEWSCREEN   sysState.portFlag_m.bitfield.a6 // NEW SCREEN
+#define EXTRA1      sysState.portFlag_m.bitfield.a5 // Допоміжний 1
+#define EXTRA2      sysState.portFlag_m.bitfield.a6 // Допоміжний 2
 #define SAVING      sysState.portFlag_m.bitfield.a7
 
 #define PCF_ON      0

@@ -41,41 +41,60 @@ void displ1(){
             }
             lcd.setCursor(8,0);
             if(ERROR4) myPrint(alarm, sizeof(alarm));
-            else if(HEATER==PCF_ON) lcd.print(txt);
+            else if(HEATER == PCF_ON) lcd.print(txt);
+            else if(EXTRA1) {
+                if(settings.modeHeater == HEATER_MODE_HEAT){
+                    sprintf(txt,"\x4F\x78\x6F\xBB\x6F\xE3\xB6\x2E"); // Охолодж.
+                } else {
+                    sprintf(txt,"\x48\x61\xB4\x70\x69\xB3\x20\x20"); // Нагрiв
+                }
+                lcd.print(txt);
+            }
             else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
         }
         //-------------------------------------------------------------------------------------------------------------
-        lcd.setCursor(0,1);
-        if(ERROR2){             // DEVICE_DISCONNECTED
-            lcd.print("t2 ");
-            myPrint(error_,sizeof(error_));
-            for (uint8_t i = 0; i < 6; i++){
-                lcd.write(' ');
-            }
-        } else {
-            snprintf(displStr, sizeof(displStr),"t2=%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
-            if(hasDHT22){
-                snprintf(displStr, sizeof(displStr), "%% =%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
-            }
-            lcd.print(displStr);
-
-            if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
-                sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E\x20"); // Зволож.
+        if(numberOfDS18 > 1 || hasDHT22){
+            lcd.setCursor(0,1);
+            if(ERROR2){             // DEVICE_DISCONNECTED
+                lcd.print("t2 ");
+                myPrint(error_,sizeof(error_));
+                for (uint8_t i = 0; i < 6; i++){
+                    lcd.write(' ');
+                }
             } else {
-                sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E\x20"); // Осушен.
-            }
-            lcd.setCursor(8,1);
-            if(ERROR8) myPrint(alarm, sizeof(alarm));
-            else if(HUMIDI==PCF_ON) lcd.print(txt); 
-            else if(!hasDHT22){
-                if(pvRH > 1000) lcd.print("Rh=***");
-                else {
-                    snprintf(txt, sizeof(txt),"Rh=%3d%% ", pvRH / 10);
+                snprintf(displStr, sizeof(displStr),"t2=%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+                if(hasDHT22){
+                    snprintf(displStr, sizeof(displStr), "%% =%2d.%d ", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+                }
+                lcd.print(displStr);
+
+                if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
+                    sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E\x20"); // Зволож.
+                } else {
+                    sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E\x20"); // Осушен.
+                }
+                lcd.setCursor(8,1);
+                if(ERROR8) myPrint(alarm, sizeof(alarm));
+                else if(HUMIDI==PCF_ON) lcd.print(txt);
+                else if(EXTRA2){
+                    if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
+                        sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E\x20"); // Осушен.
+                    } else {
+                        sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E\x20"); // Зволож.
+                    }
                     lcd.print(txt);
                 }
+                else if(!hasDHT22){
+                    if(pvRH > 1000) lcd.print("Rh=***");
+                    else {
+                        snprintf(txt, sizeof(txt),"Rh=%3d%% ", pvRH / 10);
+                        lcd.print(txt);
+                    }
+                }
+                else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
             }
-            else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
         }
+        else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20");
     }
 }
 //---------- Остаток времени до переключения LT, R1 --------------

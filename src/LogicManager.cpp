@@ -119,7 +119,8 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 offT = settings.spT0off;
             }
             RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode);
-        } else if (cn == 2) {
+            if(RELAY1 == PCF_ON) EXTRA1 = 1; else EXTRA1 = 0;
+        } else if (cn == 2 && (numberOfDS18 > 1 || hasDHT22)) {
             int16_t onH, offH;
             uint8_t opMode;
             if (settings.modeHumidi == 0) { // Humidify -> Emer Dehumidify
@@ -132,6 +133,7 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 offH = settings.spT1off;
             }
             RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode);
+            if(RELAY2 == PCF_ON) EXTRA2 = 1; else EXTRA2 = 0;
         }
         return;
     }

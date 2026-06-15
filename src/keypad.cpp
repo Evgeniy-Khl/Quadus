@@ -244,4 +244,9 @@ void doSave(){
   saveSetPoint();
   setupNum = 0;
   resetDispl = 0;
+  lcd.clear();
+  myPrint(config, sizeof(config));
+  lcd.setCursor(0,1);
+  myPrint(saved, sizeof(saved));
+  delay(2000);
 }

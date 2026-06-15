@@ -39,8 +39,10 @@ void respondsValues() {
         data["isTableRH"] = false;
     }
     else {
-        snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
-        data["temperature1"] = txt;
+        if (numberOfDS18 >= 2) {
+            snprintf(txt, sizeof(txt), "%d.%d", ds[1].pvT / 10, abs(ds[1].pvT % 10));
+            data["temperature1"] = txt;
+        }
         
         snprintf(txt, sizeof(txt), "[%d.%d - %d.%d]", 
                  settings.spT1on / 10, abs(settings.spT1on % 10),

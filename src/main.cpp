@@ -101,6 +101,7 @@ void setup(){
   if (numberOfDS18 > 0) {
       lcd.print("DS18B20: "); lcd.print(numberOfDS18);
       sysLogger.log(String(getMsg(MSG_DS18B20_FOUND)) + ": " + String(numberOfDS18));
+      sensors.requestTemperatures();
   }
   if (!hasDHT22 && numberOfDS18 == 0) {
       myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect)); 
@@ -112,6 +113,7 @@ void setup(){
   pinMode(BEEP_PIN, OUTPUT);    // Set beeper pin as output for LED only
   
   delay(3000);
+  sensorCheck();
   displNum = 1;  
   lcd.clear();
   displSwitch();
@@ -120,7 +122,7 @@ void setup(){
     logicManager.processIrrigation();
     logicManager.processLighting();
   }
-  #ifdef DEBUG
+  #ifdef SIMULATION
     ds[0].pvT = 200;
     ds[0].pvErr = 0;
     ds[1].pvT = 160;
