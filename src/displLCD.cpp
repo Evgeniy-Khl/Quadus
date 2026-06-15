@@ -68,8 +68,11 @@ void displ1(){
             if(ERROR8) myPrint(alarm, sizeof(alarm));
             else if(HUMIDI==PCF_ON) lcd.print(txt); 
             else if(!hasDHT22){
-                snprintf(txt, sizeof(txt),"Rh=%2d.%d%%", pvRH / 10, abs(pvRH % 10));
-                lcd.print(txt);
+                if(pvRH > 1000) lcd.print("Rh=***");
+                else {
+                    snprintf(txt, sizeof(txt),"Rh=%3d%% ", pvRH / 10);
+                    lcd.print(txt);
+                }
             }
             else lcd.print("\x20\x20\x20\x20\x20\x20\x20\x20");
         }

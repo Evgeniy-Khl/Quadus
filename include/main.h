@@ -37,6 +37,7 @@
 #include "Logger.h"
 
 #define DEBUG
+// #define SIMULATION
 
 #ifdef DEBUG
   #define DEBUG_SPRINTF(...)  sprintf(__VA_ARGS__)

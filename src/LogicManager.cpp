@@ -43,8 +43,7 @@ void LogicManager::processClimate() {
         } else if (numberOfDS18 >= 2) {
             // Calculate RH using dry/wet bulb temperatures
             // ds[0].pvT is dry, ds[1].pvT is wet
-            uint8_t rh = tableRH(ds[0].pvT, ds[1].pvT);
-            if (rh <= 100) pvRH = rh * 10;
+            pvRH = tableRH(ds[0].pvT, ds[1].pvT) * 10;
         }
         HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
     }

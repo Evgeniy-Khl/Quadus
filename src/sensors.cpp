@@ -95,6 +95,7 @@ void checkDs18b20(void){
     
     if(tempC == DEVICE_DISCONNECTED_C) {
       if(++ds[i].errDevice > 5){
+        ds[i].pvT = 1990;
         ds[i].errDevice = 5;
         switch (i){
         case 0: if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR)); ERROR1 = 1; break;
