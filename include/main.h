@@ -52,7 +52,7 @@
 
 #define LEDPIN            2
 #define ONE_WIRE_BUS_PIN  LEDPIN
-#define MAX_DEVICE        4
+#define MAX_DEVICE        2
 #define START_MARKER      0xDD
 
 typedef struct {
@@ -85,7 +85,7 @@ union Byte {
  * Member names have _m suffix to avoid macro collisions.
  */
 struct SystemState {
-    Ds ds_m[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0},{150,0,0,0,0},{150,0,0,0,0}};
+    Ds ds_m[MAX_DEVICE] = {{150,0,0,0,0},{100,0,0,0,0}};
     union Byte portOut_m;
     union Byte errorsFlag_m;
     union Byte portFlag_m;

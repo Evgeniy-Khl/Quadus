@@ -3,7 +3,8 @@
 #define TUNING	170
 
 /**
- * @brief Detect all connected sensors (DS18B20 AND DHT22) on the same pin.
+ * @brief Detect all connected sensors (DS18B20 OR DHT22).
+ * Priority: DS18B20 first. If found, DHT22 is ignored.
  */
 void sensorType(){
   MYDEBUG_PRINTLN("Detecting sensors...");
@@ -27,35 +28,34 @@ void sensorType(){
           MYDEBUG_PRINTLN();
         }
       }
+      hasDHT22 = false; // Disable DHT22 if DS18B20 found
    } else {
-      MYDEBUG_PRINTLN("No DS18B20 sensors found.");
-   }
-
-   // 2. Try to detect DHT22 regardless of DS18B20 presence
-   delay(1000); // Give some time after OneWire scan
-   dht.begin();
-   float testT = dht.readTemperature();
-   if (!isnan(testT)) {
-     hasDHT22 = true;
-     MYDEBUG_PRINTLN("DHT22 sensor detected.");
-   } else {
-     hasDHT22 = false;
-     MYDEBUG_PRINTLN("DHT22 not found.");
+      MYDEBUG_PRINTLN("No DS18B20 sensors found. Trying DHT22...");
+      // 2. Try to detect DHT22 only if NO DS18B20 present
+      delay(1000); 
+      dht.begin();
+      float testT = dht.readTemperature();
+      if (!isnan(testT)) {
+        hasDHT22 = true;
+        MYDEBUG_PRINTLN("DHT22 sensor detected.");
+      } else {
+        hasDHT22 = false;
+        MYDEBUG_PRINTLN("DHT22 not found.");
+      }
    }
 }
 
 /**
- * @brief Main sensor update routine. Handles both DHT22 and DS18B20.
+ * @brief Main sensor update routine. Handles either DHT22 or DS18B20.
  */
 void sensorCheck(){
-  // Read DHT22 if present
+  // Read DHT22 if present (implies no DS18B20)
   if (hasDHT22) {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
 
     if (isnan(h) || isnan(t)) {
       MYDEBUG_PRINTLN("DHT22 read error!");
-      // If DHT fails, we increment error count on ds[0] and ds[1] (primary air control)
       if(++ds[0].errDevice > 5) { ds[0].pvT = 1260; ds[1].pvT = 1260; ds[0].errDevice = 5; }
     } else {
       ds[0].errDevice = 0;
@@ -64,14 +64,12 @@ void sensorCheck(){
       MYDEBUG_PRINT("DHT Air t="); MYDEBUG_PRINT(t); MYDEBUG_PRINT(" RH="); MYDEBUG_PRINTLN(h);
     }
   }
-
-  // Read DS18B20 sensors
-  if (numberOfDS18 > 0) {
+  // Read DS18B20 sensors if present
+  else if (numberOfDS18 > 0) {
     checkDs18b20();
   }
-
   // If NO sensors are found at all
-  if (!hasDHT22 && numberOfDS18 == 0) {
+  else {
     MYDEBUG_PRINTLN("ALARM: No sensors connected!");
   }
 }
@@ -88,57 +86,35 @@ bool check_freeze(uint8_t i, float val){
 
 /**
  * @brief Process DS18B20 sensor data. 
- * If DHT22 is present, DS18B20 values start from ds[2].
- * If DHT22 is NOT present, DS18B20 values start from ds[0] (backward compatibility).
  */
 void checkDs18b20(void){
-// #ifdef DEBUG
-//   char buff[100];
-// #endif
-  uint8_t startIdx = hasDHT22 ? 2 : 0;
-  
   for (uint8_t i = 0; i < numberOfDS18; i++){
-    uint8_t dsIdx = startIdx + i;
-    // int8_t alarmL = 0;
-    // bool calibrated = false;
-    if (dsIdx >= MAX_DEVICE) break;
+    if (i >= MAX_DEVICE) break;
 
     float tempC = sensors.getTempC(sensorAddresses[i]);
     
     if(tempC == DEVICE_DISCONNECTED_C) {
-      if(++ds[dsIdx].errDevice > 5){
-        ds[dsIdx].errDevice = 5;
-        switch (dsIdx){
+      if(++ds[i].errDevice > 5){
+        ds[i].errDevice = 5;
+        switch (i){
         case 0: if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR)); ERROR1 = 1; break;
         case 1: if (!ERROR2) sysLogger.log(getMsg(MSG_HUMIDITY_ERR)); ERROR2 = 1; break;
         }
       }
     }
     else {
-      ds[dsIdx].pvT = round(tempC * 10.0);
-      ds[dsIdx].errDevice = 0;
-      switch (dsIdx){
+      ds[i].pvT = round(tempC * 10.0);
+      ds[i].errDevice = 0;
+      switch (i){
       case 0: if (ERROR1) sysLogger.log(getMsg(MSG_CLIMATE_T1_REACHED)); ERROR1 = 0; break;
       case 1: if (ERROR2) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED)); ERROR2 = 0; break;
       }
     }
 
-    // ---------- Calibration using Alarm registers ---------------
-    uint8_t alarmH = sensors.getHighAlarmTemp(sensorAddresses[i]);
-    if(alarmH == TUNING){
-      // alarmL = sensors.getLowAlarmTemp(sensorAddresses[i]);
-      // ds[dsIdx].pvT += (alarmL);
-      // calibrated = true;
+    if(check_freeze(i, tempC)){
+      if(i == 0) ERROR1 = 1;
+      else if(i == 1) ERROR2 = 1;
     }
-    // ---------- Check freeze ------------------------------------
-    if(check_freeze(dsIdx, tempC)){
-      if(dsIdx == 0) ERROR1 = 1;
-      else if(dsIdx == 1) ERROR2 = 1;
-    }
-    // DEBUG_SPRINTF(buff, "DS18B20[%i] (ds[%u]): %2d.%d °C; ERR=%u", i, dsIdx, ds[dsIdx].pvT / 10, abs(ds[dsIdx].pvT % 10), ds[dsIdx].errDevice);
-    // MYDEBUG_PRINT(buff);
-    // if(calibrated) {MYDEBUG_PRINT(" Calibrated: "); MYDEBUG_PRINT(alarmL);}
-    // MYDEBUG_PRINTLN();
   }
-  sensors.requestTemperatures(); // Request for next cycle
+  sensors.requestTemperatures(); 
 }

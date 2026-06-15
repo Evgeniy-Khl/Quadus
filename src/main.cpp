@@ -172,24 +172,24 @@ void loop(){
         time_t utc_time = rtc.now().unixtime();
         timeinfo = localtime(&utc_time);
       }
-      #ifndef DEBUG  
+      // #ifndef DEBUG  
         sensorCheck();                                                  // Опрос датчиков должен быть всегда
-      #else
-        #define MAXPOINT 20
-        // В режиме отладки можно оставить симуляцию, если датчики не подключены
-        if(HEATER == PCF_ON){
-          if(++ds[0].pvErr > MAXPOINT) ds[0].pvErr = MAXPOINT;
-        }  else {
-          if(--ds[0].pvErr < -MAXPOINT) ds[0].pvErr = -MAXPOINT;
-        }
-        if(ds[0].pvErr > 0) ds[0].pvT++; else ds[0].pvT--;
-        if(HUMIDI == PCF_ON) {
-          if(++ds[1].pvErr > MAXPOINT) ds[1].pvErr = MAXPOINT;
-        }  else {
-          if(--ds[1].pvErr < -MAXPOINT) ds[1].pvErr = -MAXPOINT;
-        }
-        if(ds[1].pvErr > 0) ds[1].pvT++; else ds[1].pvT--;
-      #endif
+      // #else
+      //   #define MAXPOINT 20
+      //   // В режиме отладки можно оставить симуляцию, если датчики не подключены
+      //   if(HEATER == PCF_ON){
+      //     if(++ds[0].pvErr > MAXPOINT) ds[0].pvErr = MAXPOINT;
+      //   }  else {
+      //     if(--ds[0].pvErr < -MAXPOINT) ds[0].pvErr = -MAXPOINT;
+      //   }
+      //   if(ds[0].pvErr > 0) ds[0].pvT++; else ds[0].pvT--;
+      //   if(HUMIDI == PCF_ON) {
+      //     if(++ds[1].pvErr > MAXPOINT) ds[1].pvErr = MAXPOINT;
+      //   }  else {
+      //     if(--ds[1].pvErr < -MAXPOINT) ds[1].pvErr = -MAXPOINT;
+      //   }
+      //   if(ds[1].pvErr > 0) ds[1].pvT++; else ds[1].pvT--;
+      // #endif
       logicManager.processClimate();
       
       // Fast response for auxiliary modes (thermostat/hygrostat)
