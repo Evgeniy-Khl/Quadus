@@ -24,7 +24,7 @@ void displ1(){
         myPrint(no_,sizeof(no_)); myPrint(connect,sizeof(connect));
     } else {
         lcd.setCursor(0,0);
-        if(ERROR1){             // DEVICE_DISCONNECTED
+        if(ERROR1 || DHT_ERR){             // DEVICE_DISCONNECTED
             lcd.print("t1 ");
             myPrint(error_,sizeof(error_));
             for (uint8_t i = 0; i < 6; i++){
@@ -55,7 +55,7 @@ void displ1(){
         //-------------------------------------------------------------------------------------------------------------
         if(numberOfDS18 > 1 || hasDHT22){
             lcd.setCursor(0,1);
-            if(ERROR2){             // DEVICE_DISCONNECTED
+            if(ERROR2 || DHT_ERR){             // DEVICE_DISCONNECTED
                 lcd.print("t2 ");
                 myPrint(error_,sizeof(error_));
                 for (uint8_t i = 0; i < 6; i++){
@@ -71,14 +71,14 @@ void displ1(){
                 if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
                     sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E\x20"); // Зволож.
                 } else {
-                    sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E\x20"); // Осушен.
+                    sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\xBD\xC7"); // Осушення
                 }
                 lcd.setCursor(8,1);
                 if(ERROR8) myPrint(alarm, sizeof(alarm));
                 else if(HUMIDI==PCF_ON) lcd.print(txt);
                 else if(EXTRA2){
                     if(settings.modeHumidi == HUMIDI_MODE_HUMIDIFY){
-                        sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\x2E\x20"); // Осушен.
+                        sprintf(txt,"\x4F\x63\x79\xC1\x65\xBD\xBD\xC7"); // Осушення
                     } else {
                         sprintf(txt,"\xA4\xB3\x6F\xBB\x6F\xB6\x2E\x20"); // Зволож.
                     }

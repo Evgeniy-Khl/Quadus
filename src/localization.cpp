@@ -24,7 +24,13 @@ const char* const strings[] = {
     "Ручное: Реле2 ",
     "Ручное: Реле3 ",
     "Автоматическое управление восстановлено.",
-    "Лог очищен (лимит размера)."
+    "Лог очищен (лимит размера).",
+    "ОШИБКА: Датчик DHT22 не отвечает!",
+    "Датчик DHT22: связь восстановлена.",
+    "ТРЕВОГА: Датчик T1 завис!",
+    "ТРЕВОГА: Датчик T2 завис!",
+    "Датчик T1: показания изменились.",
+    "Датчик T2: показания изменились."
 };
 #elif defined(LANG_UA)
 const char* const strings[] = {
@@ -50,7 +56,13 @@ const char* const strings[] = {
     "Ручне: Реле1 ",
     "Ручне: Реле1 ",
     "Автоматичне управління відновлено.",
-    "Лог очищено (ліміт розміру)."
+    "Лог очищено (ліміт розміру).",
+    "ПОМИЛКА: Датчик DHT22 не відповідає!",
+    "Датчик DHT22: зв'язок відновлено.",
+    "ТРИВОГА: Датчик T1 завис!",
+    "ТРИВОГА: Датчик T2 завис!",
+    "Датчик T1: показники змінилися.",
+    "Датчик T2: показники змінилися."
 };
 #else // Default to English (LANG_EN)
 const char* const strings[] = {
@@ -76,7 +88,13 @@ const char* const strings[] = {
     "Manual: Relay2 ",
     "Manual: Relay3 ",
     "Automatic control restored.",
-    "Log rotated (size limit)."
+    "Log rotated (size limit).",
+    "ERROR: DHT22 sensor timeout!",
+    "DHT22 sensor: connection restored.",
+    "ALARM: Sensor T1 frozen!",
+    "ALARM: Sensor T2 frozen!",
+    "Sensor T1: readings updated.",
+    "Sensor T2: readings updated."
 };
 #endif
 

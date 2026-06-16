@@ -56,11 +56,17 @@ void sensorCheck(){
 
     if (isnan(h) || isnan(t)) {
       MYDEBUG_PRINTLN("DHT22 read error!");
-      if(++ds[0].errDevice > 5) { ds[0].pvT = 1260; ds[1].pvT = 1260; ds[0].errDevice = 5; }
+      if(++ds[0].errDevice > 5){ 
+        ds[0].pvT = 1260; 
+        ds[1].pvT = 1260; 
+        ds[0].errDevice = 5;
+        if (!DHT_ERR) {sysLogger.log(getMsg(MSG_DHT_ERR)); DHT_ERR = 1;}
+      }
     } else {
       ds[0].errDevice = 0;
       ds[0].pvT = round(t * 10.0);
       ds[1].pvT = round(h * 10.0);
+      if (DHT_ERR) {sysLogger.log(getMsg(MSG_DHT_OK)); DHT_ERR = 0;}
       MYDEBUG_PRINT("DHT Air t="); MYDEBUG_PRINT(t); MYDEBUG_PRINT(" RH="); MYDEBUG_PRINTLN(h);
     }
   }
@@ -79,7 +85,10 @@ void sensorCheck(){
  */
 bool check_freeze(uint8_t i, float val){
  if(val == ds[i].previousValue){
-    if(++ds[i].froze > 600){ds[i].froze = 600; return true;}
+    if(++ds[i].froze > 600){
+      ds[i].froze = 600; 
+      return true;
+    }
  } else {ds[i].froze = 0; ds[i].previousValue = val;}
  return false;
 }
@@ -113,8 +122,16 @@ void checkDs18b20(void){
     }
 
     if(check_freeze(i, tempC)){
-      if(i == 0) ERROR1 = 1;
-      else if(i == 1) ERROR2 = 1;
+      switch (i){
+      case 0: if (!ERROR10) sysLogger.log(getMsg(MSG_CLIMATE_T1_FROZE)); ERROR10 = 1; break;
+      case 1: if (!ERROR20) sysLogger.log(getMsg(MSG_CLIMATE_T2_FROZE)); ERROR20 = 1; break;
+      }
+    }
+    else {
+      switch (i){
+      case 0: if (ERROR10) sysLogger.log(getMsg(MSG_CLIMATE_T1_OK)); ERROR10 = 0; break;
+      case 1: if (ERROR20) sysLogger.log(getMsg(MSG_CLIMATE_T2_OK)); ERROR20 = 0; break;
+      }
     }
   }
   sensors.requestTemperatures(); 

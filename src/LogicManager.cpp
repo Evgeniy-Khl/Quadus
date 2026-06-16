@@ -118,8 +118,10 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 onT = settings.spT0off - settings.hysteresis0;
                 offT = settings.spT0off;
             }
-            RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode);
-            if(RELAY1 == PCF_ON) EXTRA1 = 1; else EXTRA1 = 0;
+            if(!ERROR1 && !DHT_ERR){
+                RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode);
+                if(RELAY1 == PCF_ON) EXTRA1 = 1; else EXTRA1 = 0;
+            }
         } else if (cn == 2 && (numberOfDS18 > 1 || hasDHT22)) {
             int16_t onH, offH;
             uint8_t opMode;
@@ -132,8 +134,10 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 onH = settings.spT1off - settings.hysteresis1;
                 offH = settings.spT1off;
             }
-            RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode);
-            if(RELAY2 == PCF_ON) EXTRA2 = 1; else EXTRA2 = 0;
+            if(!ERROR2 && !DHT_ERR){
+                RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode);
+                if(RELAY2 == PCF_ON) EXTRA2 = 1; else EXTRA2 = 0;
+            }
         }
         return;
     }

@@ -130,7 +130,13 @@ enum LogMsgId {
     MSG_MANUAL_RELAY2,
     MSG_MANUAL_RELAY3,
     MSG_AUTO_RESTORED,
-    MSG_LOG_ROTATED
+    MSG_LOG_ROTATED,
+    MSG_DHT_ERR,
+    MSG_DHT_OK,
+    MSG_CLIMATE_T1_FROZE,
+    MSG_CLIMATE_T2_FROZE,
+    MSG_CLIMATE_T1_OK,
+    MSG_CLIMATE_T2_OK
 };
 
 const char* getMsg(LogMsgId id);
@@ -221,10 +227,10 @@ extern TableBuff unTable;
 #define ERROR2	  sysState.errorsFlag_m.bitfield.a1 // DEVICE_DISCONNECTED
 #define ERROR4	  sysState.errorsFlag_m.bitfield.a2 // MSG_ALARM_T1_RANGE
 #define ERROR8	  sysState.errorsFlag_m.bitfield.a3 // MSG_ALARM_T2_RANGE
-#define ERROR10	  sysState.errorsFlag_m.bitfield.a4
-#define ERROR20	  sysState.errorsFlag_m.bitfield.a5
-#define OVERHEAT  sysState.errorsFlag_m.bitfield.a6
-#define FROZE	  sysState.errorsFlag_m.bitfield.a7
+#define ERROR10	  sysState.errorsFlag_m.bitfield.a4 // FROZE_T1
+#define ERROR20	  sysState.errorsFlag_m.bitfield.a5 // FROZE_T2
+#define DHT_ERR   sysState.errorsFlag_m.bitfield.a6 // DHT22 ERROR
+#define OVERHEAT  sysState.errorsFlag_m.bitfield.a7
 
 #define REACHED0    sysState.portFlag_m.bitfield.a0 // MSG_CLIMATE_T1_REACHED
 #define REACHED1    sysState.portFlag_m.bitfield.a1 // MSG_CLIMATE_T2_REACHED
