@@ -132,10 +132,9 @@ void respondsValues() {
     data["led5"] = dataLed[5] ? "ON" : "OFF";
     data["led6"] = dataLed[6] ? "ON" : "OFF";
     
-    WiFiClient client = server.client();
-    server.setContentLength(measureJson(data));
-    server.send(200, "application/json", "");
-    serializeJson(data, client);
+    String response;
+    serializeJson(data, response);
+    server.send(200, "application/json", response);
 }
 
 void respondsEeprom() {

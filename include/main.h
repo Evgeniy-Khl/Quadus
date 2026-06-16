@@ -266,8 +266,8 @@ extern TM1638 module;
 #define TIMEROFF  22
 #define ALARM0    10
 #define ALARM1    10
-#define HYSTER0    1
-#define HYSTER1    1
+#define HYSTER0    2
+#define HYSTER1    2
 
 extern const char* version;
 extern char displStr[18];
