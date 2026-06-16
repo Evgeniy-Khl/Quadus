@@ -167,7 +167,7 @@ function fetchData() {
             const e = json.errorsFlag || 0;
 
             // Temperature 0 / DHT22 Temp
-            if (e & 0x01) {
+            if (e & 0x41) { // ERROR1 (0x01) or DHT_ERR (0x40)
                 document.getElementById("temperature0").innerHTML = "ПОМИЛКА";
                 document.querySelector("#rcorners0 .units").style.display = 'none';
             } else {
@@ -185,11 +185,11 @@ function fetchData() {
                 else if (alarm) el.classList.add('bg-alarm');
             };
             
-            updateBlockColor("rcorners0", e & 0x01, e & 0x04, "bg-normal");
+            updateBlockColor("rcorners0", e & 0x41, e & 0x14, "bg-normal"); // alarm: ERROR4(0x04) or ERROR10(0x10)
 
             if (json.temperature1 !== undefined) {
                 document.getElementById("rcorners1").style.display = 'block';
-                if (e & 0x02) {
+                if (e & 0x02) { // ERROR2
                     document.getElementById("temperature1").innerHTML = "ПОМИЛКА";
                     document.querySelector("#rcorners1 .units").style.display = 'none';
                 } else {
@@ -197,14 +197,14 @@ function fetchData() {
                     document.querySelector("#rcorners1 .units").style.display = 'inline';
                 }
                 document.getElementById("settemp1").innerHTML = json.settemp1;
-                updateBlockColor("rcorners1", e & 0x02, e & 0x08, "bg-normal");
+                updateBlockColor("rcorners1", e & 0x02, e & 0x28, "bg-normal"); // alarm: ERROR8(0x08) or ERROR20(0x20)
             } else {
                 document.getElementById("rcorners1").style.display = 'none';
             }
 
             if (json.humidity !== undefined) {
                 document.getElementById("rcorners2").style.display = 'block';
-                if (e & 0x02) {
+                if (e & 0x42) { // ERROR2 (0x02) or DHT_ERR (0x40)
                     document.getElementById("humidity").innerHTML = "ПОМИЛКА";
                     document.querySelector("#rcorners2 .units").style.display = 'none';
                 } else {
@@ -214,21 +214,21 @@ function fetchData() {
                 document.getElementById("sethum").innerHTML = json.sethum;
                 document.getElementById("sethum").style.display = json.isTableRH ? 'none' : 'inline';
                 document.getElementById("humidity-label").innerHTML = json.isTableRH ? "Вологість (таблиця)" : "Вологість";
-                updateBlockColor("rcorners2", e & 0x02, e & 0x08, "bg-humidity");
+                updateBlockColor("rcorners2", e & 0x42, e & 0x28, "bg-humidity");
             } else {
                 document.getElementById("rcorners2").style.display = 'none';
             }
 
             // Error messages list
             const errorLabels = [
-                "Помилка датчика №1", // bit 0
-                "Помилка датчика №2", // bit 1
-                "ТРИВОГА: Температура №1 поза межами!", // bit 2
-                "ТРИВОГА: Температура №2 | Волога поза межами!", // bit 3
-                "Системна помилка 4", // bit 4
-                "Системна помилка 5", // bit 5
-                "ПЕРЕГРІВ вихідного ключа!", // bit 6
-                "Неадекватні значення датчиків!" // bit 7
+                "Помилка датчика №1", // bit 0 (0x01)
+                "Помилка датчика №2", // bit 1 (0x02)
+                "ТРИВОГА: Температура №1 поза межами!", // bit 2 (0x04)
+                "ТРИВОГА: Температура №2 | Волога поза межами!", // bit 3 (0x08)
+                "ТРИВОГА: Датчик №1 завис!", // bit 4 (0x10)
+                "ТРИВОГА: Датчик №2 завис!", // bit 5 (0x20)
+                "ПОМИЛКА: Датчик DHT22 не відповідає!", // bit 6 (0x40)
+                "ПЕРЕГРІВ вихідного ключа!" // bit 7 (0x80)
             ];
 
             const errorList = document.getElementById("error-list");
@@ -236,6 +236,10 @@ function fetchData() {
             let hasAnyError = false;
             for (let i = 0; i < 8; i++) {
                 if (e & (1 << i)) {
+                    // Skip range alarms if the sensor is disconnected or has a read error
+                    if (i === 2 && (e & 0x41)) continue; // Skip T1 Alarm if Sensor1 Error or DHT Error
+                    if (i === 3 && (e & 0x42)) continue; // Skip T2 Alarm if Sensor2 Error or DHT Error
+                    
                     const div = document.createElement("div");
                     div.className = "error-msg";
                     div.innerText = errorLabels[i];
