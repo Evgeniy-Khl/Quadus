@@ -165,10 +165,9 @@ void respondsEeprom() {
     doc["modeRelay3"] = settings.modeRelay3 & 0x0F;
     doc["status"] = 1;
 
-    WiFiClient client = server.client();
-    server.setContentLength(measureJson(doc));
-    server.send(200, "application/json", "");
-    serializeJson(doc, client);
+    String response;
+    serializeJson(doc, response);
+    server.send(200, "application/json", response);
     
     mode = SAVEEEPROM; 
     interval = INTERVAL_1000;
@@ -258,10 +257,9 @@ void respondsProgram() {
             row.add(settings.water2off);
         }
         
-        WiFiClient client = server.client();
-        server.setContentLength(measureJson(doc));
-        server.send(200, "application/json", "");
-        serializeJson(doc, client);
+        String response;
+        serializeJson(doc, response);
+        server.send(200, "application/json", response);
     } else {
         server.send(404, "text/plain", "No program active");
     }
@@ -345,10 +343,9 @@ void handleGetRelayStates() {
     doc["rel5"] = (RELAY2 == PCF_ON);
     doc["rel6"] = (RELAY3 == PCF_ON);
 
-    WiFiClient client = server.client();
-    server.setContentLength(measureJson(doc));
-    server.send(200, "application/json", "");
-    serializeJson(doc, client);
+    String response;
+    serializeJson(doc, response);
+    server.send(200, "application/json", response);
 }
 
 void handleGetLogs() {
