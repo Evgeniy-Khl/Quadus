@@ -31,7 +31,9 @@ void LogicManager::processClimate() {
     if (dataOut[1] != -1) {
         HEATER = (dataOut[1] == 1) ? PCF_ON : PCF_OFF;
     } else {
-        HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
+        if(!ERROR1 && !ERROR10 && !DHT_ERR)
+            HEATER = checkDeviceState(HEATER, ds[0].pvT, settings.spT0on, settings.spT0off, settings.modeHeater);
+        else HEATER = PCF_OFF;
     }
 
     // Humidifier processing
@@ -45,7 +47,9 @@ void LogicManager::processClimate() {
             // ds[0].pvT is dry, ds[1].pvT is wet
             pvRH = tableRH(ds[0].pvT, ds[1].pvT) * 10;
         }
-        HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
+        if(!ERROR2 && !ERROR20 && !DHT_ERR)
+            HUMIDI = checkDeviceState(HUMIDI, ds[1].pvT, settings.spT1on, settings.spT1off, settings.modeHumidi);
+        else HUMIDI = PCF_OFF;
     }
 }
 
@@ -118,7 +122,7 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 onT = settings.spT0off - settings.hysteresis0;
                 offT = settings.spT0off;
             }
-            if(!ERROR1 && !DHT_ERR){
+            if(!ERROR1 && !ERROR10 && !DHT_ERR){
                 RELAY1 = checkDeviceState(RELAY1, ds[0].pvT, onT, offT, opMode);
                 if(RELAY1 == PCF_ON) EXTRA1 = 1; else EXTRA1 = 0;
             }
@@ -135,7 +139,7 @@ void LogicManager::relaySwitch(uint8_t cn) {    // README.md
                 onH = settings.spT1off - settings.hysteresis1;
                 offH = settings.spT1off;
             }
-            if(!ERROR2 && !DHT_ERR){
+            if(!ERROR2 && !ERROR20 && !DHT_ERR){
                 RELAY2 = checkDeviceState(RELAY2, ds[1].pvT, onH, offH, opMode);
                 if(RELAY2 == PCF_ON) EXTRA2 = 1; else EXTRA2 = 0;
             }
