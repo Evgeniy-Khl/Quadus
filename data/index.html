@@ -251,7 +251,7 @@ function fetchData() {
 
             document.getElementById("light").innerHTML = json.light;
             
-            const relayModes = ["Допоміжний режим", "Завжди", "Без світла", "Зі світлом"];
+            const relayModes = ["Допоміжний режим", "Ціло добово", "Тікі без освітлення", "Тікі з освітленням"];
             
             const formatRelayStatus = (mode, timerStr, isRelay3 = false) => {
                 if (!timerStr) return '--';
@@ -261,7 +261,7 @@ function fetchData() {
                     return `[${relayModes[mode] || relayModes[0]}] ${state}`;
                 }
                 // For Relay 3 or other modes, show mode name and full timer info
-                const label = (isRelay3 && mode === 0) ? "Завжди" : (relayModes[mode] || '--');
+                const label = (isRelay3 && mode === 0) ? "Ціло добово" : (relayModes[mode] || '--');
                 const timeInfo = timerStr.split(' ').slice(1).join(' ') || timerStr;
                 return `[${label}] ${timeInfo}`;
             };
