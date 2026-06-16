@@ -251,7 +251,7 @@ function fetchData() {
 
             document.getElementById("light").innerHTML = json.light;
             
-            const relayModes = ["Допоміжний режим", "Ціло добово", "Тікі без освітлення", "Тікі з освітленням"];
+            const relayModes = ["Допоміжний режим", "Цілодобово", "Тікі без освітлення", "Тікі з освітленням"];
             
             const formatRelayStatus = (mode, timerStr, isRelay3 = false) => {
                 if (!timerStr) return '--';

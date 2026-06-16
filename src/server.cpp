@@ -19,7 +19,7 @@ void respondsValues() {
     tmrTelegramOff = 300;
     JsonDocument data;
     
-    data["model"] = "Quadus&nbsp;&nbsp;&nbsp;&nbsp;№ " + String(num);
+    data["model"] = "Прилад&nbsp;&nbsp;&nbsp;&nbsp;№ " + String(num);
     
     snprintf(txt, sizeof(txt), "%d.%d", ds[0].pvT / 10, abs(ds[0].pvT % 10));
     data["temperature0"] = txt;
