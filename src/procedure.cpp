@@ -105,6 +105,8 @@ void saveSetPoint() {
     obj["modeRelay1"] = settings.modeRelay1;
     obj["modeRelay2"] = settings.modeRelay2;
     obj["modeRelay3"] = settings.modeRelay3;
+    obj["botToken"] = botToken;
+    obj["chatID"] = chatID;
 
     File configFile = LittleFS.open("/setpoint.json", "w");
     if (!configFile) {
@@ -175,6 +177,15 @@ bool loadSetPoint() {
     settings.modeRelay1 = obj["modeRelay1"];
     settings.modeRelay2 = obj["modeRelay2"];
     settings.modeRelay3 = obj["modeRelay3"];
+
+    if (obj.containsKey("botToken")) {
+        strncpy(botToken, obj["botToken"] | "", sizeof(botToken) - 1);
+        botToken[sizeof(botToken) - 1] = '\0';
+    }
+    if (obj.containsKey("chatID")) {
+        strncpy(chatID, obj["chatID"] | "", sizeof(chatID) - 1);
+        chatID[sizeof(chatID) - 1] = '\0';
+    }
   
     MYDEBUG_PRINTLN("Configuration loaded successfully.");
     return true;

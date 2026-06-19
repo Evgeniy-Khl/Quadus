@@ -35,7 +35,7 @@
         font-size: 0.95rem;
     }
 
-    input[type="number"], select {
+    input[type="number"], input[type="text"], select {
         width: 100%;
         padding: 12px;
         margin-bottom: 5px;
@@ -215,6 +215,12 @@
             <option value="3">№3</option><option value="4">№4</option>
         </select>
 
+        <div class="group-title">Telegram Bot</div>
+        <label>Токен:</label>
+        <input type="text" name="botToken" id="botToken" placeholder="Токен бота від BotFather" maxlength="49">
+        <label>ID Чату:</label>
+        <input type="text" name="chatID" id="chatID" placeholder="Ваш ID чату" maxlength="14">
+
         <button type="submit" class="button">ЗБЕРЕГТИ ЗМІНИ</button>
         <button type="button" class="button button-cancel" onclick="cancelSetup()">СКАСУВАТИ</button>
     </form>
@@ -269,7 +275,13 @@
 
             const formData = new FormData(this);
             const data = {};
-            formData.forEach((v, k) => { data[k] = parseFloat(v); });
+            formData.forEach((v, k) => {
+                if (k === "botToken" || k === "chatID") {
+                    data[k] = v;
+                } else {
+                    data[k] = parseFloat(v);
+                }
+            });
 
             fetch('/seteeprom', {
                 method: 'POST',

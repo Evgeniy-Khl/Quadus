@@ -170,6 +170,9 @@ void loop(){
     }
     if(halfSecond % 2 == 0){//-------- NEW SECOND -----------------------
       countSeconds++; 
+      if (tmrTelegramOff > 0) {
+        tmrTelegramOff--;
+      }
       if(RTCENABLE){
         time_t utc_time = rtc.now().unixtime();
         timeinfo = localtime(&utc_time);

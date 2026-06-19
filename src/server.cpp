@@ -163,6 +163,8 @@ void respondsEeprom() {
     doc["modeRelay1"] = settings.modeRelay1 & 0x0F;
     doc["modeRelay2"] = settings.modeRelay2 & 0x0F;
     doc["modeRelay3"] = settings.modeRelay3 & 0x0F;
+    doc["botToken"] = botToken;
+    doc["chatID"] = chatID;
     doc["status"] = 1;
 
     String response;
@@ -218,6 +220,15 @@ void acceptEeprom() {
                 settings.modeRelay1 = getUint8("modeRelay1", settings.modeRelay1);
                 settings.modeRelay2 = getUint8("modeRelay2", settings.modeRelay2);
                 settings.modeRelay3 = getUint8("modeRelay3", settings.modeRelay3);
+
+                if (obj.containsKey("botToken")) {
+                    strncpy(botToken, obj["botToken"] | "", sizeof(botToken) - 1);
+                    botToken[sizeof(botToken) - 1] = '\0';
+                }
+                if (obj.containsKey("chatID")) {
+                    strncpy(chatID, obj["chatID"] | "", sizeof(chatID) - 1);
+                    chatID[sizeof(chatID) - 1] = '\0';
+                }
 
                 success = true;
             }

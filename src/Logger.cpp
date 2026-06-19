@@ -1,7 +1,44 @@
 #include "Logger.h"
 #include "main.h"
+#include "TelegramBot.h"
 
 Logger sysLogger;
+
+static bool isCriticalOrRecoveryMessage(const String& msg) {
+    String upper = msg;
+    upper.toUpperCase();
+
+    // Critical keywords (RU, UA, EN)
+    if (upper.indexOf("ТРЕВОГА") != -1 ||
+        upper.indexOf("ТРИВОГА") != -1 ||
+        upper.indexOf("ALARM") != -1 ||
+        upper.indexOf("ОШИБКА") != -1 ||
+        upper.indexOf("ПОМИЛКА") != -1 ||
+        upper.indexOf("ERROR") != -1 ||
+        upper.indexOf("СБОЙ") != -1 ||
+        upper.indexOf("ЗБІЙ") != -1 ||
+        upper.indexOf("FAILED") != -1 ||
+        upper.indexOf("TIMEOUT") != -1 ||
+        upper.indexOf("ЗАВИС") != -1 ||
+        upper.indexOf("FROZEN") != -1) {
+        return true;
+    }
+
+    // Recovery keywords (RU, UA, EN)
+    if (upper.indexOf("ДОСТИГ") != -1 ||
+        upper.indexOf("ДОСЯГ") != -1 ||
+        upper.indexOf("REACHED") != -1 ||
+        upper.indexOf("ВОССТАНОВ") != -1 ||
+        upper.indexOf("ВІДНОВ") != -1 ||
+        upper.indexOf("RESTORED") != -1 ||
+        upper.indexOf("UPDATED") != -1 ||
+        upper.indexOf("ИЗМЕНИЛ") != -1 ||
+        upper.indexOf("ЗМІНИЛ") != -1) {
+        return true;
+    }
+
+    return false;
+}
 
 void Logger::log(const String& message) {
     maintain();
@@ -11,6 +48,10 @@ void Logger::log(const String& message) {
         f.print(entry);
         f.close();
         MYDEBUG_PRINT("LOG: "); MYDEBUG_PRINTLN(entry);
+    }
+
+    if (isCriticalOrRecoveryMessage(message)) {
+        sendTelegramMessage(message);
     }
 }
 
