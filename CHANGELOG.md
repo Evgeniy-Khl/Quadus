@@ -2,6 +2,20 @@
 
 All notable changes to the **Quadus Greenhouse Controller** project will be documented in this file.
 
+## [2026-06-19]
+
+### Added
+- **Telegram Bot Integration**:
+    - Created [TelegramBot.h](file:///E:/!PROJECTS/ESP/2025/Quadus/include/TelegramBot.h) and [TelegramBot.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/TelegramBot.cpp) implementing the Telegram API notification client using secure HTTP POST with auto-recovery and bypassed certificate verification (resilient against Telegram SSL rotations).
+    - Added automatic message dispatch inside `Logger::log` in [Logger.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/Logger.cpp) for critical alarms (sensor loss, freeze, out-of-range thresholds) and their corresponding recovery events.
+    - Added support for configuring `botToken` and `chatID` directly from the Web settings page [setup.html](file:///E:/!PROJECTS/ESP/2025/Quadus/data/setup.html).
+    - Integrated loading/saving of Telegram credentials into `setpoint.json` in [procedure.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/procedure.cpp) and handled HTTP API endpoints in [server.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/server.cpp).
+    - Implemented a mute logic using `tmrTelegramOff` inside [main.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/main.cpp) to silence Telegram notifications while the user is actively viewing the web control panel.
+- **I2C Bus Recovery & Stability**:
+    - Implemented `recoverI2C()` in [main.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/main.cpp) to release SDA lines hung by slaves by generating clock pulses and manual START/STOP sequences.
+    - Improved `writePCF8574()` with automatic I2C recovery triggers, error counting, and retry. Added ESP8266 reboot if the bus fails to recover after 20 consecutive attempts.
+    - Added definition for `readPCF8574()` in [main.cpp](file:///E:/!PROJECTS/ESP/2025/Quadus/src/main.cpp) using the same recovery logic.
+
 ## [2026-06-12]
 
 ### Added
