@@ -207,7 +207,7 @@ void checkkey(uint8_t key){
             case KEY_6_5_1: reset(); break;
             case KEY_6_5_2: settings.special |= 0x04; doSave(); ESP.restart(); break;
             // case KEY_6_5_3: settings.special |= 0x08; doSave(); ESP.restart(); break;
-            case KEY_6_5_4: LittleFS.format(); ESP.restart(); break;
+            case KEY_6_5_4: safeFactoryReset(); ESP.restart(); break;
             case KEY_6_5_8:
             // case KEY_6_5:
                 MYDEBUG_PRINTLN("Keypad trigger: clearing EEPROM daily data...");

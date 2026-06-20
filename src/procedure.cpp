@@ -278,6 +278,33 @@ void reset(void){
 }
 
 /**
+ * @brief Performs a safe factory reset by deleting only user data files and keeping system HTMLs.
+ */
+void safeFactoryReset(void) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("FACTORY RESET...");
+    delay(500);
+
+    // 1. Очищаем суточные графики в EEPROM
+    clearEEPROM();
+    
+    // 2. Удаляем файлы графиков, статистики и логов из LittleFS, оставляя HTML-страницы веб-интерфейса
+    Dir dir = LittleFS.openDir("/");
+    while (dir.next()) {
+        String fileName = dir.fileName();
+        if (fileName.startsWith("day_") || fileName.equals("system.log")) {
+            LittleFS.remove(fileName);
+            MYDEBUG_PRINT("Removed user file: ");
+            MYDEBUG_PRINTLN(fileName);
+        }
+    }
+
+    // 3. Сбрасываем настройки в дефолтные и сохраняем
+    reset(); 
+}
+
+/**
  * @brief Initialize RTC and system environment.
  */
 void initEnvironment(void){
