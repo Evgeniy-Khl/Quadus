@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" href="data:,">
   <title>Квадус - Головна</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     html { font-family: Arial, sans-serif; display: inline-block; text-align: center; }
     h1 { color: white; margin: 20px 0; }
@@ -14,6 +15,20 @@
       padding: 20px;
       box-sizing: border-box;
     }
+    
+    .chart-container {
+      position: relative;
+      margin: 20px auto;
+      height: 40vh;
+      width: 90%;
+      max-width: 400px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
     
     .sensor-block {
       border-radius: 15px;
@@ -151,10 +166,16 @@
       </div>
     </div>
 
+    <!-- Chart Container -->
+    <div class="chart-container">
+      <canvas id="mainChart"></canvas>
+    </div>
+
     <p><a href="/setup"><button class="button">Налаштування</button></a></p>
     <p><a href="/switch"><button class="button" style="background-color: #2980b9;">Перемикачі</button></a></p>
     <p><button class="button" style="background-color: #7f8c8d;" onclick="window.location.href='/view_logs'">Логи</button></p>
     <p><a id="programLink" href="/table"><button id="programButton" class="button" disabled>Програма</button></a></p>
+    <p><a href="/archive"><button class="button" style="background-color: #8e44ad;">Архів</button></a></p>
   </div>
 
 <script>
@@ -316,9 +337,93 @@ function fetchData() {
         .catch(err => console.error("Fetch error:", err));
 }
 
+let mainChart;
+
+async function fetchGraphData() {
+    try {
+        const r = await fetch('/get_current_graph');
+        if (!r.ok) throw new Error('Помилка завантаження графіка');
+        const json = await r.json();
+        const data = json.points || [];
+        const sh = json.sh || 0;
+        const sm = json.sm || 0;
+        const labels = data.map(p => {
+            let total = (sh * 60 + sm + p.p * 5) % 1440;
+            let h = Math.floor(total / 60);
+            let m = total % 60;
+            return h.toString().padStart(2, '0') + ':' + m.toString().padStart(2, '0');
+        });
+        const t1 = data.map(p => p.t1);
+        const t2 = data.map(p => p.t2);
+        const rh = data.map(p => p.rh);
+
+        if (mainChart) {
+            mainChart.data.labels = labels;
+            mainChart.data.datasets[0].data = t1;
+            mainChart.data.datasets[1].data = t2;
+            mainChart.data.datasets[2].data = rh;
+            mainChart.update('none');
+        } else {
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            Chart.defaults.color = '#94a3b8';
+            Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+            mainChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+                        { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+                        { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+                    ]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false,
+                    scales: { 
+                        y: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'left', 
+                            title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' },
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        y1: { 
+                            type: 'linear', 
+                            display: true, 
+                            position: 'right', 
+                            min: 0, 
+                            max: 100, 
+                            grid: { drawOnChartArea: false }, 
+                            title: { display: true, text: 'Волог. (%)', color: '#94a3b8' },
+                            ticks: { color: '#94a3b8' }
+                        },
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+                            ticks: { color: '#94a3b8' }
+                        }
+                    },
+                    interaction: { intersect: false, mode: 'index' },
+                    plugins: { 
+                        legend: { 
+                            display: true, 
+                            labels: { boxWidth: 12, color: '#f8fafc' } 
+                        } 
+                    }
+                }
+            });
+        }
+    } catch (err) {
+        console.error("Помилка завантаження графіка:", err);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     fetchData();
+    fetchGraphData();
     setInterval(fetchData, 2000);
+    setInterval(fetchGraphData, 60000);
 });
 </script>
 </body>

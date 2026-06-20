@@ -35,6 +35,13 @@
 #include "setupLCD.h"
 #include "LogicManager.h"
 #include "Logger.h"
+#include "saveDailyData.h"
+
+// --- AT24C32 Memory Map for Graphs ---
+#define DAILY_DATA_START      0x700  // Начало данных графиков в EEPROM (после программ, которые идут с 0x000 по 0x600)
+#define DAILY_DATA_REC_SIZE   6      // Размер записи (t1, t2, rh по 2 байта)
+#define DAILY_DATA_MAX_REC    288    // Записей в сутки
+
 
 #define DEBUG
 // #define SIMULATION

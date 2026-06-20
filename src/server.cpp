@@ -373,3 +373,293 @@ void handleClearLogs() {
     sysLogger.clear();
     server.send(200, "application/json", "{\"status\":\"ok\"}");
 }
+
+void sendPageHeader(String title) {
+    server.sendContent(F("<!DOCTYPE html><html><head><meta charset='utf-8'>"));
+    server.sendContent(F("<meta name='viewport' content='width=device-width, initial-scale=1.0'>"));
+    server.sendContent("<title>" + title + "</title>");
+    server.sendContent(F("<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>"));
+    server.sendContent(F("<style>"));
+    server.sendContent(F("@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');"));
+    server.sendContent(F("body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#f8fafc;min-height:100vh;margin:0;padding:20px 10px;display:flex;flex-direction:column;align-items:center}"));
+    server.sendContent(F("div{max-width:800px;width:100%;margin:0 auto;padding:20px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.2)}"));
+    server.sendContent(F("h1{text-align:center;color:#fff;margin-bottom:20px;font-weight:700}"));
+    server.sendContent(F(".chart-container{position:relative;margin:20px auto;height:40vh;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:10px}"));
+    server.sendContent(F("table{border-collapse:collapse;width:100%;margin:20px auto;font-size:0.95rem;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}"));
+    server.sendContent(F("th,td{border:1px solid rgba(255,255,255,0.05);text-align:center;padding:12px}"));
+    server.sendContent(F("th{background-color:rgba(15,23,42,0.5);color:#94a3b8;font-weight:600;text-transform:uppercase;font-size:0.75rem;letter-spacing:0.03em}"));
+    server.sendContent(F("tr{transition:background-color .2s}tr:nth-child(even){background-color:rgba(255,255,255,0.01)}tr:hover{background-color:rgba(255,255,255,0.03)}"));
+    server.sendContent(F("ul{list-style-type:none;padding:0;display:flex;flex-direction:column;gap:10px}li{margin:0}"));
+    server.sendContent(F("a{display:block;padding:14px 20px;background:linear-gradient(135deg,#2563eb 0%,#1d4ed8 100%);color:white;text-align:center;text-decoration:none;border-radius:12px;font-size:1.05rem;font-weight:600;box-shadow:0 4px 12px rgba(37,99,235,0.2);transition:all 0.2s ease}"));
+    server.sendContent(F("a:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(37,99,235,0.35);background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%)}"));
+    server.sendContent(F("a.back, a.btn{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.1);display:inline-block;padding:12px 24px;margin:20px 0;box-shadow:none}"));
+    server.sendContent(F("a.back:hover, a.btn:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px)}"));
+    server.sendContent(F("a.live{background:linear-gradient(135deg,#10b981 0%,#059669 100%);box-shadow:0 4px 12px rgba(16,185,129,0.2)}a.live:hover{background:linear-gradient(135deg,#34d399 0%,#10b981 100%);box-shadow:0 6px 16px rgba(16,185,129,0.35)}"));
+    server.sendContent(F(".summary{background-color:rgba(59,130,246,0.1);font-weight:bold;color:#60a5fa}"));
+    server.sendContent(F("</style></head><body>"));
+}
+
+void handleGetGraph() {
+    if (!server.hasArg("day") || server.arg("day") == "") {
+        server.send(400, "text/plain", "Bad Request: 'day' parameter is missing");
+        return;
+    }
+    String day = server.arg("day");
+    String filename = "/day_" + day + "_graph.json";
+    
+    if (LittleFS.exists(filename)) {
+        File file = LittleFS.open(filename, "r");
+        server.streamFile(file, "application/json");
+        file.close();
+    } else {
+        server.send(404, "text/plain", "File Not Found");
+    }
+}
+
+void handleGetCurrentGraph() {
+    int startH = 0, startM = 0;
+    int currentPeriod = 287;
+    if (timeinfo) {
+        currentPeriod = (timeinfo->tm_hour * 60 + timeinfo->tm_min) / 5;
+    }
+
+    JsonDocument doc;
+    doc["sh"] = startH;
+    doc["sm"] = startM;
+    JsonArray array = doc["points"].to<JsonArray>();
+
+    for (int period = 0; period <= currentPeriod; period++) {
+        int currentAddress = DAILY_DATA_START + period * DAILY_DATA_REC_SIZE;
+        int16_t raw_t1 = eepromReadInt16(currentAddress);
+        int16_t raw_t2 = eepromReadInt16(currentAddress + 2);
+        int16_t raw_rh = eepromReadInt16(currentAddress + 4);
+
+        if (raw_t1 == 0 && raw_t2 == 0 && raw_rh == 0) continue; 
+
+        JsonObject point = array.add<JsonObject>();
+        point["p"] = period;
+        point["t1"] = (float)raw_t1 / 10.0;
+        point["t2"] = (float)raw_t2 / 10.0;
+        point["rh"] = (float)raw_rh;
+    }
+    
+    server.setContentLength(measureJson(doc));
+    server.send(200, "application/json", "");
+    serializeJson(doc, server.client());
+}
+
+void handleArchiveList() {
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.send(200, "text/html", "");
+    sendPageHeader("Квадус - Архів");
+
+    server.sendContent(F("<div><h1>Виберіть добу для перегляду</h1>"));
+    server.sendContent(F("<a href='/current' class='live' style='margin-bottom:20px;'>Перегляд ПОТОЧНОЇ доби</a>"));
+    server.sendContent(F("<ul>"));
+    
+    std::vector<int> days;
+    Dir dir = LittleFS.openDir("/");
+    while (dir.next()) {
+        String fileName = dir.fileName();
+        if (fileName.startsWith("day_") && fileName.endsWith("_graph.json")) {
+            int start = 4;
+            int end = fileName.indexOf('_', start);
+            if (end > start) days.push_back(fileName.substring(start, end).toInt());
+        }
+    }
+    std::sort(days.begin(), days.end());
+
+    for (int i = days.size() - 1; i >= 0; i--) {
+        int day = days[i];
+        char link[128];
+        snprintf(link, sizeof(link), "<li><a href='/data?day=%d'>Перегляд даних за %d число</a></li>", day, day);
+        server.sendContent(link);
+        yield();
+    }
+
+    server.sendContent(F("</ul><div style='text-align:center;'><a href='/' class='back'>Назад на головну</a></div>"));
+    server.sendContent(F("</div></body></html>"));
+}
+
+static void formatTimeBuffer(char* buf, size_t size, int period, int sh, int sm) {
+    int totalMinutes = (sh * 60 + sm + period * 5) % 1440;
+    snprintf(buf, size, "%02d:%02d", totalMinutes / 60, totalMinutes % 60);
+}
+
+void handleShowData() {
+    if (!server.hasArg("day") || server.arg("day") == "") {
+        server.send(400, "text/plain", "Bad Request: 'day' parameter is missing");
+        return;
+    }
+    String day = server.arg("day");
+
+    int startH = 0, startM = 0;
+
+    String statsFilename = "/day_" + day + "_stats.json";
+    File statsFile = LittleFS.open(statsFilename, "r");
+    JsonDocument statsDoc;
+    if (statsFile) {
+        deserializeJson(statsDoc, statsFile);
+        statsFile.close();
+    }
+
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.send(200, "text/html", "");
+    sendPageHeader("Квадус - День " + day);
+
+    server.sendContent("<div><h1 style='text-align:center;'>Дані клімату за " + day + " число</h1>");
+    server.sendContent(F("<div class='chart-container'><canvas id='tempChart'></canvas></div>"));
+    server.sendContent(F("<div style='text-align:center;'><a href='/archive' class='back'>Назад до списку</a></div>"));
+    server.sendContent(F("<script>"));
+    server.sendContent("const dayNum = " + day + ";");
+    server.sendContent("const sh = " + String(startH) + ";");
+    server.sendContent("const sm = " + String(startM) + ";");
+    server.sendContent(F(R"raw(
+    fetch('/get_graph?day=' + dayNum)
+      .then(r => r.json())
+      .then(data => {
+        const labels = data.map(p => {
+            let total = (sh * 60 + sm + p.p * 5) % 1440;
+            return Math.floor(total / 60).toString().padStart(2, '0') + ':' + (total % 60).toString().padStart(2, '0');
+        });
+        const t1 = data.map(p => p.t1);
+        const t2 = data.map(p => p.t2);
+        const rh = data.map(p => p.rh);
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+        new Chart(document.getElementById('tempChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+            ]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            scales: { 
+              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } },
+              y1: { type: 'linear', display: true, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Волог. (%)', color: '#94a3b8' }, ticks: { color: '#94a3b8' } },
+              x: { grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } }
+            },
+            plugins: {
+              legend: { labels: { color: '#f8fafc' } }
+            }
+          } 
+        });
+      });
+    )raw"));
+    server.sendContent(F("</script>"));
+    server.sendContent(F("<table><tr><th>Час</th><th>T1 (°C)</th><th>T2 (°C)</th><th>Вологість (%)</th></tr>"));
+
+    if (!statsDoc.isNull()) {
+        char summary[256];
+        snprintf(summary, sizeof(summary), "<tr><th>Статистика</th><td>Avg: %.1f<br>Min: %.1f<br>Max: %.1f</td><td>Avg: %.1f<br>Min: %.1f<br>Max: %.1f</td><td>Avg: %.1f<br>Min: %.1f<br>Max: %.1f</td></tr>",
+                 statsDoc["avg_t1"].as<float>(), statsDoc["min_t1"].as<float>(), statsDoc["max_t1"].as<float>(),
+                 statsDoc["avg_t2"].as<float>(), statsDoc["min_t2"].as<float>(), statsDoc["max_t2"].as<float>(),
+                 statsDoc["avg_rh"].as<float>(), statsDoc["min_rh"].as<float>(), statsDoc["max_rh"].as<float>());
+        server.sendContent(summary);
+    }
+    
+    File graphFile = LittleFS.open("/day_" + day + "_graph.json", "r");
+    if (graphFile) {
+        JsonDocument tempDoc;
+        if (!deserializeJson(tempDoc, graphFile)) {
+           JsonArray array = tempDoc.as<JsonArray>();
+           for (int i = array.size() - 1; i >= 0; i--) {
+                JsonObject point = array[i];
+                char row[128];
+                char fmtTime[32];
+                formatTimeBuffer(fmtTime, sizeof(fmtTime), point["p"].as<int>(), startH, startM);
+                snprintf(row, sizeof(row), "<tr><td>%s</td><td>%.1f</td><td>%.1f</td><td>%.1f</td></tr>", 
+                         fmtTime, point["t1"].as<float>(), point["t2"].as<float>(), point["rh"].as<float>());
+                server.sendContent(row);
+                if (i % 20 == 0) yield();
+           }
+        }
+        graphFile.close();
+    }
+    server.sendContent(F("</table><div style='text-align:center;'><a href='/archive' class='back'>Назад</a></div></div></body></html>"));
+}
+
+void handleCurrentData() {
+    int startH = 0, startM = 0;
+
+    int currentPeriod = 287;
+    if (timeinfo) {
+        currentPeriod = (timeinfo->tm_hour * 60 + timeinfo->tm_min) / 5;
+    }
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.send(200, "text/html", "");
+    sendPageHeader("Квадус - Поточна доба");
+    server.sendContent(F("<div><h1>Дані за поточну добу</h1>"));
+    server.sendContent(F("<div class='chart-container'><canvas id='tempChart'></canvas></div>"));
+    server.sendContent(F("<div style='text-align:center;'><a href='/archive' class='back'>Назад до списку</a></div>"));
+    
+    server.sendContent(F("<script>"));
+    server.sendContent("const sh = " + String(startH) + ";");
+    server.sendContent("const sm = " + String(startM) + ";");
+    server.sendContent(F(R"raw(
+    fetch('/get_current_graph')
+      .then(r=>r.json())
+      .then(json=>{
+        const data = json.points;
+        const labels = data.map(p => {
+            let total = (sh * 60 + sm + p.p * 5) % 1440;
+            return Math.floor(total / 60).toString().padStart(2, '0') + ':' + (total % 60).toString().padStart(2, '0');
+        });
+        const t1 = data.map(p => p.t1);
+        const t2 = data.map(p => p.t2);
+        const rh = data.map(p => p.rh);
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.08)';
+        new Chart(document.getElementById('tempChart'), {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
+              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+            ]
+          },
+          options: { 
+            responsive: true, 
+            maintainAspectRatio: false, 
+            scales: { 
+              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } },
+              y1: { type: 'linear', display: true, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Волог. (%)', color: '#94a3b8' }, ticks: { color: '#94a3b8' } },
+              x: { grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } }
+            },
+            plugins: {
+              legend: { labels: { color: '#f8fafc' } }
+            }
+          } 
+        });
+      });
+    )raw"));
+    server.sendContent(F("</script>"));
+    server.sendContent(F("<table><tr><th>Час</th><th>T1 (°C)</th><th>T2 (°C)</th><th>Вологість (%)</th></tr>"));
+
+    for (int i = currentPeriod; i >= 0; i--) {
+        int currentAddress = DAILY_DATA_START + i * DAILY_DATA_REC_SIZE;
+        int16_t raw_t1 = eepromReadInt16(currentAddress);
+        int16_t raw_t2 = eepromReadInt16(currentAddress + 2);
+        int16_t raw_rh = eepromReadInt16(currentAddress + 4);
+
+        if (raw_t1 == 0 && raw_t2 == 0 && raw_rh == 0) continue;
+
+        char row[128];
+        char fmtTime[32];
+        formatTimeBuffer(fmtTime, sizeof(fmtTime), i, startH, startM);
+        snprintf(row, sizeof(row), "<tr><td>%s</td><td>%.1f</td><td>%.1f</td><td>%.1f</td></tr>", 
+                 fmtTime, (float)raw_t1/10.0, (float)raw_t2/10.0, (float)raw_rh);
+        server.sendContent(row);
+        if (i % 20 == 0) yield();
+    }
+    server.sendContent(F("</table><div style='text-align:center;'><a href='/archive' class='back'>Назад</a></div></div></body></html>"));
+}
+

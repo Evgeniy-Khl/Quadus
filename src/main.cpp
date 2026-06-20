@@ -201,6 +201,8 @@ void loop(){
       if ((settings.modeRelay1 & 0x03) == 0) logicManager.relaySwitch(1);
       if ((settings.modeRelay2 & 0x03) == 0) logicManager.relaySwitch(2);
 
+      writePCF8574(portOut.value);
+
       logicManager.processAlarms();
       logicManager.updateStatusLeds();
 
@@ -212,19 +214,40 @@ void loop(){
         logicManager.processLighting();
         logicManager.processIrrigation();
 
+        // Запись точек графиков каждые 5 минут
+        if (timeinfo && timeinfo->tm_min % 5 == 0) {
+            static int lastLoggedMinute = -1;
+            if (timeinfo->tm_min != lastLoggedMinute) {
+                lastLoggedMinute = timeinfo->tm_min;
+                int period_of_day = (timeinfo->tm_hour * 60 + timeinfo->tm_min) / 5;
+                int address = DAILY_DATA_START + period_of_day * DAILY_DATA_REC_SIZE;
+                eepromWriteInt16(address, ds[0].pvT);
+                eepromWriteInt16(address + 2, ds[1].pvT);
+                eepromWriteInt16(address + 4, (int16_t)pvRH);
+                
+                #ifdef DEBUG
+                DEBUG_PRINTF("Graph logged: period=%d, t1=%d, t2=%d, rh=%d\n", period_of_day, ds[0].pvT, ds[1].pvT, pvRH);
+                #endif
+            }
+        }
+
+        // Проверка смены суток для сохранения логов вчерашнего дня
+        static int lastSavedDay = -1;
+        if (timeinfo) {
+            if (lastSavedDay == -1) {
+                lastSavedDay = timeinfo->tm_mday;
+            }
+            if (timeinfo->tm_mday != lastSavedDay) {
+                saveDailyDataToFile(lastSavedDay);
+                clearEEPROM();
+                lastSavedDay = timeinfo->tm_mday;
+            }
+        }
+
         #ifdef DEBUG
         MYDEBUG_PRINTLN("processLighting():");
         printBinary(portOut.value);
         #endif
-
-        // Converted local time for our timezone
-        // MYDEBUG_PRINT("Converted Local Time  (EET/EEST): ");
-        // DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-        //               timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
-        //               timeinfo->tm_mday, timeinfo->tm_hour,
-        //               timeinfo->tm_min, timeinfo->tm_sec);
-        // uint16_t heapSize = ESP.getFreeHeap();    // Memory check
-        // DEBUG_PRINTF("Free heap size: %d\n", heapSize);
       }
       //---------------------------- NEW HOUR ----------------------------------
       if(++minutes > 59){

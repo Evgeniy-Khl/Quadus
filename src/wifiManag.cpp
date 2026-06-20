@@ -104,6 +104,13 @@ void initWiFiManag(void){
         server.on("/logs", HTTP_GET, handleGetLogs);
         server.on("/clear_logs", HTTP_POST, handleClearLogs);
 
+        // Graph and Archive routes
+        server.on("/archive", HTTP_GET, handleArchiveList);
+        server.on("/data", HTTP_GET, handleShowData);
+        server.on("/current", HTTP_GET, handleCurrentData);
+        server.on("/get_graph", HTTP_GET, handleGetGraph);
+        server.on("/get_current_graph", HTTP_GET, handleGetCurrentGraph);
+
         server.onNotFound(notFoundHandler);
         
         server.begin();   // Start server

@@ -48,4 +48,12 @@ String getFloat(float val, uint8_t brackets);
 byte calculateChecksum(byte* data, int length);
 void OutStatusLed();  // // для HTML страницы
 
-#endif //SERVER_H
+void handleArchiveList();
+void handleShowData();
+void handleCurrentData();
+void handleGetGraph();
+void handleGetCurrentGraph();
+void sendPageHeader(String title);
+
+
+#endif //SERVER_H
