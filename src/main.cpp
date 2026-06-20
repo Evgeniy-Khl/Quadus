@@ -233,14 +233,17 @@ void loop(){
 
         // Проверка смены суток для сохранения логов вчерашнего дня
         static int lastSavedDay = -1;
+        static int lastSavedMonth = -1;
         if (timeinfo) {
             if (lastSavedDay == -1) {
                 lastSavedDay = timeinfo->tm_mday;
+                lastSavedMonth = timeinfo->tm_mon + 1;
             }
             if (timeinfo->tm_mday != lastSavedDay) {
-                saveDailyDataToFile(lastSavedDay);
+                saveDailyDataToFile(lastSavedDay, lastSavedMonth);
                 clearEEPROM();
                 lastSavedDay = timeinfo->tm_mday;
+                lastSavedMonth = timeinfo->tm_mon + 1;
             }
         }
 

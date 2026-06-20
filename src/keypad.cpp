@@ -209,7 +209,7 @@ void checkkey(uint8_t key){
             case KEY_6_5_3: settings.special |= 0x08; doSave(); ESP.restart(); break;
             case KEY_6_5_4: LittleFS.format(); ESP.restart(); break;
             case KEY_6_5_8:
-            case KEY_6_5:
+            // case KEY_6_5:
                 MYDEBUG_PRINTLN("Keypad trigger: clearing EEPROM daily data...");
                 lcd.clear();
                 lcd.setCursor(0, 0);

@@ -2,14 +2,19 @@
 
 /**
  * @brief Читает 288 пятиминутных записей из EEPROM и сохраняет их в файлы.
- * @param day Номер дня для имени файла (соответствует дню месяца).
+ * @param day Номер дня для имени файла.
+ * @param month Номер месяца для имени файла.
  */
-void saveDailyDataToFile(int day) {
+void saveDailyDataToFile(int day, int month) {
   checkAndManageSpace(); // Проверка и освобождение места
 
-  DEBUG_PRINTF("Начало сохранения данных за день #%d\n", day);
+  char buf[32];
+  snprintf(buf, sizeof(buf), "%02d_%02d", day, month);
+  String dateStr = String(buf);
+
+  DEBUG_PRINTF("Начало сохранения данных за день #%s\n", dateStr.c_str());
   
-  String graphFilename = "/day_" + String(day) + "_graph.json";
+  String graphFilename = "/day_" + dateStr + "_graph.json";
   File graphFile = LittleFS.open(graphFilename, "w");
   if (!graphFile) {
     Serial.println("Ошибка открытия файла для графика!");
@@ -35,7 +40,7 @@ void saveDailyDataToFile(int day) {
 
     float t1 = (float)raw_t1 / 10.0;
     float t2 = (float)raw_t2 / 10.0;
-    float rh = (float)raw_rh;
+    float rh = (float)raw_rh / 10.0;
 
     if (validReadingsCount > 0) graphFile.print(",");
     
@@ -70,7 +75,7 @@ void saveDailyDataToFile(int day) {
     statsDoc["min_rh"] = min_rh;
     statsDoc["max_rh"] = max_rh;
 
-    String statsFilename = "/day_" + String(day) + "_stats.json";
+    String statsFilename = "/day_" + dateStr + "_stats.json";
     File statsFile = LittleFS.open(statsFilename, "w");
     if (statsFile) {
       serializeJson(statsDoc, statsFile);
@@ -96,14 +101,17 @@ void clearEEPROM() {
 }
 
 /**
- * @brief Удаляет файлы графиков и статистики для конкретного дня.
+ * @brief Удаляет файлы графиков, статистики и логов для конкретного дня.
  */
-void deleteFilesForDay(int day) {
-  if (day < 1 || day > 31) return;
+void deleteFilesForDay(int day, int month) {
+  char buf[32];
+  snprintf(buf, sizeof(buf), "%02d_%02d", day, month);
+  String dateStr = String(buf);
 
-  DEBUG_PRINTF("Удаление файлов для дня #%d...\n", day);
-  String graphFilename = "/day_" + String(day) + "_graph.json";
-  String statsFilename = "/day_" + String(day) + "_stats.json";
+  DEBUG_PRINTF("Удаление файлов для дня #%s...\n", dateStr.c_str());
+  String graphFilename = "/day_" + dateStr + "_graph.json";
+  String statsFilename = "/day_" + dateStr + "_stats.json";
+  String logFilename = "/day_" + dateStr + "_log.txt";
 
   if (LittleFS.remove(graphFilename)) {
     DEBUG_PRINTF("  - Файл удален: %s\n", graphFilename.c_str());
@@ -111,30 +119,50 @@ void deleteFilesForDay(int day) {
   if (LittleFS.remove(statsFilename)) {
     DEBUG_PRINTF("  - Файл удален: %s\n", statsFilename.c_str());
   }
+  if (LittleFS.remove(logFilename)) {
+    DEBUG_PRINTF("  - Файл удален: %s\n", logFilename.c_str());
+  }
 }
 
 /**
- * @brief Ищет в файловой системе самый \"старый\" день.
- * Поскольку логи хранятся по дням месяца (1..31), находим первый попавшийся.
- * Для упрощения возвращаем первый найденный день.
+ * @brief Находит хронологически самый старый день в LittleFS, учитывая текущую дату.
  */
-int findOldestDay() {
+ArchiveDay findOldestDay() {
   Dir dir = LittleFS.openDir("/");
-  int oldestDay = -1;
+  int maxDistance = -1;
+  ArchiveDay oldest = {-1, -1};
+
+  int currentDay = 15;
+  int currentMonth = 6;
+  if (timeinfo && timeinfo->tm_year >= 100) {
+      currentDay = timeinfo->tm_mday;
+      currentMonth = timeinfo->tm_mon + 1;
+  }
 
   while (dir.next()) {
     String fileName = dir.fileName();
     if (fileName.startsWith("day_") && fileName.endsWith("_stats.json")) {
-      int start = 4; // индекс после "day_"
-      int end = fileName.indexOf('_', start);
-      int currentDay = fileName.substring(start, end).toInt();
-
-      if (oldestDay == -1 || currentDay < oldestDay) {
-        oldestDay = currentDay;
+      // Имя файла: day_DD_MM_stats.json (длина "day_" = 4)
+      int day = fileName.substring(4, 6).toInt();
+      int month = fileName.substring(7, 9).toInt();
+      if (day > 0 && month > 0) {
+          int w = month * 32 + day;
+          int currentWeight = currentMonth * 32 + currentDay;
+          int distance = 0;
+          if (w <= currentWeight) {
+              distance = currentWeight - w;
+          } else {
+              distance = 384 + currentWeight - w;
+          }
+          if (distance > maxDistance) {
+              maxDistance = distance;
+              oldest.day = day;
+              oldest.month = month;
+          }
       }
     }
   }
-  return oldestDay;
+  return oldest;
 }
 
 /**
@@ -150,12 +178,12 @@ void checkAndManageSpace() {
 
     while (freeSpace < REQUIRED_SPACE) {
       MYDEBUG_PRINTLN("Недостаточно места в FS! Удаление старых файлов графиков...");
-      int oldestDay = findOldestDay();
-      if (oldestDay == -1) {
+      ArchiveDay oldestDay = findOldestDay();
+      if (oldestDay.day == -1) {
         MYDEBUG_PRINTLN("Нет файлов для удаления!");
         break;
       }
-      deleteFilesForDay(oldestDay);
+      deleteFilesForDay(oldestDay.day, oldestDay.month);
       
       LittleFS.info(fs_info);
       freeSpace = fs_info.totalBytes - fs_info.usedBytes;

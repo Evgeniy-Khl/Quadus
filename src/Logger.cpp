@@ -42,7 +42,8 @@ static bool isCriticalOrRecoveryMessage(const String& msg) {
 
 void Logger::log(const String& message) {
     maintain();
-    File f = LittleFS.open(LOG_FILE, "a");
+    String filename = getLogFilename();
+    File f = LittleFS.open(filename, "a");
     if (f) {
         String entry = getTimestamp() + " " + message + "\n";
         f.print(entry);
@@ -56,13 +57,15 @@ void Logger::log(const String& message) {
 }
 
 void Logger::clear() {
-    LittleFS.remove(LOG_FILE);
+    String filename = getLogFilename();
+    LittleFS.remove(filename);
     MYDEBUG_PRINTLN("Log cleared.");
 }
 
 String Logger::getLogs() {
-    if (!LittleFS.exists(LOG_FILE)) return "No logs found.";
-    File f = LittleFS.open(LOG_FILE, "r");
+    String filename = getLogFilename();
+    if (!LittleFS.exists(filename)) return "No logs found.";
+    File f = LittleFS.open(filename, "r");
     if (!f) return "Error opening log file.";
     String content = f.readString();
     f.close();
@@ -70,18 +73,26 @@ String Logger::getLogs() {
 }
 
 void Logger::maintain() {
-    if (!LittleFS.exists(LOG_FILE)) return;
-    File f = LittleFS.open(LOG_FILE, "r");
+    String filename = getLogFilename();
+    if (!LittleFS.exists(filename)) return;
+    File f = LittleFS.open(filename, "r");
     if (f) {
         size_t size = f.size();
         f.close();
         if (size > MAX_LOG_SIZE) {
-            // Very simple rotation: delete if too big
-            // In a more complex version, we could keep the last 50% of the file
-            clear();
+            LittleFS.remove(filename);
             log(getMsg(MSG_LOG_ROTATED));
         }
     }
+}
+
+String Logger::getLogFilename() {
+    if (timeinfo && timeinfo->tm_year >= 100) {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "/day_%02d_%02d_log.txt", timeinfo->tm_mday, timeinfo->tm_mon + 1);
+        return String(buf);
+    }
+    return "/day_00_00_log.txt";
 }
 
 String Logger::getTimestamp() {

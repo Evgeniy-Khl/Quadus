@@ -55,7 +55,20 @@
 
 <script>
     function loadLogs() {
-        fetch('/logs')
+        const urlParams = new URLSearchParams(window.location.search);
+        const day = urlParams.get('day');
+        let url = '/logs';
+        if (day) {
+            url += '?day=' + day;
+            const titleEl = document.querySelector('h1');
+            if (titleEl) {
+                titleEl.textContent = 'Журнал подій за ' + day.replace('_', '.');
+            }
+            const clearBtn = document.querySelector('.button-clear');
+            if (clearBtn) clearBtn.style.display = 'none';
+        }
+
+        fetch(url)
             .then(response => response.text())
             .then(text => {
                 const box = document.getElementById('logBox');
@@ -65,7 +78,7 @@
     }
 
     function clearLogs() {
-        if (confirm('Ви впевнені, що хочете видалити всі записи?')) {
+        if (confirm('Ви впевнені, що хочете видалити всі записи за сьогодні?')) {
             fetch('/clear_logs', { method: 'POST' })
                 .then(() => loadLogs());
         }

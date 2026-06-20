@@ -3,10 +3,15 @@
 
 #include "main.h"
 
-void saveDailyDataToFile(int day);
+struct ArchiveDay {
+    int day;
+    int month;
+};
+
+void saveDailyDataToFile(int day, int month);
 void clearEEPROM();
 void checkAndManageSpace();
-int findOldestDay();
-void deleteFilesForDay(int day);
+ArchiveDay findOldestDay();
+void deleteFilesForDay(int day, int month);
 
 #endif /* _SAVEDAILYDATA_H */

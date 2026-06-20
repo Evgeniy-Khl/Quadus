@@ -34,6 +34,11 @@ public:
      */
     void maintain();
 
+    /**
+     * @brief Get current log filename.
+     */
+    String getLogFilename();
+
 private:
     String getTimestamp();
 };

@@ -360,12 +360,19 @@ void handleGetRelayStates() {
 }
 
 void handleGetLogs() {
-    if (LittleFS.exists(LOG_FILE)) {
-        File f = LittleFS.open(LOG_FILE, "r");
+    String filename;
+    if (server.hasArg("day") && server.arg("day") != "") {
+        filename = "/day_" + server.arg("day") + "_log.txt";
+    } else {
+        filename = sysLogger.getLogFilename();
+    }
+
+    if (LittleFS.exists(filename)) {
+        File f = LittleFS.open(filename, "r");
         server.streamFile(f, "text/plain");
         f.close();
     } else {
-        server.send(200, "text/plain", "No logs found.");
+        server.send(200, "text/plain", "No logs found for this day.");
     }
 }
 
@@ -440,13 +447,20 @@ void handleGetCurrentGraph() {
         point["p"] = period;
         point["t1"] = (float)raw_t1 / 10.0;
         point["t2"] = (float)raw_t2 / 10.0;
-        point["rh"] = (float)raw_rh;
+        point["rh"] = (float)raw_rh / 10.0;
     }
     
     server.setContentLength(measureJson(doc));
     server.send(200, "application/json", "");
     serializeJson(doc, server.client());
 }
+
+struct ArchiveItem {
+    int day;
+    int month;
+    String dateStr;
+    int sortKey;
+};
 
 void handleArchiveList() {
     server.setContentLength(CONTENT_LENGTH_UNKNOWN);
@@ -457,22 +471,55 @@ void handleArchiveList() {
     server.sendContent(F("<a href='/current' class='live' style='margin-bottom:20px;'>Перегляд ПОТОЧНОЇ доби</a>"));
     server.sendContent(F("<ul>"));
     
-    std::vector<int> days;
+    std::vector<ArchiveItem> items;
     Dir dir = LittleFS.openDir("/");
+    
+    int currentDay = 15;
+    int currentMonth = 6;
+    if (timeinfo && timeinfo->tm_year >= 100) {
+        currentDay = timeinfo->tm_mday;
+        currentMonth = timeinfo->tm_mon + 1;
+    }
+
     while (dir.next()) {
         String fileName = dir.fileName();
         if (fileName.startsWith("day_") && fileName.endsWith("_graph.json")) {
-            int start = 4;
-            int end = fileName.indexOf('_', start);
-            if (end > start) days.push_back(fileName.substring(start, end).toInt());
+            // Формат имени: day_DD_MM_graph.json (длина "day_" = 4)
+            int day = fileName.substring(4, 6).toInt();
+            int month = fileName.substring(7, 9).toInt();
+            if (day > 0 && month > 0) {
+                int w = month * 32 + day;
+                int currentWeight = currentMonth * 32 + currentDay;
+                int distance = 0;
+                if (w <= currentWeight) {
+                    distance = currentWeight - w;
+                } else {
+                    distance = 384 + currentWeight - w;
+                }
+                
+                char buf[16];
+                snprintf(buf, sizeof(buf), "%02d_%02d", day, month);
+                ArchiveItem item = {day, month, String(buf), distance};
+                items.push_back(item);
+            }
         }
     }
-    std::sort(days.begin(), days.end());
+    
+    // Сортировка: по возрастанию distance (новые файлы имеют меньшую дистанцию)
+    std::sort(items.begin(), items.end(), [](const ArchiveItem& a, const ArchiveItem& b) {
+        return a.sortKey < b.sortKey;
+    });
 
-    for (int i = days.size() - 1; i >= 0; i--) {
-        int day = days[i];
-        char link[128];
-        snprintf(link, sizeof(link), "<li><a href='/data?day=%d'>Перегляд даних за %d число</a></li>", day, day);
+    for (size_t i = 0; i < items.size(); i++) {
+        char link[256];
+        snprintf(link, sizeof(link), 
+                 "<li><div style='display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; margin-bottom:5px; border:1px solid rgba(255,255,255,0.05);'>"
+                 "<span style='color:#ecf0f1; font-weight:bold;'>%02d.%02d</span>"
+                 "<div style='display:flex; gap:10px;'>"
+                 "<a href='/data?day=%s' style='display:inline-block; padding:6px 12px; font-size:0.85rem; border-radius:6px; background:#2563eb; margin:0; box-shadow:none;'>Графік</a>"
+                 "<a href='/view_logs?day=%s' style='display:inline-block; padding:6px 12px; font-size:0.85rem; border-radius:6px; background:#10b981; margin:0; box-shadow:none;'>Логи</a>"
+                 "</div></div></li>", 
+                 items[i].day, items[i].month, items[i].dateStr.c_str(), items[i].dateStr.c_str());
         server.sendContent(link);
         yield();
     }
@@ -505,9 +552,11 @@ void handleShowData() {
 
     server.setContentLength(CONTENT_LENGTH_UNKNOWN);
     server.send(200, "text/html", "");
-    sendPageHeader("Квадус - День " + day);
+    String displayDay = day;
+    displayDay.replace('_', '.');
+    sendPageHeader("Квадус - День " + displayDay);
 
-    server.sendContent("<div><h1 style='text-align:center;'>Дані клімату за " + day + " число</h1>");
+    server.sendContent("<div><h1 style='text-align:center;'>Дані клімату за " + displayDay + "</h1>");
     server.sendContent(F("<div class='chart-container'><canvas id='tempChart'></canvas></div>"));
     server.sendContent(F("<div style='text-align:center;'><a href='/archive' class='back'>Назад до списку</a></div>"));
     server.sendContent(F("<script>"));
