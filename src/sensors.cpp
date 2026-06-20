@@ -57,8 +57,6 @@ void sensorCheck(){
     if (isnan(h) || isnan(t)) {
       MYDEBUG_PRINTLN("DHT22 read error!");
       if(++ds[0].errDevice > 5){ 
-        ds[0].pvT = 1260; 
-        ds[1].pvT = 1260; 
         ds[0].errDevice = 5;
         if (!DHT_ERR) {sysLogger.log(getMsg(MSG_DHT_ERR)); DHT_ERR = 1;}
       }
@@ -104,7 +102,6 @@ void checkDs18b20(void){
     
     if(tempC == DEVICE_DISCONNECTED_C) {
       if(++ds[i].errDevice > 5){
-        ds[i].pvT = 1990;
         ds[i].errDevice = 5;
         switch (i){
         case 0: if (!ERROR1) sysLogger.log(getMsg(MSG_HEATER_ERR)); ERROR1 = 1; break;

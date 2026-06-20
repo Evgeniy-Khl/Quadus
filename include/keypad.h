@@ -18,6 +18,7 @@
 #define KEY_6_5_2   KEY_6+KEY_5+KEY_2
 #define KEY_6_5_3   KEY_6+KEY_5+KEY_3
 #define KEY_6_5_4   KEY_6+KEY_5+KEY_4
+#define KEY_6_5_8   KEY_6+KEY_5+KEY_8
 #define KEY_7       8
 #define KEY_7_1     KEY_7+KEY_1
 #define KEY_7_2     KEY_7+KEY_2

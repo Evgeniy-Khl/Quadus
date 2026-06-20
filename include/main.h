@@ -93,7 +93,7 @@ union Byte {
  * Member names have _m suffix to avoid macro collisions.
  */
 struct SystemState {
-    Ds ds_m[MAX_DEVICE] = {{1990,0,0,0,0},{1990,0,0,0,0}};
+    Ds ds_m[MAX_DEVICE] = {{0,0,0,0,0},{0,0,0,0,0}};
     union Byte portOut_m;
     union Byte errorsFlag_m;
     union Byte portFlag_m;

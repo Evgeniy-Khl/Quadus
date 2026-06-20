@@ -282,7 +282,7 @@ function fetchData() {
                     return `[${relayModes[mode] || relayModes[0]}] ${state}`;
                 }
                 // For Relay 3 or other modes, show mode name and full timer info
-                const label = (isRelay3 && mode === 0) ? "Ціло добово" : (relayModes[mode] || '--');
+                const label = (isRelay3 && mode === 0) ? "Цілодобово" : (relayModes[mode] || '--');
                 const timeInfo = timerStr.split(' ').slice(1).join(' ') || timerStr;
                 return `[${label}] ${timeInfo}`;
             };
