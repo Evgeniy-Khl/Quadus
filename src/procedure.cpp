@@ -308,6 +308,10 @@ void initEnvironment(void){
  */
 bool syncTime() {
   MYDEBUG_PRINTLN("\nStarting time synchronization...");
+  if (WiFi.status() != WL_CONNECTED) {
+    MYDEBUG_PRINTLN("WiFi not connected. Skipping NTP sync.");
+    return true;
+  }
   configTzTime(tzInfo, ntpServer);
   MYDEBUG_PRINT("Waiting for NTP response");
   unsigned long startAttempt = millis();

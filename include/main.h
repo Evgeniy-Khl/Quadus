@@ -178,9 +178,9 @@ struct Settings {
     int16_t alarm1;     // Alarm deviation t1
     int16_t hysteresis0; // Hysteresis for t0
     int16_t hysteresis1; // Hysteresis for t1
-    uint8_t special;    // Flags for WiFi/Time/Reset
-    uint8_t deviceNum;  // Device ID
-    uint8_t program;    // Active program number
+    uint8_t special;     // Flags for WiFi/Time/???Reset???
+    uint8_t deviceNum;   // Device ID
+    uint8_t program;     // Active program number
     uint8_t modeLight;    // Lighting relay mode
     uint8_t modeHeater;   // Heater relay mode: 0=Heat, 1=Cool
     uint8_t modeHumidi;   // Humidifier relay mode: 0=Humidify, 1=Dehumidify
