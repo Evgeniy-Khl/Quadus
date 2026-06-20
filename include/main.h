@@ -143,7 +143,8 @@ enum LogMsgId {
     MSG_CLIMATE_T1_FROZE,
     MSG_CLIMATE_T2_FROZE,
     MSG_CLIMATE_T1_OK,
-    MSG_CLIMATE_T2_OK
+    MSG_CLIMATE_T2_OK,
+    MSG_DAILY_CLEARED
 };
 
 const char* getMsg(LogMsgId id);

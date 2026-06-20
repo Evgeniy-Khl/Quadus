@@ -1,6 +1,7 @@
 #include "keypad.h"
 
 void checkkey(uint8_t key){
+    MYDEBUG_PRINT("checkkey: setupNum="); MYDEBUG_PRINT(setupNum); MYDEBUG_PRINT(", key="); MYDEBUG_PRINTLN(key);
     resetDispl = RESETDISPLAY; // hold setup mode for 20-40 sec.
     switch (setupNum){
     case 1:        
@@ -208,9 +209,22 @@ void checkkey(uint8_t key){
             case KEY_6_5_3: settings.special |= 0x08; doSave(); ESP.restart(); break;
             case KEY_6_5_4: LittleFS.format(); ESP.restart(); break;
             case KEY_6_5_8:
-                clearEEPROM();
+            case KEY_6_5:
+                MYDEBUG_PRINTLN("Keypad trigger: clearing EEPROM daily data...");
                 lcd.clear();
-                lcd.print("EEPROM CLEARED");
+                lcd.setCursor(0, 0);
+                lcd.print("EEPROM CLEARING ");
+                lcd.setCursor(0, 1);
+                lcd.print("PLEASE WAIT...  ");
+                delay(100); // Даем дисплею отобразить надпись
+                
+                clearEEPROM();
+                
+                lcd.clear();
+                lcd.setCursor(0, 0);
+                lcd.print("EEPROM CLEARED  ");
+                lcd.setCursor(0, 1);
+                lcd.print("   SUCCESSFUL   ");
                 delay(2000);
                 lcd.clear();
                 break;

@@ -30,7 +30,8 @@ const char* const strings[] = {
     "ТРЕВОГА: Датчик T1 завис!",
     "ТРЕВОГА: Датчик T2 завис!",
     "Датчик T1: показания изменились.",
-    "Датчик T2: показания изменились."
+    "Датчик T2: показания изменились.",
+    "Данные за текущие сутки очищены."
 };
 #elif defined(LANG_UA)
 const char* const strings[] = {
@@ -62,7 +63,8 @@ const char* const strings[] = {
     "ТРИВОГА: Датчик T1 завис!",
     "ТРИВОГА: Датчик T2 завис!",
     "Датчик T1: показники змінилися.",
-    "Датчик T2: показники змінилися."
+    "Датчик T2: показники змінилися.",
+    "Дані за поточну добу очищено."
 };
 #else // Default to English (LANG_EN)
 const char* const strings[] = {
@@ -94,7 +96,8 @@ const char* const strings[] = {
     "ALARM: Sensor T1 frozen!",
     "ALARM: Sensor T2 frozen!",
     "Sensor T1: readings updated.",
-    "Sensor T2: readings updated."
+    "Sensor T2: readings updated.",
+    "Daily graph data cleared."
 };
 #endif
 

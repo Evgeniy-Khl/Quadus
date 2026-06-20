@@ -91,6 +91,7 @@ void clearEEPROM() {
     eepromWriteInt16(currentAddress + 2, 0);
     eepromWriteInt16(currentAddress + 4, 0);
   }
+  sysLogger.log(getMsg(MSG_DAILY_CLEARED));
   MYDEBUG_PRINTLN("Очистка AT24C32 завершена.");
 }
 

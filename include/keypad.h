@@ -29,7 +29,7 @@
 #define KEY_7_4_6_8 KEY_7+KEY_4+KEY_6+KEY_8 // 232
 #define KEY_7_5     KEY_7+KEY_5
 #define KEY_7_6     KEY_7+KEY_6
-#define KEY_7_8     KEY_7+KEY_7_8
+#define KEY_7_8     KEY_7+KEY_8
 #define KEY_8 128
 
 void checkkey(uint8_t key);
