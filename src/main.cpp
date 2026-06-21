@@ -63,6 +63,7 @@ void setup(){
   bool lFS = LittleFS.begin();
   if(lFS) {
     MYDEBUG_PRINTLN("mounted file system");
+    listFilesAndSizes();
     //--------------------- checkSetpoint ?????????? ----------------------------------
     temp = checkSetpoint();
     if(temp){

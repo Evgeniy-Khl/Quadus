@@ -13,5 +13,6 @@ void clearEEPROM();
 void checkAndManageSpace();
 ArchiveDay findOldestDay();
 void deleteFilesForDay(int day, int month);
+void listFilesAndSizes();
 
 #endif /* _SAVEDAILYDATA_H */

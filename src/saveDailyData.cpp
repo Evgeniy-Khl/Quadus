@@ -191,3 +191,41 @@ void checkAndManageSpace() {
     }
   }
 }
+
+/**
+ * @brief Выводит в Serial Monitor список всех файлов и их размеры.
+ * Также показывает общую информацию о занятом и свободном месте.
+ */
+void listFilesAndSizes() {
+  Serial.println("\n--- Список файлов в LittleFS ---");
+  
+  Dir dir = LittleFS.openDir("/");
+  long totalSize = 0;
+  int fileCount = 0;
+
+  while (dir.next()) {
+    // Для каждого элемента получаем объект File
+    File entry = dir.openFile("r");
+    if (entry) {
+      Serial.print("Файл: ");
+      Serial.print(entry.name());
+      Serial.print("\tРазмер: ");
+      Serial.print(entry.size());
+      Serial.println(" Байт");
+      totalSize += entry.size();
+      fileCount++;
+      entry.close(); // Важно закрывать файл после использования
+    }
+  }
+
+  Serial.println("------------------------------------");
+  Serial.printf("Всего файлов: %d\n", fileCount);
+  Serial.printf("Общий размер: %ld Байт\n", totalSize);
+
+  // Дополнительная информация о файловой системе
+  FSInfo fs_info;
+  LittleFS.info(fs_info);
+  Serial.printf("Всего места:  %d Байт\n", fs_info.totalBytes);
+  Serial.printf("Использовано: %d Байт\n", fs_info.usedBytes);
+  Serial.println("------------------------------------");
+}
