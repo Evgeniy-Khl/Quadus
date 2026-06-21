@@ -101,35 +101,6 @@ All notable changes to the **Quadus Greenhouse Controller** project will be docu
 ### Fixed
 - Improved project modularity by separating hardware interaction from business logic.
 
-### 1. Где реализована передача графиков в проекте  Climat_ESP8266
-
-  В проекте  Climat_ESP8266  сбор, хранение и отображение графиков распределены по следующим файлам:
-
-  • Накопление текущих данных (каждые 5 минут):
-  В файле procedure.cpp раз в 5 минут текущие значения температуры с двух датчиков ( ds[0].pvT ,  ds[1].pvT ) и
-  влажности ( pvRH ) записываются во внешнюю энергонезависимую память EEPROM (чип AT24C32) начиная с адреса
-  DAILY_DATA_START  ( 0x000 ).
-  • Сброс суточных файлов во Flash-память (LittleFS):
-  При смене суток в procedure.cpp вызывается функция  saveDailyDataToFile(day)  из saveDailyData.cpp. Она читает
-  накопленные за сутки 288 точек из EEPROM, считает усредненные/минимальные/максимальные значения и сохраняет их в
-  LittleFS в файлы вида  /day_X_graph.json  и  /day_X_stats.json .
-  • Обработка HTTP-запросов и роутинг:
-  В wifiManag.cpp зарегистрированы эндпоинты для веб-сервера. Сами обработчики находятся в server.cpp:
-      •  /archive  ->  handleArchiveList()  (строка 391) генерирует HTML-страницу со списком дней, сканируя LittleFS
-      на наличие файлов  day_*_graph.json .
-      •  /data?day=X  ->  handleShowData()  (строка 429) отдает страницу просмотра графика за выбранные сутки.
-      •  /get_graph?day=X  ->  handleGetGraph()  (строка 335) стримит сырой JSON-файл за конкретные сутки.
-      •  /get_current_graph  ->  handleGetCurrentGraph()  (строка 352) читает текущие (еще не сброшенные во Flash)
-      сутки из EEPROM и отдает JSON-структуру с точками.
-  • Отображение на главной странице:
-  В файле index.html:
-      • Подключается библиотека Chart.js через CDN (строка 8).
-      • Создан контейнер  <canvas id="mainChart"></canvas>  (строка 410).
-      • Кнопка «Архів» (строка 417) ведет по ссылке  /archive .
-      • JavaScript-функция  fetchGraphData()  (строка 518) запрашивает  /get_current_graph  при загрузке страницы и
-      затем каждую минуту обновляет интерактивный график на главной странице.
-
-  ------
   ### 2. Реализация графиков в проекте  Quadus
 
   Поскольку архитектура проекта  Quadus  очень близка к  Climat_ESP8266 , я полностью перенес и адаптировал этот

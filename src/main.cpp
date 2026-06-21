@@ -247,11 +247,6 @@ void loop(){
                 lastSavedMonth = timeinfo->tm_mon + 1;
             }
         }
-
-        #ifdef DEBUG
-        MYDEBUG_PRINTLN("processLighting():");
-        printBinary(portOut.value);
-        #endif
       }
       //---------------------------- NEW HOUR ----------------------------------
       if(++minutes > 59){

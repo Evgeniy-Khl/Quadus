@@ -41,7 +41,7 @@ void initWiFiManag(void){
         lcd.print("Wi-Fi Local ip:");
         lcd.setCursor(0,1);
         lcd.print(WiFi.localIP());
-        
+        delay(2000);
         //============================== END SAVE =====================================
         server.on("/", HTTP_GET, []() {
           mode = READDEFAULT; interval = INTERVAL_4000; tmrTelegramOff = 300;
