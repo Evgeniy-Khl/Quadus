@@ -382,6 +382,76 @@ byte writePCF8574(byte data) {
   } else {
     i2c_error_count = 0; // Reset count
   }
+
+  if (error == 0) {
+    static byte last_relays_state = 0xFF;
+    byte changed = (last_relays_state ^ data) & 0x3F;
+    if (changed) {
+      #if defined(LANG_RU)
+      const char* const relayNames[] = {
+          "Освещение",
+          "Обогреватель",
+          "Увлажнитель",
+          "Реле 1",
+          "Реле 2",
+          "Реле 3"
+      };
+      const char* const relayStates[] = {
+          "ВЫКЛ",
+          "ВКЛ"
+      };
+      #elif defined(LANG_UA)
+      const char* const relayNames[] = {
+          "Освітлення",
+          "Обігрівач",
+          "Зволожувач",
+          "Реле 1",
+          "Реле 2",
+          "Реле 3"
+      };
+      const char* const relayStates[] = {
+          "ВИКЛ",
+          "ВКЛ"
+      };
+      #else // LANG_EN
+      const char* const relayNames[] = {
+          "Light",
+          "Heater",
+          "Humidifier",
+          "Relay 1",
+          "Relay 2",
+          "Relay 3"
+      };
+      const char* const relayStates[] = {
+          "OFF",
+          "ON"
+      };
+      #endif
+
+      for (int i = 0; i < 6; i++) {
+        if (changed & (1 << i)) {
+          bool shouldLog = false;
+          if (i == 0) {         // Освещение
+            shouldLog = true;
+          } else if (i == 3) {  // Реле 1
+            shouldLog = (settings.modeRelay1 > 0);
+          } else if (i == 4) {  // Реле 2
+            shouldLog = (settings.modeRelay2 > 0);
+          } else if (i == 5) {  // Реле 3
+            shouldLog = true;
+          }
+
+          if (shouldLog) {
+            bool isOn = !(data & (1 << i)); // active low: 0 = ON, 1 = OFF
+            String msg = String(relayNames[i]) + ": " + (isOn ? relayStates[1] : relayStates[0]);
+            sysLogger.log(msg);
+          }
+        }
+      }
+      last_relays_state = (last_relays_state & 0xC0) | (data & 0x3F);
+    }
+  }
+
   return error;
 }
 
