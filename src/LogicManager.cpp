@@ -216,7 +216,7 @@ bool LogicManager::checkLightState(uint8_t currentHour, uint8_t onHour, uint8_t 
 }
 
 void LogicManager::processAlarm(uint8_t cn) {
-    int16_t val, maxVal, minVal, alarmVal;
+    int16_t val, maxVal, minVal, alarmVal, mode;
     bool reached, beep = false;
     val = ds[cn].pvT;
     
@@ -224,18 +224,22 @@ void LogicManager::processAlarm(uint8_t cn) {
         maxVal = max(settings.spT1on, settings.spT1off);
         minVal = min(settings.spT1on, settings.spT1off);
         alarmVal = settings.alarm1;
+        mode = settings.modeHumidi;
         reached = REACHED1;
     } else {
         maxVal = max(settings.spT0on, settings.spT0off);
         minVal = min(settings.spT0on, settings.spT0off);
         alarmVal = settings.alarm0;
+        mode = settings.modeHeater;
         reached = REACHED0;
     }
 
     if (reached) {
         if (val <= (minVal - alarmVal) || val >= (maxVal + alarmVal)) beep = true;
-    } else if (val >= minVal && val <= maxVal) {
-        reached = true;
+    } else if (mode == 0) {
+        if (val >= minVal) reached = true;
+    } else if (mode == 1) {
+        if (val <= maxVal) reached = true;
     }
 
     if (cn) {
