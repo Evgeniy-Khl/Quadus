@@ -54,6 +54,7 @@ void handleCurrentData();
 void handleGetGraph();
 void handleGetCurrentGraph();
 void sendPageHeader(String title);
+void streamFileChunked(File& file, const String& contentType);
 
 
 #endif //SERVER_H

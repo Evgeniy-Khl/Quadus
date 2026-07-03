@@ -369,7 +369,7 @@ void handleGetLogs() {
 
     if (LittleFS.exists(filename)) {
         File f = LittleFS.open(filename, "r");
-        server.streamFile(f, "text/plain");
+        streamFileChunked(f, "text/plain");
         f.close();
     } else {
         server.send(200, "text/plain", "No logs found for this day.");
@@ -424,7 +424,7 @@ void handleGetGraph() {
     
     if (LittleFS.exists(filename)) {
         File file = LittleFS.open(filename, "r");
-        server.streamFile(file, "application/json");
+        streamFileChunked(file, "application/json");
         file.close();
     } else {
         server.send(404, "text/plain", "File Not Found");
@@ -719,5 +719,31 @@ void handleCurrentData() {
         if (i % 20 == 0) yield();
     }
     server.sendContent(F("</table><div style='text-align:center;'><a href='/archive' class='back'>Назад</a></div></div></body></html>"));
+}
+
+void streamFileChunked(File& file, const String& contentType) {
+    server.sendHeader("Connection", "close");
+    server.setContentLength(CONTENT_LENGTH_UNKNOWN);
+    server.send(200, contentType, "");
+    
+    auto client = server.client();
+    if (!client) return;
+
+    uint8_t buffer[1024];
+    while (file.available()) {
+        if (!client.connected()) break; // Прекращаем чтение, если клиент отключился
+        size_t len = file.read(buffer, sizeof(buffer));
+        if (len > 0) {
+            char hexBuf[16];
+            snprintf(hexBuf, sizeof(hexBuf), "%X\r\n", (unsigned int)len);
+            client.write((const uint8_t*)hexBuf, strlen(hexBuf));
+            client.write(buffer, len);
+            client.write((const uint8_t*)"\r\n", 2);
+        }
+        yield();
+    }
+    if (client.connected()) {
+        client.write((const uint8_t*)"0\r\n\r\n", 5);
+    }
 }
 

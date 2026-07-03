@@ -53,7 +53,7 @@ void initWiFiManag(void){
                 server.send(404, "text/plain", "I can't open the index.html");
                 return;
             }
-            server.streamFile(file, "text/html");
+            streamFileChunked(file, "text/html");
             file.close();
           }
         });
@@ -63,7 +63,7 @@ void initWiFiManag(void){
               server.send(404, "text/plain", "File Not Found");
               return;
           }
-          server.streamFile(file, "text/html");
+          streamFileChunked(file, "text/html");
           file.close();
         });
         server.on("/table", HTTP_GET, []() {
@@ -72,7 +72,7 @@ void initWiFiManag(void){
               server.send(404, "text/plain", "File Not Found");
               return;
           }
-          server.streamFile(file, "text/html");
+          streamFileChunked(file, "text/html");
           file.close();
         });
         server.on("/getvalues", HTTP_GET, respondsValues);
@@ -83,7 +83,7 @@ void initWiFiManag(void){
         server.on("/switch", HTTP_GET, []() {
             File file = LittleFS.open("/switch.html", "r");
             if (file) {
-                server.streamFile(file, "text/html");
+                streamFileChunked(file, "text/html");
                 file.close();
             } else {
                 server.send(404, "text/plain", "switch.html not found");
@@ -92,7 +92,7 @@ void initWiFiManag(void){
         server.on("/view_logs", HTTP_GET, []() {
             File file = LittleFS.open("/logs.html", "r");
             if (file) {
-                server.streamFile(file, "text/html");
+                streamFileChunked(file, "text/html");
                 file.close();
             } else {
                 server.send(404, "text/plain", "logs.html not found");
