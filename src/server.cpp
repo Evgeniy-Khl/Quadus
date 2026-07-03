@@ -221,11 +221,11 @@ void acceptEeprom() {
                 settings.modeRelay2 = getUint8("modeRelay2", settings.modeRelay2);
                 settings.modeRelay3 = getUint8("modeRelay3", settings.modeRelay3);
 
-                if (obj.containsKey("botToken")) {
+                if (obj["botToken"].is<const char*>()) {
                     strncpy(botToken, obj["botToken"] | "", sizeof(botToken) - 1);
                     botToken[sizeof(botToken) - 1] = '\0';
                 }
-                if (obj.containsKey("chatID")) {
+                if (obj["chatID"].is<const char*>()) {
                     strncpy(chatID, obj["chatID"] | "", sizeof(chatID) - 1);
                     chatID[sizeof(chatID) - 1] = '\0';
                 }

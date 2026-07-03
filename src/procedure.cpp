@@ -178,11 +178,11 @@ bool loadSetPoint() {
     settings.modeRelay2 = obj["modeRelay2"];
     settings.modeRelay3 = obj["modeRelay3"];
 
-    if (obj.containsKey("botToken")) {
+    if (obj["botToken"].is<const char*>()) {
         strncpy(botToken, obj["botToken"] | "", sizeof(botToken) - 1);
         botToken[sizeof(botToken) - 1] = '\0';
     }
-    if (obj.containsKey("chatID")) {
+    if (obj["chatID"].is<const char*>()) {
         strncpy(chatID, obj["chatID"] | "", sizeof(chatID) - 1);
         chatID[sizeof(chatID) - 1] = '\0';
     }
