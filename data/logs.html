@@ -48,7 +48,6 @@
     <div id="logBox" class="log-container">Завантаження...</div>
 
     <button class="button" onclick="loadLogs()">ОНОВИТИ</button>
-    <button class="button button-clear" onclick="clearLogs()">ОЧИСТИТИ ЖУРНАЛ</button>
     <br>
     <a href="/"><button class="button">НА ГОЛОВНУ</button></a>
   </div>
@@ -64,8 +63,6 @@
             if (titleEl) {
                 titleEl.textContent = 'Журнал подій за ' + day.replace('_', '.');
             }
-            const clearBtn = document.querySelector('.button-clear');
-            if (clearBtn) clearBtn.style.display = 'none';
         }
 
         fetch(url)
@@ -75,13 +72,6 @@
                 box.textContent = text;
                 box.scrollTop = box.scrollHeight;
             });
-    }
-
-    function clearLogs() {
-        if (confirm('Ви впевнені, що хочете видалити всі записи за сьогодні?')) {
-            fetch('/clear_logs', { method: 'POST' })
-                .then(() => loadLogs());
-        }
     }
 
     document.addEventListener('DOMContentLoaded', loadLogs);
