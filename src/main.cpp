@@ -15,6 +15,7 @@ DeviceAddress sensorAddresses[MAX_DEVICE];  // Array for unique sensor addresses
 LiquidCrystal_I2C lcd(0x20, 16, 2);         // Set the LCD address to 0x27 for a 16 chars and 2 line display
 
 byte writePCF8574(byte data);
+bool recoverI2C();
 
 TM1638 module(13, 14, 12);                  // Create module object for TM1638
 void ledSet(void);
@@ -44,6 +45,8 @@ void setup(){
 
   //--------------------------------- initialize the LCD -----------------------------------
   lcd.begin();  // Wire.begin() is called inside. Initialize I2C (SDA, SCL default for ESP8266 - GPIO4, GPIO5)
+  Wire.setClock(100000);                // Снижаем скорость до 100кГц для стабильности
+  Wire.setClockStretchLimit(150000);    // 150мс лимит clock stretch (защита от зависания)
   uint8_t temp = writePCF8574(0xFF);    // Set all pins LOW (if used as outputs)
 
   // Turn on the backlight and print a message.
@@ -282,9 +285,10 @@ void loop(){
 }//============================================== END LOOP =============================================
 
 // Function to recover the I2C bus if SDA or SCL hang
-void recoverI2C() {
+// Returns true if PCF8574 responds on the bus after recovery
+bool recoverI2C() {
   static unsigned long lastRecoveryTime = 0;
-  if (millis() - lastRecoveryTime < 200) return; // Limit recovery rate
+  if (millis() - lastRecoveryTime < 500) return false; // Limit retry frequency
   lastRecoveryTime = millis();
 
   MYDEBUG_PRINTLN("Attempting I2C bus recovery...");
@@ -292,63 +296,151 @@ void recoverI2C() {
   const uint8_t sda = 4; 
   const uint8_t scl = 5;
 
-  // 1. Pre-configure pins to INPUT_PULLUP
+  // 1. Configure pins to INPUT_PULLUP
   pinMode(sda, INPUT_PULLUP);
   pinMode(scl, INPUT_PULLUP);
-  delay(1);
+  delay(5);
 
-  // 2. If SDA or SCL are low, the bus is physically busy
   MYDEBUG_PRINT("Bus state before pulses: SDA=");
   MYDEBUG_PRINT(digitalRead(sda));
   MYDEBUG_PRINT(", SCL=");
   MYDEBUG_PRINTLN(digitalRead(scl));
 
-  // 3. Generate up to 20 clock pulses on SCL to release SDA
+  // 2. Generate up to 20 SCL clock pulses to clock out stuck slaves
+  //    Use a slower speed (~5kHz) for reliability
   pinMode(scl, OUTPUT);
   for (int i = 0; i < 20; i++) {
     digitalWrite(scl, LOW);
-    delayMicroseconds(20);
+    delayMicroseconds(100);
     digitalWrite(scl, HIGH);
-    delayMicroseconds(20);
-    if (digitalRead(sda) == HIGH && i > 8) {
+    delayMicroseconds(100);
+    if (digitalRead(sda) == HIGH && i >= 8) {
        MYDEBUG_PRINT("SDA released after ");
-       MYDEBUG_PRINT(i);
+       MYDEBUG_PRINT(i + 1);
        MYDEBUG_PRINTLN(" pulses.");
        break;
     }
   }
 
-  // 4. Generate START + STOP conditions manually
+  // 3. Generate correct STOP condition
   pinMode(sda, OUTPUT);
-  digitalWrite(sda, LOW);    // START
-  delayMicroseconds(20);
-  digitalWrite(scl, LOW);
-  delayMicroseconds(20);
-  digitalWrite(scl, HIGH);   // STOP setup
-  delayMicroseconds(20);
-  digitalWrite(sda, HIGH);   // STOP
-  delayMicroseconds(20);
+  digitalWrite(sda, LOW);
+  delayMicroseconds(100);
+  digitalWrite(scl, HIGH);
+  delayMicroseconds(100);
+  digitalWrite(sda, HIGH);   // STOP: SDA LOW to HIGH while SCL is HIGH
+  delayMicroseconds(100);
 
-  // 5. Return pins to Wire control
+  // 4. Return pins to Wire control
   pinMode(sda, INPUT_PULLUP);
   pinMode(scl, INPUT_PULLUP);
+  delay(20); // wait for line stabilization
 
   Wire.begin(sda, scl);
-  Wire.setClock(100000); // 100 kHz for stability
+  Wire.setClock(100000);
+  Wire.setClockStretchLimit(150000); // 150ms to prevent lockups during clock stretch
   
-  delay(10); // Wait for stabilization
-  
+  delay(50); // Increased delay to give Wire and devices time to stabilize
+
   if (digitalRead(sda) == LOW || digitalRead(scl) == LOW) {
-    MYDEBUG_PRINT("I2C recovery: FAILED. SDA=");
+    MYDEBUG_PRINT("I2C recovery: FAILED (bus stuck). SDA=");
     MYDEBUG_PRINT(digitalRead(sda));
     MYDEBUG_PRINT(", SCL=");
     MYDEBUG_PRINTLN(digitalRead(scl));
+    return false;
+  }
+
+  // 5. Verify PCF8574 presence on the bus
+  Wire.beginTransmission(PCF8574_ADDRESS);
+  uint8_t err = Wire.endTransmission();
+  if (err == 0) {
+    MYDEBUG_PRINTLN("I2C recovery: SUCCESS (PCF8574 responds)");
+    return true;
   } else {
-    MYDEBUG_PRINTLN("I2C recovery: SUCCESS");
+    MYDEBUG_PRINT("I2C recovery: bus OK, but PCF8574 not found. err=");
+    MYDEBUG_PRINTLN(err);
+    return false;
   }
 }
 
-static uint8_t i2c_error_count = 0; // Consecutive error counter
+void enterI2cCriticalError() {
+  #if defined(LANG_RU)
+    sysLogger.log("КРИТИЧЕСКАЯ ОШИБКА I2C: Перезапуск!");
+  #elif defined(LANG_UA)
+    sysLogger.log("КРИТИЧНА ПОМИЛКА I2C: Перезапуск!");
+  #else
+    sysLogger.log("CRITICAL I2C ERROR: Restarting!");
+  #endif
+  MYDEBUG_PRINTLN("\n!!! CRITICAL I2C ERROR: Hardware WDT reset now...");
+
+  // Release the I2C bus via STOP condition before reset
+  const uint8_t sda = 4;
+  const uint8_t scl = 5;
+  pinMode(scl, OUTPUT); digitalWrite(scl, HIGH);
+  pinMode(sda, OUTPUT); digitalWrite(sda, LOW);
+  delayMicroseconds(100);
+  digitalWrite(scl, HIGH);
+  delayMicroseconds(100);
+  digitalWrite(sda, HIGH); // SDA LOW->HIGH while SCL is HIGH = STOP condition
+  delayMicroseconds(100);
+  pinMode(sda, INPUT_PULLUP);
+  pinMode(scl, INPUT_PULLUP);
+
+  // Hardware reset via Hardware WDT (rst cause:4) - full chip reset.
+  // Without yield/delay, WDT triggers in ~8 seconds.
+  MYDEBUG_PRINTLN("Waiting for Hardware WDT...");
+  ESP.wdtDisable();
+  while (true) { }
+}
+
+static uint8_t i2c_error_count = 0;        // Counter of consecutive I2C errors
+static uint8_t recovery_fail_count = 0;    // Counter of consecutive recoverI2C() failures
+
+static void waitForPCF8574OrReboot(uint8_t maxRetries = 2,
+                                   unsigned long pauseMs = 500UL) {
+  #if defined(LANG_RU)
+    sysLogger.log("ВНИМАНИЕ: PCF8574 недоступен! Попытка восстановления...");
+  #elif defined(LANG_UA)
+    sysLogger.log("УВАГА: PCF8574 недоступний! Спроба відновлення...");
+  #else
+    sysLogger.log("WARNING: PCF8574 not responding! Attempting recovery...");
+  #endif
+  MYDEBUG_PRINTLN("PCF8574: starting recovery (2 attempts, 500ms pause)...");
+
+  for (uint8_t attempt = 1; attempt <= maxRetries; attempt++) {
+    ESP.wdtFeed();
+    // Pause before attempt - give the bus time to stabilize
+    unsigned long waitStart = millis();
+    while (millis() - waitStart < pauseMs) {
+      ESP.wdtFeed();
+      delay(50);
+    }
+    DEBUG_PRINTF("PCF8574: recovery attempt %d / %d\n", attempt, maxRetries);
+    if (recoverI2C()) {
+      MYDEBUG_PRINTLN("PCF8574: recovered successfully!");
+      #if defined(LANG_RU)
+        sysLogger.log("PCF8574 восстановлен. Продолжаем работу.");
+      #elif defined(LANG_UA)
+        sysLogger.log("PCF8574 відновлено. Продовжуємо роботу.");
+      #else
+        sysLogger.log("PCF8574 recovered. Continuing work.");
+      #endif
+      i2c_error_count = 0;
+      recovery_fail_count = 0;
+      return; // recovered - exit
+    }
+  }
+
+  // All attempts failed - rebooting
+  #if defined(LANG_RU)
+    sysLogger.log("PCF8574 не восстановлен. Перезапуск!");
+  #elif defined(LANG_UA)
+    sysLogger.log("PCF8574 не відновлено. Перезапуск!");
+  #else
+    sysLogger.log("PCF8574 recovery failed. Restarting!");
+  #endif
+  enterI2cCriticalError();
+}
 
 // Function to write byte to PCF8574 with auto-recovery
 byte writePCF8574(byte data) {
@@ -356,31 +448,43 @@ byte writePCF8574(byte data) {
   Wire.write(data);
   byte error = Wire.endTransmission();
   
-  if(error) {
+  if (error) {
     i2c_error_count++;
     MYDEBUG_PRINT("\nError writing to PCF8574. Code: ");
     MYDEBUG_PRINT(error);
     MYDEBUG_PRINT(" | Fail count: ");
     MYDEBUG_PRINTLN(i2c_error_count);
 
-    if (i2c_error_count >= 20) { // If 20 consecutive failures occur
-      MYDEBUG_PRINTLN("CRITICAL I2C ERROR: Restarting ESP...");
-      delay(1000);
-      ESP.restart();
+    // First attempt of fast recovery
+    bool recovered = recoverI2C();
+    if (recovered) {
+      recovery_fail_count = 0;
+      delay(50);
+      Wire.beginTransmission(PCF8574_ADDRESS);
+      Wire.write(data);
+      error = Wire.endTransmission();
+      if (error == 0) {
+        i2c_error_count = 0;
+        MYDEBUG_PRINTLN("writePCF8574: retry after recovery OK");
+      }
     }
 
-    recoverI2C(); // Attempt soft bus recovery
-    
-    // Retry transmission
-    Wire.beginTransmission(PCF8574_ADDRESS);
-    Wire.write(data);
-    error = Wire.endTransmission();
-    
-    if (error == 0) {
-      i2c_error_count = 0; // Reset count on success
+    if (error) {
+      // Fast recovery failed - launch wait loop with timeout
+      recovery_fail_count++;
+      MYDEBUG_PRINT("PCF8574: recovery failed. Consecutive failures: ");
+      MYDEBUG_PRINTLN(recovery_fail_count);
+      waitForPCF8574OrReboot(); // 2 attempts -> reboot if unsuccessful
+
+      // If we got here - recoverI2C() returned true inside waitForPCF8574OrReboot, repeat write
+      delay(50);
+      Wire.beginTransmission(PCF8574_ADDRESS);
+      Wire.write(data);
+      error = Wire.endTransmission();
     }
   } else {
-    i2c_error_count = 0; // Reset count
+    i2c_error_count = 0;
+    recovery_fail_count = 0;
   }
 
   if (error == 0) {
@@ -455,24 +559,48 @@ byte writePCF8574(byte data) {
   return error;
 }
 
-// Function to read byte from PCF8574 with auto-recovery
+// Function to read byte from PCF8574.
+// Attempts to recover the bus on error. Returns cached value if unsuccessful.
+// Reading does not trigger reboot (writePCF8574 is responsible for that).
 byte readPCF8574() {
+  static byte lastKnownValue = 0xFF; // Cache of the last successful read
+
   uint8_t count = Wire.requestFrom((uint8_t)PCF8574_ADDRESS, (uint8_t)1);
   if (count > 0) {
-    i2c_error_count = 0; // Reset count on success
-    return Wire.read();
-  } else {
-    i2c_error_count++;
-    MYDEBUG_PRINT("\nError reading from PCF8574. Fail count: ");
-    MYDEBUG_PRINTLN(i2c_error_count);
-
-    if (i2c_error_count >= 20) {
-      MYDEBUG_PRINTLN("CRITICAL I2C ERROR: Restarting ESP...");
-      delay(1000);
-      ESP.restart();
-    }
-
-    recoverI2C(); // Attempt soft bus recovery
-    return 0xFF; // Return default high
+    i2c_error_count = 0;
+    lastKnownValue = Wire.read();
+    return lastKnownValue;
   }
+
+  // --- Read Error ---
+  i2c_error_count++;
+  MYDEBUG_PRINT("\nError reading from PCF8574. Fail count: ");
+  MYDEBUG_PRINTLN(i2c_error_count);
+
+  recoverI2C();
+
+  // Retry after recovery
+  delay(50);
+  count = Wire.requestFrom((uint8_t)PCF8574_ADDRESS, (uint8_t)1);
+  if (count > 0) {
+    i2c_error_count = 0;
+    lastKnownValue = Wire.read();
+    MYDEBUG_PRINTLN("readPCF8574: retry after recovery OK");
+    return lastKnownValue;
+  }
+
+  // Second retry
+  delay(10);
+  count = Wire.requestFrom((uint8_t)PCF8574_ADDRESS, (uint8_t)1);
+  if (count > 0) {
+    i2c_error_count = 0;
+    lastKnownValue = Wire.read();
+    MYDEBUG_PRINTLN("readPCF8574: 2nd retry OK");
+    return lastKnownValue;
+  }
+
+  // Failed to read - return cached value.
+  // Reboot will be initiated via writePCF8574 in the next cycle.
+  MYDEBUG_PRINTLN("readPCF8574: using cached value");
+  return lastKnownValue;
 }
