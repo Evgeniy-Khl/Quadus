@@ -179,6 +179,32 @@ void acceptEeprom() {
     if (server.hasArg("plain")) {
         bool success = false;
         
+        // Запоминаем старые значения
+        int16_t old_spT0on = settings.spT0on;
+        int16_t old_spT0off = settings.spT0off;
+        int16_t old_spT1on = settings.spT1on;
+        int16_t old_spT1off = settings.spT1off;
+        uint8_t old_water0on = settings.water0on;
+        uint8_t old_water0off = settings.water0off;
+        uint8_t old_water1on = settings.water1on;
+        uint8_t old_water1off = settings.water1off;
+        uint8_t old_water2on = settings.water2on;
+        uint8_t old_water2off = settings.water2off;
+        uint8_t old_flap = settings.flap;
+        uint8_t old_timerOn = settings.timerOn;
+        uint8_t old_timerOff = settings.timerOff;
+        int16_t old_alarm0 = settings.alarm0;
+        int16_t old_alarm1 = settings.alarm1;
+        int16_t old_hyst0 = settings.hysteresis0;
+        int16_t old_hyst1 = settings.hysteresis1;
+        uint8_t old_deviceNum = settings.deviceNum;
+        uint8_t old_program = settings.program;
+        uint8_t old_modeHeater = settings.modeHeater;
+        uint8_t old_modeHumidi = settings.modeHumidi;
+        uint8_t old_modeRelay1 = settings.modeRelay1;
+        uint8_t old_modeRelay2 = settings.modeRelay2;
+        uint8_t old_modeRelay3 = settings.modeRelay3;
+
         // Scope to free memory immediately after parsing
         {
             JsonDocument doc;
@@ -228,6 +254,56 @@ void acceptEeprom() {
                 if (obj["chatID"].is<const char*>()) {
                     strncpy(chatID, obj["chatID"] | "", sizeof(chatID) - 1);
                     chatID[sizeof(chatID) - 1] = '\0';
+                }
+
+                // Логируем только изменённые параметры
+                String logStr = "Налаштування: ";
+                bool anyChanged = false;
+                char tmp[64];
+
+                #define LOG_CHANGED_F(label, oldVal, newVal, divisor) \
+                  if ((oldVal) != (newVal)) { \
+                    if (anyChanged) logStr += " | "; \
+                    snprintf(tmp, sizeof(tmp), label "%.1f->%.1f", (float)(oldVal)/(divisor), (float)(newVal)/(divisor)); \
+                    logStr += tmp; anyChanged = true; \
+                  }
+                #define LOG_CHANGED_D(label, oldVal, newVal) \
+                  if ((oldVal) != (newVal)) { \
+                    if (anyChanged) logStr += " | "; \
+                    snprintf(tmp, sizeof(tmp), label "%d->%d", (int)(oldVal), (int)(newVal)); \
+                    logStr += tmp; anyChanged = true; \
+                  }
+
+                LOG_CHANGED_F("T1 увімк.:", old_spT0on, settings.spT0on, 10.0f)
+                LOG_CHANGED_F("T1 вимк.:", old_spT0off, settings.spT0off, 10.0f)
+                LOG_CHANGED_F("T2 увімк.:", old_spT1on, settings.spT1on, 10.0f)
+                LOG_CHANGED_F("T2 вимк.:", old_spT1off, settings.spT1off, 10.0f)
+                LOG_CHANGED_D("Вол.0 увімк.:", old_water0on, settings.water0on)
+                LOG_CHANGED_D("Вол.0 вимк.:", old_water0off, settings.water0off)
+                LOG_CHANGED_D("Вол.1 увімк.:", old_water1on, settings.water1on)
+                LOG_CHANGED_D("Вол.1 вимк.:", old_water1off, settings.water1off)
+                LOG_CHANGED_D("Вол.2 увімк.:", old_water2on, settings.water2on)
+                LOG_CHANGED_D("Вол.2 вимк.:", old_water2off, settings.water2off)
+                LOG_CHANGED_D("Заслінка:", old_flap, settings.flap)
+                LOG_CHANGED_D("Таймер увімк.:", old_timerOn, settings.timerOn)
+                LOG_CHANGED_D("Таймер вимк.:", old_timerOff, settings.timerOff)
+                LOG_CHANGED_F("Аварія 1:", old_alarm0, settings.alarm0, 10.0f)
+                LOG_CHANGED_F("Аварія 2:", old_alarm1, settings.alarm1, 10.0f)
+                LOG_CHANGED_F("Гіст. 1:", old_hyst0, settings.hysteresis0, 10.0f)
+                LOG_CHANGED_F("Гіст. 2:", old_hyst1, settings.hysteresis1, 10.0f)
+                LOG_CHANGED_D("Пристрій №:", old_deviceNum, settings.deviceNum)
+                LOG_CHANGED_D("Програма:", old_program, settings.program)
+                LOG_CHANGED_D("Режим нагрів.:", old_modeHeater, settings.modeHeater)
+                LOG_CHANGED_D("Режим волог.:", old_modeHumidi, settings.modeHumidi)
+                LOG_CHANGED_D("Режим реле 1:", old_modeRelay1, settings.modeRelay1)
+                LOG_CHANGED_D("Режим реле 2:", old_modeRelay2, settings.modeRelay2)
+                LOG_CHANGED_D("Режим реле 3:", old_modeRelay3, settings.modeRelay3)
+
+                #undef LOG_CHANGED_F
+                #undef LOG_CHANGED_D
+
+                if (anyChanged) {
+                    sysLogger.log(logStr);
                 }
 
                 success = true;
