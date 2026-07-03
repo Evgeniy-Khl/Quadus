@@ -389,7 +389,7 @@ void sendPageHeader(String title) {
     server.sendContent(F("<style>"));
     server.sendContent(F("@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');"));
     server.sendContent(F("body{font-family:'Inter',sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#f8fafc;min-height:100vh;margin:0;padding:20px 10px;display:flex;flex-direction:column;align-items:center}"));
-    server.sendContent(F("div{max-width:800px;width:100%;margin:0 auto;padding:20px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.2)}"));
+    server.sendContent(F("*{box-sizing:border-box}.container{max-width:800px;width:100%;margin:0 auto;padding:20px;background:rgba(255,255,255,0.06);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.1);border-radius:16px;box-shadow:0 8px 32px 0 rgba(0,0,0,0.2)}"));
     server.sendContent(F("h1{text-align:center;color:#fff;margin-bottom:20px;font-weight:700}"));
     server.sendContent(F(".chart-container{position:relative;margin:20px auto;height:40vh;width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;padding:10px}"));
     server.sendContent(F("table{border-collapse:collapse;width:100%;margin:20px auto;font-size:0.95rem;border-radius:12px;overflow:hidden;border:1px solid rgba(255,255,255,0.08)}"));
@@ -403,6 +403,14 @@ void sendPageHeader(String title) {
     server.sendContent(F("a.back:hover, a.btn:hover{background:rgba(255,255,255,0.12);transform:translateY(-2px)}"));
     server.sendContent(F("a.live{background:linear-gradient(135deg,#10b981 0%,#059669 100%);box-shadow:0 4px 12px rgba(16,185,129,0.2)}a.live:hover{background:linear-gradient(135deg,#34d399 0%,#10b981 100%);box-shadow:0 6px 16px rgba(16,185,129,0.35)}"));
     server.sendContent(F(".summary{background-color:rgba(59,130,246,0.1);font-weight:bold;color:#60a5fa}"));
+    server.sendContent(F(".archive-item{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:12px;margin-bottom:8px}"));
+    server.sendContent(F(".btn-group{display:flex;gap:8px}"));
+    server.sendContent(F("a.btn-archive{display:inline-block;padding:8px 16px;font-size:0.85rem;border-radius:8px;box-shadow:none}"));
+    server.sendContent(F("a.btn-archive:hover{transform:translateY(-1px)}"));
+    server.sendContent(F("a.btn-graph{background:linear-gradient(135deg,#3b82f6 0%,#1d4ed8 100%)}"));
+    server.sendContent(F("a.btn-graph:hover{background:linear-gradient(135deg,#60a5fa 0%,#2563eb 100%);box-shadow:0 4px 12px rgba(59,130,246,0.25)}"));
+    server.sendContent(F("a.btn-logs{background:linear-gradient(135deg,#10b981 0%,#047857 100%)}"));
+    server.sendContent(F("a.btn-logs:hover{background:linear-gradient(135deg,#34d399 0%,#10b981 100%);box-shadow:0 4px 12px rgba(16,185,129,0.25)}"));
     server.sendContent(F("</style></head><body>"));
 }
 
@@ -467,7 +475,7 @@ void handleArchiveList() {
     server.send(200, "text/html", "");
     sendPageHeader("Квадус - Архів");
 
-    server.sendContent(F("<div><h1>Виберіть добу для перегляду</h1>"));
+    server.sendContent(F("<div class='container'><h1>Виберіть добу для перегляду</h1>"));
     server.sendContent(F("<a href='/current' class='live' style='margin-bottom:20px;'>Перегляд ПОТОЧНОЇ доби</a>"));
     server.sendContent(F("<ul>"));
     
@@ -511,14 +519,15 @@ void handleArchiveList() {
     });
 
     for (size_t i = 0; i < items.size(); i++) {
-        char link[256];
-        snprintf(link, sizeof(link), 
-                 "<li><div style='display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); padding:10px; border-radius:8px; margin-bottom:5px; border:1px solid rgba(255,255,255,0.05);'>"
-                 "<span style='color:#ecf0f1; font-weight:bold;'>%02d.%02d</span>"
-                 "<div style='display:flex; gap:10px;'>"
-                 "<a href='/data?day=%s' style='display:inline-block; padding:6px 12px; font-size:0.85rem; border-radius:6px; background:#2563eb; margin:0; box-shadow:none;'>Графік</a>"
-                 "<a href='/view_logs?day=%s' style='display:inline-block; padding:6px 12px; font-size:0.85rem; border-radius:6px; background:#10b981; margin:0; box-shadow:none;'>Логи</a>"
-                 "</div></div></li>", 
+        char link[512];
+        snprintf_P(link, sizeof(link), 
+                 PSTR("<li class='archive-item'>"
+                      "<span style='font-weight:500; font-size:1rem; color:#f8fafc;'>Дата: %02d.%02d</span>"
+                      "<span class='btn-group'>"
+                        "<a href='/data?day=%s' class='btn-archive btn-graph'>Графік</a>"
+                        "<a href='/view_logs?day=%s' class='btn-archive btn-logs'>Логи</a>"
+                      "</span>"
+                      "</li>"), 
                  items[i].day, items[i].month, items[i].dateStr.c_str(), items[i].dateStr.c_str());
         server.sendContent(link);
         yield();
@@ -556,7 +565,7 @@ void handleShowData() {
     displayDay.replace('_', '.');
     sendPageHeader("Квадус - День " + displayDay);
 
-    server.sendContent("<div><h1 style='text-align:center;'>Дані клімату за " + displayDay + "</h1>");
+    server.sendContent("<div class='container'><h1 style='text-align:center;'>Дані клімату за " + displayDay + "</h1>");
     server.sendContent(F("<div class='chart-container'><canvas id='tempChart'></canvas></div>"));
     server.sendContent(F("<div style='text-align:center;'><a href='/archive' class='back'>Назад до списку</a></div>"));
     server.sendContent(F("<script>"));
@@ -644,7 +653,7 @@ void handleCurrentData() {
     server.setContentLength(CONTENT_LENGTH_UNKNOWN);
     server.send(200, "text/html", "");
     sendPageHeader("Квадус - Поточна доба");
-    server.sendContent(F("<div><h1>Дані за поточну добу</h1>"));
+    server.sendContent(F("<div class='container'><h1>Дані за поточну добу</h1>"));
     server.sendContent(F("<div class='chart-container'><canvas id='tempChart'></canvas></div>"));
     server.sendContent(F("<div style='text-align:center;'><a href='/archive' class='back'>Назад до списку</a></div>"));
     
