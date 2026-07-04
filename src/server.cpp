@@ -666,19 +666,32 @@ void handleShowData() {
           data: {
             labels: labels,
             datasets: [
-              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, yAxisID: 'y1' }
             ]
           },
           options: { 
             responsive: true, 
             maintainAspectRatio: false, 
             scales: { 
-              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } },
+              y: { 
+                type: 'linear', 
+                display: true, 
+                position: 'left', 
+                title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, 
+                grid: { color: 'rgba(255, 255, 255, 0.08)' }, 
+                ticks: { 
+                  color: '#94a3b8',
+                  callback: function(value) {
+                    return value.toFixed(1);
+                  }
+                } 
+              },
               y1: { type: 'linear', display: true, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Волог. (%)', color: '#94a3b8' }, ticks: { color: '#94a3b8' } },
               x: { grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } }
             },
+            interaction: { intersect: false, mode: 'index' },
             plugins: {
               legend: { labels: { color: '#f8fafc' } }
             }
@@ -755,19 +768,32 @@ void handleCurrentData() {
           data: {
             labels: labels,
             datasets: [
-              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+              { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+              { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+              { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, yAxisID: 'y1' }
             ]
           },
           options: { 
             responsive: true, 
             maintainAspectRatio: false, 
             scales: { 
-              y: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } },
+              y: { 
+                type: 'linear', 
+                display: true, 
+                position: 'left', 
+                title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' }, 
+                grid: { color: 'rgba(255, 255, 255, 0.08)' }, 
+                ticks: { 
+                  color: '#94a3b8',
+                  callback: function(value) {
+                    return value.toFixed(1);
+                  }
+                } 
+              },
               y1: { type: 'linear', display: true, position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false }, title: { display: true, text: 'Волог. (%)', color: '#94a3b8' }, ticks: { color: '#94a3b8' } },
               x: { grid: { color: 'rgba(255, 255, 255, 0.08)' }, ticks: { color: '#94a3b8' } }
             },
+            interaction: { intersect: false, mode: 'index' },
             plugins: {
               legend: { labels: { color: '#f8fafc' } }
             }
