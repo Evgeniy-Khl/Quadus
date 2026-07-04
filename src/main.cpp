@@ -138,6 +138,7 @@ void loop(){
   ESP.wdtFeed(); // Feed the hardware watchdog
 	long now = millis();
   server.handleClient(); // Handle incoming requests
+  handleWiFi();          // Handle Wi-Fi connection and services status
   //-------------------------------------------- 10 mSec. --------------------------------------
   if(now - counter10 > 10){
     counter10 = now;

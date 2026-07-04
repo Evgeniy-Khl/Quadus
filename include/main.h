@@ -314,6 +314,7 @@ extern const uint8_t tabRH[];
 byte writePCF8574(byte data);
 byte readPCF8574();
 void initWiFiManag(void);
+void handleWiFi(void);
 void displSwitch();
 void sensorCheck();
 void sensorType();

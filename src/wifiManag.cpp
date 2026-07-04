@@ -1,18 +1,122 @@
 #include "main.h"
+#include "TelegramBot.h"
 
 void saveConfigCallback();
 
+static bool serverStarted = false;
+static unsigned long lastReconnectAttempt = 0;
+
+void setupWebServerRoutes() {
+    server.on("/", HTTP_GET, []() {
+      mode = READDEFAULT; interval = INTERVAL_4000; tmrTelegramOff = 300;
+      if (!LittleFS.exists("/index.html")) {
+        MYDEBUG_PRINTLN("index.html not found");
+      } else {
+        File file = LittleFS.open("/index.html", "r");
+        if (!file) {
+            server.send(404, "text/plain", "I can't open the index.html");
+            return;
+        }
+        streamFileChunked(file, "text/html");
+        file.close();
+      }
+    });
+    server.on("/setup", HTTP_GET, []() {
+      File file = LittleFS.open("/setup.html", "r");
+      if (!file) {
+          server.send(404, "text/plain", "File Not Found");
+          return;
+      }
+      streamFileChunked(file, "text/html");
+      file.close();
+    });
+    server.on("/table", HTTP_GET, []() {
+      File file = LittleFS.open("/table.html", "r");
+      if (!file) {
+          server.send(404, "text/plain", "File Not Found");
+          return;
+      }
+      streamFileChunked(file, "text/html");
+      file.close();
+    });
+    server.on("/getvalues", HTTP_GET, respondsValues);
+    server.on("/geteeprom", HTTP_GET, respondsEeprom);
+    server.on("/seteeprom", HTTP_POST, acceptEeprom);
+    
+    // Manual control routes
+    server.on("/switch", HTTP_GET, []() {
+        File file = LittleFS.open("/switch.html", "r");
+        if (file) {
+            streamFileChunked(file, "text/html");
+            file.close();
+        } else {
+            server.send(404, "text/plain", "switch.html not found");
+        }
+    });
+    server.on("/view_logs", HTTP_GET, []() {
+        File file = LittleFS.open("/logs.html", "r");
+        if (file) {
+            streamFileChunked(file, "text/html");
+            file.close();
+        } else {
+            server.send(404, "text/plain", "logs.html not found");
+        }
+    });
+    server.on("/get_relays", HTTP_GET, handleGetRelayStates);
+    server.on("/set_relay", HTTP_POST, handleManualControl);
+    server.on("/reset_auto", HTTP_POST, resetAutoControl);
+    server.on("/logs", HTTP_GET, handleGetLogs);
+    server.on("/clear_logs", HTTP_POST, handleClearLogs);
+
+    // Graph and Archive routes
+    server.on("/archive", HTTP_GET, handleArchiveList);
+    server.on("/data", HTTP_GET, handleShowData);
+    server.on("/current", HTTP_GET, handleCurrentData);
+    server.on("/get_graph", HTTP_GET, handleGetGraph);
+    server.on("/get_current_graph", HTTP_GET, handleGetCurrentGraph);
+
+    server.onNotFound(notFoundHandler);
+}
+
+void setupServices() {
+    if (WiFi.status() == WL_CONNECTED) {
+        static IPAddress lastIP;
+        if (!WIFIENABLE || WiFi.localIP() != lastIP) {
+            lastIP = WiFi.localIP();
+            MYDEBUG_PRINT("Wi-Fi подключен! IP:");
+            MYDEBUG_PRINTLN(lastIP);
+            sysLogger.log("Wi-Fi подключен! IP: " + lastIP.toString());
+
+            // Настройка NTP для Киева
+            configTzTime(tzInfo, ntpServer);
+            sysLogger.log("NTP время настроено.");
+
+            WIFIENABLE = 1;
+
+            // Отправка приветствия в Telegram
+            sendTelegramMessage("Устройство запущено! IP: " + lastIP.toString(), true);
+        }
+
+        if (!serverStarted) {
+            server.begin();
+            serverStarted = true;
+            MYDEBUG_PRINTLN("HTTP server started");
+            
+            uint16_t heapSize = ESP.getFreeHeap();
+            DEBUG_PRINTF("Free heap size: %d\n", heapSize);
+        }
+    }
+}
+
 void initWiFiManag(void){
-    //Local intialization. Once its business is done, there is no need to keep it around
     WiFiManager wifiManager;
 
-    //set config save notify callback
     wifiManager.setSaveConfigCallback(saveConfigCallback);
 
-    uint8_t tt =  (settings.special & 0x03) * 60;
+    uint8_t tt = (settings.special & 0x03) * 60;
     MYDEBUG_PRINT("Устанавливаем таймаут для портала конфигурации (сек.):");
     MYDEBUG_PRINTLN(tt);
-    //---- Устанавливаем таймаут для портала конфигурации в секундах ----
+    
     lcd.clear();
     lcd.setCursor(0,0);
     myPrint(settingUp,sizeof(settingUp));   // Налаштування
@@ -20,8 +124,9 @@ void initWiFiManag(void){
     lcd.setCursor(0,1);
     lcd.print(displStr);
     wifiManager.setConfigPortalTimeout(tt);  
-    //-------------------------------------------------------------------
-    // Пытаемся подключиться
+    
+    setupWebServerRoutes(); // Регистрируем маршруты всегда
+
     if (!wifiManager.autoConnect("GravitonAP")) {
       MYDEBUG_PRINTLN("He удалось подключиться (истек таймаут). Продолжаем работу в оффлайн-режиме.");
       lcd.clear();
@@ -30,94 +135,33 @@ void initWiFiManag(void){
       lcd.setCursor(0,1);
       myPrint(no_,sizeof(no_));
       myPrint(connect,sizeof(connect));
-      // Ничего не делаем здесь, чтобы программа просто продолжила выполнение
     } else {
-        //------- if you get here you have connected to the WiFi -----------
-        MYDEBUG_PRINT("Wi-Fi успешно подключен! Local ip:");
-        MYDEBUG_PRINTLN(WiFi.localIP());	// Print ESP32 Local IP Address
-        WIFIENABLE = 1;
+        setupServices();
         lcd.clear();
         lcd.setCursor(0,0);
         lcd.print("Wi-Fi Local ip:");
         lcd.setCursor(0,1);
         lcd.print(WiFi.localIP());
         delay(2000);
-        //============================== END SAVE =====================================
-        server.on("/", HTTP_GET, []() {
-          mode = READDEFAULT; interval = INTERVAL_4000; tmrTelegramOff = 300;
-          if (!LittleFS.exists("/index.html")) {
-            MYDEBUG_PRINTLN("index.html not found");
-          } else {
-            File file = LittleFS.open("/index.html", "r");
-            if (!file) {
-                server.send(404, "text/plain", "I can't open the index.html");
-                return;
-            }
-            streamFileChunked(file, "text/html");
-            file.close();
-          }
-        });
-        server.on("/setup", HTTP_GET, []() {
-          File file = LittleFS.open("/setup.html", "r");
-          if (!file) {
-              server.send(404, "text/plain", "File Not Found");
-              return;
-          }
-          streamFileChunked(file, "text/html");
-          file.close();
-        });
-        server.on("/table", HTTP_GET, []() {
-          File file = LittleFS.open("/table.html", "r");
-          if (!file) {
-              server.send(404, "text/plain", "File Not Found");
-              return;
-          }
-          streamFileChunked(file, "text/html");
-          file.close();
-        });
-        server.on("/getvalues", HTTP_GET, respondsValues);
-        server.on("/geteeprom", HTTP_GET, respondsEeprom);
-        server.on("/seteeprom", HTTP_POST, acceptEeprom);
-        
-        // Manual control routes
-        server.on("/switch", HTTP_GET, []() {
-            File file = LittleFS.open("/switch.html", "r");
-            if (file) {
-                streamFileChunked(file, "text/html");
-                file.close();
-            } else {
-                server.send(404, "text/plain", "switch.html not found");
-            }
-        });
-        server.on("/view_logs", HTTP_GET, []() {
-            File file = LittleFS.open("/logs.html", "r");
-            if (file) {
-                streamFileChunked(file, "text/html");
-                file.close();
-            } else {
-                server.send(404, "text/plain", "logs.html not found");
-            }
-        });
-        server.on("/get_relays", HTTP_GET, handleGetRelayStates);
-        server.on("/set_relay", HTTP_POST, handleManualControl);
-        server.on("/reset_auto", HTTP_POST, resetAutoControl);
-        server.on("/logs", HTTP_GET, handleGetLogs);
-        server.on("/clear_logs", HTTP_POST, handleClearLogs);
+    }
+}
 
-        // Graph and Archive routes
-        server.on("/archive", HTTP_GET, handleArchiveList);
-        server.on("/data", HTTP_GET, handleShowData);
-        server.on("/current", HTTP_GET, handleCurrentData);
-        server.on("/get_graph", HTTP_GET, handleGetGraph);
-        server.on("/get_current_graph", HTTP_GET, handleGetCurrentGraph);
-
-        server.onNotFound(notFoundHandler);
+void handleWiFi(void) {
+    if (WiFi.status() != WL_CONNECTED) {
+        if (WIFIENABLE) {
+            MYDEBUG_PRINTLN("Wi-Fi связь потеряна!");
+            sysLogger.log("Wi-Fi связь потеряна!");
+            WIFIENABLE = 0;
+            serverStarted = false; // Позволит перезапустить сервер при переподключении
+        }
         
-        server.begin();   // Start server
-        MYDEBUG_PRINTLN("HTTP server started");
-        
-        uint16_t heapSize = ESP.getFreeHeap();    // Проверка доступной памяти
-        DEBUG_PRINTF("Free heap size: %d\n", heapSize);
+        if (millis() - lastReconnectAttempt > 120000 || lastReconnectAttempt == 0) {
+            lastReconnectAttempt = millis();
+            MYDEBUG_PRINTLN("Попытка переподключения к Wi-Fi...");
+            WiFi.begin(); 
+        }
+    } else {
+        setupServices(); // Если подключено, убеждаемся что всё запущено
     }
 }
 
