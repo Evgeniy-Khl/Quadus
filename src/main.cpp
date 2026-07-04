@@ -184,7 +184,7 @@ void loop(){
       #ifndef SIMULATION  
         sensorCheck();                                                  // Опрос датчиков должен быть всегда
       #else
-        #define MAXPOINT 20
+        #define MAXPOINT 5
         // В режиме отладки можно оставить симуляцию, если датчики не подключены
         if(HEATER == PCF_ON){
           if(++ds[0].pvErr > MAXPOINT) ds[0].pvErr = MAXPOINT;
@@ -228,10 +228,6 @@ void loop(){
                 eepromWriteInt16(address, ds[0].pvT);
                 eepromWriteInt16(address + 2, ds[1].pvT);
                 eepromWriteInt16(address + 4, (int16_t)pvRH);
-                
-                #ifdef DEBUG
-                DEBUG_PRINTF("Graph logged: period=%d, t1=%d, t2=%d, rh=%d\n", period_of_day, ds[0].pvT, ds[1].pvT, pvRH);
-                #endif
             }
         }
 

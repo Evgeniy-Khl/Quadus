@@ -44,7 +44,7 @@
 
 
 #define DEBUG
-// #define SIMULATION
+#define SIMULATION
 
 #ifdef DEBUG
   #define DEBUG_SPRINTF(...)  sprintf(__VA_ARGS__)
