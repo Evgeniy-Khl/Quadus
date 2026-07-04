@@ -19,13 +19,16 @@
     .chart-container {
       position: relative;
       margin: 20px auto;
-      height: 40vh;
+      height: 240px;
       width: 90%;
-      max-width: 400px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 12px;
-      padding: 10px;
+      max-width: 480px;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
       box-sizing: border-box;
     }
 
@@ -486,9 +489,9 @@ async function fetchGraphData() {
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-                        { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 1, borderWidth: 2 },
-                        { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 1, borderWidth: 2, yAxisID: 'y1' }
+                        { label: 'T1 (°C)', data: t1, borderColor: '#ef4444', backgroundColor: '#ef4444', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+                        { label: 'T2 (°C)', data: t2, borderColor: '#10b981', backgroundColor: '#10b981', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2 },
+                        { label: 'Вологість (%)', data: rh, borderColor: '#3b82f6', backgroundColor: '#3b82f6', tension: 0.3, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, yAxisID: 'y1' }
                     ]
                 },
                 options: { 
@@ -501,7 +504,12 @@ async function fetchGraphData() {
                             position: 'left', 
                             title: { display: true, text: 'Темп. (°C)', color: '#94a3b8' },
                             grid: { color: 'rgba(255, 255, 255, 0.08)' },
-                            ticks: { color: '#94a3b8' }
+                            ticks: { 
+                                color: '#94a3b8',
+                                callback: function(value) {
+                                    return value.toFixed(1);
+                                }
+                            }
                         },
                         y1: { 
                             type: 'linear', 
