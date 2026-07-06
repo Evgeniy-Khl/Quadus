@@ -3,9 +3,7 @@
 //----------- ВРЕМЯ ДАТА и IP ------------------
 void displ0(){
     lcd.setCursor(0,0);
-    if(RTCENABLE){
-      time_t utc_time = rtc.now().unixtime();
-      timeinfo = localtime(&utc_time);
+    if(RTCENABLE && rtcTimeSet && timeinfo){
       sprintf(displStr,"%02u.%02u.%02u  %02u:%02u",timeinfo->tm_mday,timeinfo->tm_mon+1,
                         (timeinfo->tm_year+1900)%100,timeinfo->tm_hour,timeinfo->tm_min);
       lcd.print(displStr);

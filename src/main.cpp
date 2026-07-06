@@ -30,6 +30,9 @@ void setup(){
   setenv("TZ", tzInfo, 1);
   tzset();
 
+  time_t init_time = time(nullptr);
+  timeinfo = localtime(&init_time);
+
   if (rtc.begin()) {
     RTCENABLE = true;
     time_t utc_time = rtc.now().unixtime();
@@ -178,10 +181,8 @@ void loop(){
       if (tmrTelegramOff > 0) {
         tmrTelegramOff--;
       }
-      if(RTCENABLE){
-        time_t utc_time = rtc.now().unixtime();
-        timeinfo = localtime(&utc_time);
-      }
+      time_t utc_time = time(nullptr);
+      timeinfo = localtime(&utc_time);
       #ifndef SIMULATION  
         sensorCheck();                                                  // Опрос датчиков должен быть всегда
       #else
@@ -249,10 +250,10 @@ void loop(){
         }
       }
       //---------------------------- NEW HOUR ----------------------------------
-      if(++minutes > 59){
+      if(minutes > 59){
         minutes = 0;
         if(RTCENABLE){
-          if(WIFIENABLE){
+          if(WIFIENABLE && WiFi.status() == WL_CONNECTED){
             // ------------- Daily synchronization logic --------------
             // Sync with RTC at midnight (00:00)
             if (timeinfo->tm_mday != lastSyncDay && timeinfo->tm_hour == 0) { 
@@ -269,11 +270,11 @@ void loop(){
                 MYDEBUG_PRINTLN("RTC updated successfully.");
               }
             }
-            MYDEBUG_PRINT("Update Local Time  (EET/EEST): ");
-            DEBUG_PRINTF("%04d-%02d-%02d %02d:%02d:%02d\n",
-                      timeinfo->tm_year + 1900, timeinfo->tm_mon + 1,
-                      timeinfo->tm_mday, timeinfo->tm_hour,
-                      timeinfo->tm_min, timeinfo->tm_sec);
+          } else {
+            // Offline mode or no WiFi connection: sync system time from RTC to prevent drift
+            time_t utc_time = rtc.now().unixtime();
+            struct timeval tv = { .tv_sec = utc_time };
+            settimeofday(&tv, nullptr);
           }
         }
       } // ------------------------- hour ----------------------------
