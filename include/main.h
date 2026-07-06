@@ -36,6 +36,7 @@
 #include "LogicManager.h"
 #include "Logger.h"
 #include "saveDailyData.h"
+#include "InvertedServo.h"
 
 // --- AT24C32 Memory Map for Graphs ---
 #define DAILY_DATA_START      0x700  // Начало данных графиков в EEPROM (после программ, которые идут с 0x000 по 0x600)
@@ -291,6 +292,7 @@ extern Interval interval;
 extern RTC_DS3231 rtc;
 extern struct tm* timeinfo;
 extern bool rtcTimeSet;
+extern InvertedServo incubatorServo;
 
 extern const char* ntpServer;
 extern const char* tzInfo;

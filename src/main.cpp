@@ -18,6 +18,7 @@ byte writePCF8574(byte data);
 bool recoverI2C();
 
 TM1638 module(13, 14, 12);                  // Create module object for TM1638
+InvertedServo incubatorServo;               // Create incubatorServo object for flap control
 void ledSet(void);
 
 void setup(){
@@ -119,6 +120,11 @@ void setup(){
   digitalWrite(BEEP_PIN, HIGH); // Turn off beeper
   pinMode(BEEP_PIN, OUTPUT);    // Set beeper pin as output for LED only
   
+  // Initialize servo motor on GPIO15
+  incubatorServo.attach(15);
+  pvFlap = settings.flap;
+  incubatorServo.write(pvFlap);
+  
   delay(3000);
   sensorCheck();
   displNum = 1;  
@@ -211,6 +217,10 @@ void loop(){
 
       logicManager.processAlarms();
       logicManager.updateStatusLeds();
+
+      // Update servo motor position (flap)
+      pvFlap = settings.flap;
+      incubatorServo.write(pvFlap);
 
       if(setupNum == 0) displSwitch(); else setupSwitch();
     } //---------------------------------------------------------------
