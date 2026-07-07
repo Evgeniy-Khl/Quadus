@@ -166,9 +166,9 @@ void checkkey(uint8_t key){
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
             case KEY_3: editBuff1 = incrVal(editBuff1,   4); break;
             case KEY_4: editBuff1 = decrVal(editBuff1,   0); break;
-            case KEY_5: editBuff0 = settings.flap; editBuff1 = settings.program; break;
+            case KEY_5: editBuff0 = settings.curFlap; editBuff1 = settings.program; break;
             case KEY_6:
-                settings.flap = (uint8_t)editBuff0;
+                settings.curFlap = (uint8_t)editBuff0;
                 settings.program = (uint8_t)editBuff1;
                 doSave();
               break;

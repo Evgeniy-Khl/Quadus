@@ -122,7 +122,7 @@ void setup(){
   
   // Initialize servo motor on GPIO15
   incubatorServo.attach(15);
-  pvFlap = settings.flap;
+  pvFlap = settings.curFlap;
   incubatorServo.write(pvFlap);
   
   delay(3000);
@@ -219,7 +219,7 @@ void loop(){
       logicManager.updateStatusLeds();
 
       // Update servo motor position (flap)
-      pvFlap = settings.flap;
+      pvFlap = settings.curFlap;
       incubatorServo.write(pvFlap);
 
       if(setupNum == 0) displSwitch(); else setupSwitch();

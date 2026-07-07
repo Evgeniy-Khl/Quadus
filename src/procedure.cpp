@@ -50,7 +50,9 @@ void printSetPoint() {
     DEBUG_PRINTF("  water1off: %d\n", settings.water1off);
     DEBUG_PRINTF("  water2on: %d\n", settings.water2on);
     DEBUG_PRINTF("  water2off: %d\n", settings.water2off);
-    DEBUG_PRINTF("  flap: %d\n", settings.flap);
+    DEBUG_PRINTF("  curFlap: %d\n", settings.curFlap);
+    DEBUG_PRINTF("  minFlap: %d\n", settings.minFlap);
+    DEBUG_PRINTF("  maxFlap: %d\n", settings.maxFlap);
     DEBUG_PRINTF("  timerOn: %d\n", settings.timerOn);
     DEBUG_PRINTF("  timerOff: %d\n", settings.timerOff);
     DEBUG_PRINTF("  alarm0: %d\n", settings.alarm0);
@@ -89,7 +91,9 @@ void saveSetPoint() {
     obj["water1off"] = settings.water1off;
     obj["water2on"] = settings.water2on;
     obj["water2off"] = settings.water2off;
-    obj["flap"] = settings.flap;
+    obj["curFlap"] = settings.curFlap;
+    obj["minFlap"] = settings.minFlap;
+    obj["maxFlap"] = settings.maxFlap;
     obj["timerOn"] = settings.timerOn;
     obj["timerOff"] = settings.timerOff;
     obj["alarm0"] = settings.alarm0;
@@ -161,7 +165,9 @@ bool loadSetPoint() {
     settings.water1off = obj["water1off"];
     settings.water2on = obj["water2on"];
     settings.water2off = obj["water2off"];
-    settings.flap = obj["flap"];
+    settings.curFlap = obj["curFlap"] | obj["flap"] | 0;
+    settings.minFlap = obj["minFlap"] | 0;
+    settings.maxFlap = obj["maxFlap"] | 100;
     settings.timerOn = obj["timerOn"];
     settings.timerOff = obj["timerOff"];
     settings.alarm0 = obj["alarm0"];
@@ -246,7 +252,9 @@ void reset(void){
     settings.water1off = WT1OFF;
     settings.water2on = WT2ON;
     settings.water2off = WT2OFF;
-    settings.flap = 0;
+    settings.curFlap = 0;
+    settings.minFlap = 0;
+    settings.maxFlap = 100;
     settings.timerOn = TIMERON;
     settings.timerOff = TIMEROFF;
     settings.alarm0 = ALARM0;

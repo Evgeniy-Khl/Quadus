@@ -172,7 +172,9 @@ struct Settings {
     uint8_t water1off;  // Irrigation 2 OFF interval (preset point)
     uint8_t water2on;   // Irrigation 3 ON duration (min)
     uint8_t water2off;  // Irrigation 3 OFF interval (preset point)
-    uint8_t flap;       // Flap current position (0-100%)
+    uint8_t curFlap;    // Flap current position (0-100%)
+    uint8_t minFlap;    // Flap min open (%)
+    uint8_t maxFlap;    // Flap max open (%)
     uint8_t timerOn;    // Lighting ON hour (0-24)
     uint8_t timerOff;   // Lighting OFF hour (0-24)
     int16_t alarm0;     // Alarm deviation t0

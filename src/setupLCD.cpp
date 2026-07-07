@@ -159,7 +159,7 @@ void setClimatMode(){
 void setFlapProg(){
     if(NEWSCREEN){
         NEWSCREEN = 0;
-        editBuff0 = settings.flap;
+        editBuff0 = settings.curFlap;
         editBuff1 = settings.program;
     }
     lcd.setCursor(0,0);

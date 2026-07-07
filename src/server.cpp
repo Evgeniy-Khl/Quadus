@@ -149,7 +149,9 @@ void respondsEeprom() {
     doc["water1off"] = settings.water1off;
     doc["water2on"] = settings.water2on;
     doc["water2off"] = settings.water2off;
-    doc["flpNow"] = settings.flap;
+    doc["flpNow"] = settings.curFlap;
+    doc["minFlap"] = settings.minFlap;
+    doc["maxFlap"] = settings.maxFlap;
     doc["timerOn"] = settings.timerOn;
     doc["timerOff"] = settings.timerOff;
     doc["alarm0"] = settings.alarm0;
@@ -190,7 +192,9 @@ void acceptEeprom() {
         uint8_t old_water1off = settings.water1off;
         uint8_t old_water2on = settings.water2on;
         uint8_t old_water2off = settings.water2off;
-        uint8_t old_flap = settings.flap;
+        uint8_t old_curFlap = settings.curFlap;
+        uint8_t old_minFlap = settings.minFlap;
+        uint8_t old_maxFlap = settings.maxFlap;
         uint8_t old_timerOn = settings.timerOn;
         uint8_t old_timerOff = settings.timerOff;
         int16_t old_alarm0 = settings.alarm0;
@@ -232,7 +236,9 @@ void acceptEeprom() {
                 settings.water1off = getUint8("water1off", settings.water1off);
                 settings.water2on = getUint8("water2on", settings.water2on);
                 settings.water2off = getUint8("water2off", settings.water2off);
-                settings.flap = getUint8("flpNow", settings.flap);
+                settings.curFlap = getUint8("flpNow", settings.curFlap);
+                settings.minFlap = getUint8("minFlap", settings.minFlap);
+                settings.maxFlap = getUint8("maxFlap", settings.maxFlap);
                 settings.timerOn = getUint8("timerOn", settings.timerOn);
                 settings.timerOff = getUint8("timerOff", settings.timerOff);
                 settings.alarm0 = getScaled("alarm0", settings.alarm0);
@@ -284,7 +290,9 @@ void acceptEeprom() {
                 LOG_CHANGED_D("Вол.1 вимк.:", old_water1off, settings.water1off)
                 LOG_CHANGED_D("Вол.2 увімк.:", old_water2on, settings.water2on)
                 LOG_CHANGED_D("Вол.2 вимк.:", old_water2off, settings.water2off)
-                LOG_CHANGED_D("Заслінка:", old_flap, settings.flap)
+                LOG_CHANGED_D("Заслінка:", old_curFlap, settings.curFlap)
+                LOG_CHANGED_D("Заслінка мін.:", old_minFlap, settings.minFlap)
+                LOG_CHANGED_D("Заслінка макс.:", old_maxFlap, settings.maxFlap)
                 LOG_CHANGED_D("Таймер увімк.:", old_timerOn, settings.timerOn)
                 LOG_CHANGED_D("Таймер вимк.:", old_timerOff, settings.timerOff)
                 LOG_CHANGED_F("Аварія 1:", old_alarm0, settings.alarm0, 10.0f)
@@ -333,7 +341,7 @@ void respondsProgram() {
             row.add(settings.spT0off);
             row.add(settings.spT1on);
             row.add(settings.spT1off);
-            row.add(settings.flap);
+            row.add(settings.curFlap);
             row.add(settings.timerOn);
             row.add(settings.timerOff);
             row.add(settings.water0on);
@@ -370,7 +378,7 @@ void programDeser(String input) {
             settings.spT0off = data_i[1];
             settings.spT1on = data_i[2];
             settings.spT1off = data_i[3];
-            settings.flap = data_i[4];
+            settings.curFlap = data_i[4];
             settings.timerOn = data_i[5];
             settings.timerOff = data_i[6];
         }
