@@ -66,7 +66,7 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
 }
 
 // ----- Function for default table preparation ----------
-void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
+void prepareTable(int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
     for (size_t i = 0; i < 24; i++){
       if(i <= 4 || i >= 22){  // Night mode
         unTable.spProg.spT0on = t0on - 50;  // -5.0°C
@@ -90,7 +90,7 @@ void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_
       unTable.spProg.flapMax = settings.maxFlap;
       unTable.spProg.flapCurr = settings.minFlap;
 
-      uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
+      uint16_t memoryAddress = eepromMemoryAddressForHour(1, i);
       byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
       MYDEBUG_PRINT("HOUR:"); MYDEBUG_PRINT(i); 
       MYDEBUG_PRINT("; ADD:"); MYDEBUG_PRINT(memoryAddress);
@@ -98,21 +98,9 @@ void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_
     }
 }
 
-void prepareProg1(){
+void prepareProg(){
     MYDEBUG_PRINTLN("PROGRAMM: 1");
-    prepareTable(1, 220, 240, 180, 200); // 22.0, 24.0, 18.0, 20.0
-}
-
-void prepareProg2(){
-    MYDEBUG_PRINTLN("PROGRAMM: 2");
-}
-
-void prepareProg3(){
-    MYDEBUG_PRINTLN("PROGRAMM: 3");
-}
-
-void prepareProg4(){
-    MYDEBUG_PRINTLN("PROGRAMM: 4");
+    prepareTable(220, 240, 180, 200); // 22.0, 24.0, 18.0, 20.0
 }
 
 /**
@@ -123,7 +111,7 @@ void testProgs(){
   uint16_t memoryAddress = eepromMemoryAddressForHour(1, 0);
   eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
   if(unTable.spProg.spT0on == -1){
-    prepareProg1();
+    prepareProg();
     MYDEBUG_PRINTLN("REWRITTEN PROG N1");
   } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
 }
