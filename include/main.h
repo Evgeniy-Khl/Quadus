@@ -200,15 +200,15 @@ struct TableForOneHour {
     int16_t spT0off;  // Scaled by 10
     int16_t spT1on;   // Scaled by 10
     int16_t spT1off;  // Scaled by 10
-    uint8_t water0run;
-    uint8_t water1run;
     uint8_t water2run;
-    uint8_t timerFlap;
+    uint8_t flapMin;
+    uint8_t flapMax;
+    uint8_t flapCurr;
 };
 
 union TableBuff {
     uint8_t buffer[12];
-    struct TableForOneHour spHour;
+    struct TableForOneHour spProg;
 };
 
 extern TableBuff unTable;

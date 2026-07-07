@@ -67,43 +67,29 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
 
 // ----- Function for default table preparation ----------
 void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
-    uint8_t flp = 2;
-    uint8_t tmr = 0;
-    tmr |= flp << 6;
-    
     for (size_t i = 0; i < 24; i++){
       if(i <= 4 || i >= 22){  // Night mode
-        unTable.spHour.spT0on = t0on - 50;  // -5.0°C
-        unTable.spHour.spT0off = t0off - 50;
-        unTable.spHour.spT1on = t1on - 50;
-        unTable.spHour.spT1off = t1off - 50;
-        unTable.spHour.water0run = 0;
-        unTable.spHour.water1run = 0;
-        unTable.spHour.water2run = 0;
-        unTable.spHour.timerFlap = 0;
+        unTable.spProg.spT0on = t0on - 50;  // -5.0°C
+        unTable.spProg.spT0off = t0off - 50;
+        unTable.spProg.spT1on = t1on - 50;
+        unTable.spProg.spT1off = t1off - 50;
       }
       else if((i > 4 && i < 8) || (i > 20 && i < 22)){ // Morning/Evening mode
-        unTable.spHour.spT0on = t0on - 20;  // -2.0°C
-        unTable.spHour.spT0off = t0off - 20;
-        unTable.spHour.spT1on = t1on - 20;
-        unTable.spHour.spT1off = t1off - 20;
-        flp = 1;
-        tmr = 60;
-        tmr |= flp << 6;
-        unTable.spHour.timerFlap = tmr;
+        unTable.spProg.spT0on = t0on - 20;  // -2.0°C
+        unTable.spProg.spT0off = t0off - 20;
+        unTable.spProg.spT1on = t1on - 20;
+        unTable.spProg.spT1off = t1off - 20;
       } else { // Day mode
-        unTable.spHour.spT0on = t0on;
-        unTable.spHour.spT0off = t0off;
-        unTable.spHour.spT1on = t1on;
-        unTable.spHour.spT1off = t1off;
-        unTable.spHour.water0run = 10;
-        unTable.spHour.water1run = 20;
-        unTable.spHour.water2run = 30;
-        flp = 2;
-        tmr = 0;
-        tmr |= flp << 6;
-        unTable.spHour.timerFlap = tmr;
+        unTable.spProg.spT0on = t0on;
+        unTable.spProg.spT0off = t0off;
+        unTable.spProg.spT1on = t1on;
+        unTable.spProg.spT1off = t1off;
       }
+      unTable.spProg.water2run = 0;
+      unTable.spProg.flapMin = settings.minFlap;
+      unTable.spProg.flapMax = settings.maxFlap;
+      unTable.spProg.flapCurr = settings.minFlap;
+
       uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
       byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
       MYDEBUG_PRINT("HOUR:"); MYDEBUG_PRINT(i); 
@@ -136,7 +122,7 @@ void testProgs(){
   MYDEBUG_PRINTLN("AT24C32 EEPROM Test.");
   uint16_t memoryAddress = eepromMemoryAddressForHour(1, 0);
   eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-  if(unTable.spHour.spT0on == -1){
+  if(unTable.spProg.spT0on == -1){
     prepareProg1();
     MYDEBUG_PRINTLN("REWRITTEN PROG N1");
   } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
