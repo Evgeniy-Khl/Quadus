@@ -164,10 +164,10 @@ void checkkey(uint8_t key){
       break;
     case 11:  //Заслінка MIN / MAX
         switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0,100); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0, 50); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1, 50); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_1: editBuff0 = incrVal(editBuff0, 50); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 100); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1, 50); break;
             case KEY_5: editBuff0 = settings.minFlap; editBuff1 = settings.maxFlap; break;
             case KEY_6:
                 settings.minFlap = (uint8_t)editBuff0;

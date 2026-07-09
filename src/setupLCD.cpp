@@ -162,8 +162,8 @@ void setClimatMode(){
 void setFlopLimit(){
     if(NEWSCREEN){
         NEWSCREEN = 0;
-        editBuff0 = settings.deviceNum;
-        editBuff1 = settings.special;
+        editBuff0 = settings.minFlap;
+        editBuff1 = settings.maxFlap;
     }
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61 MIN%3u",editBuff0);   //Заслiнка MIN ???
