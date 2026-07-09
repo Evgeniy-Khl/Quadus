@@ -66,7 +66,7 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length) {
 }
 
 // ----- Function for default table preparation ----------
-void prepareTable(int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
+void prepareTable(uint8_t prg, int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
     for (size_t i = 0; i < 24; i++){
       if(i <= 4 || i >= 22){  // Night mode
         unTable.spProg.spT0on = t0on - 50;  // -5.0°C
@@ -90,7 +90,7 @@ void prepareTable(int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
       unTable.spProg.flapMax = settings.maxFlap;
       unTable.spProg.flapCurr = settings.minFlap;
 
-      uint16_t memoryAddress = eepromMemoryAddressForHour(1, i);
+      uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
       byte res = eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
       MYDEBUG_PRINT("HOUR:"); MYDEBUG_PRINT(i); 
       MYDEBUG_PRINT("; ADD:"); MYDEBUG_PRINT(memoryAddress);
@@ -98,9 +98,9 @@ void prepareTable(int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off){
     }
 }
 
-void prepareProg(){
-    MYDEBUG_PRINTLN("PROGRAMM: 1");
-    prepareTable(220, 240, 180, 200); // 22.0, 24.0, 18.0, 20.0
+void prepareProg(uint8_t prg){
+    MYDEBUG_PRINT("PROGRAMM: "); MYDEBUG_PRINTLN(prg);
+    prepareTable(prg, 220, 240, 180, 200); // 22.0, 24.0, 18.0, 20.0
 }
 
 /**
@@ -108,12 +108,17 @@ void prepareProg(){
  */
 void testProgs(){
   MYDEBUG_PRINTLN("AT24C32 EEPROM Test.");
-  uint16_t memoryAddress = eepromMemoryAddressForHour(1, 0);
-  eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
-  if(unTable.spProg.spT0on == -1){
-    prepareProg();
-    MYDEBUG_PRINTLN("REWRITTEN PROG N1");
-  } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
+  
+  for (uint8_t p = 1; p <= 4; p++) {
+    uint16_t memoryAddress = eepromMemoryAddressForHour(p, 0);
+    eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+    if (unTable.spProg.spT0on == -1 || (uint16_t)unTable.spProg.spT0on == 0xFFFF) {
+        prepareProg(p);
+        MYDEBUG_PRINT("REWRITTEN PROG N"); MYDEBUG_PRINTLN(p);
+    } else {
+        MYDEBUG_PRINT("PROGRAMM N"); MYDEBUG_PRINT(p); MYDEBUG_PRINTLN(" Ok");
+    }
+  }
 }
 
 void checkAndApplyHourlyProgram() {
@@ -137,8 +142,8 @@ void checkAndApplyHourlyProgram() {
             
             // Если параметры заслонки некорректны (больше 100%), значит в EEPROM старый мусор
             if (unTable.spProg.flapMin > 100 || unTable.spProg.flapMax > 100 || unTable.spProg.flapCurr > 100) {
-                MYDEBUG_PRINTLN("EEPROM program values are invalid (>100%). Rewriting Program 1...");
-                prepareProg(); // Перезаписываем дефолтом
+                MYDEBUG_PRINT("EEPROM program values are invalid (>100%). Rewriting Program "); MYDEBUG_PRINTLN(currentProgram);
+                prepareProg(currentProgram); // Перезаписываем дефолтом
                 eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable)); // Перечитываем
             }
 
