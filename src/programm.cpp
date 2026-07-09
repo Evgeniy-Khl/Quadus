@@ -134,13 +134,23 @@ void checkAndApplyHourlyProgram() {
         
         // Проверяем, что в памяти записано что-то осмысленное (не пустая стертая память)
         if (unTable.spProg.spT0on != -1 && (uint16_t)unTable.spProg.spT0on != 0xFFFF) {
+            
+            // Если параметры заслонки некорректны (больше 100%), значит в EEPROM старый мусор
+            if (unTable.spProg.flapMin > 100 || unTable.spProg.flapMax > 100 || unTable.spProg.flapCurr > 100) {
+                MYDEBUG_PRINTLN("EEPROM program values are invalid (>100%). Rewriting Program 1...");
+                prepareProg(); // Перезаписываем дефолтом
+                eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable)); // Перечитываем
+            }
+
             settings.spT0on = unTable.spProg.spT0on;
             settings.spT0off = unTable.spProg.spT0off;
             settings.spT1on = unTable.spProg.spT1on;
             settings.spT1off = unTable.spProg.spT1off;
-            settings.minFlap = unTable.spProg.flapMin;
-            settings.maxFlap = unTable.spProg.flapMax;
-            settings.curFlap = unTable.spProg.flapCurr;
+            
+            // Безопасное присвоение с ограничением
+            settings.minFlap = (unTable.spProg.flapMin <= 100) ? unTable.spProg.flapMin : 0;
+            settings.maxFlap = (unTable.spProg.flapMax <= 100) ? unTable.spProg.flapMax : 100;
+            settings.curFlap = (unTable.spProg.flapCurr <= 100) ? unTable.spProg.flapCurr : settings.minFlap;
             
             MYDEBUG_PRINT("Hourly program "); MYDEBUG_PRINT(currentProgram);
             MYDEBUG_PRINT(" applied for hour "); MYDEBUG_PRINTLN(currentHour);
