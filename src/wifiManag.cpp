@@ -42,6 +42,17 @@ void setupWebServerRoutes() {
     server.on("/getvalues", HTTP_GET, respondsValues);
     server.on("/geteeprom", HTTP_GET, respondsEeprom);
     server.on("/seteeprom", HTTP_POST, acceptEeprom);
+    server.on("/getprogram", HTTP_GET, respondsProgram);
+    server.on("/setprogram", HTTP_POST, acceptProgram);
+    server.on("/program", HTTP_GET, []() {
+      File file = LittleFS.open("/program.html", "r");
+      if (!file) {
+          server.send(404, "text/plain", "program.html not found");
+          return;
+      }
+      streamFileChunked(file, "text/html");
+      file.close();
+    });
     
     // Manual control routes
     server.on("/switch", HTTP_GET, []() {

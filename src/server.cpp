@@ -329,69 +329,96 @@ void acceptEeprom() {
 }
 
 void respondsProgram() {
-    mode = SAVEPROG; 
-    interval = INTERVAL_1000;
-    uint8_t prg = settings.program;
-    
-    if (prg) {
-        JsonDocument doc;
-        for (int i = 1; i < 31; i++) {
-            JsonArray row = doc.add<JsonArray>();
-            row.add(settings.spT0on);
-            row.add(settings.spT0off);
-            row.add(settings.spT1on);
-            row.add(settings.spT1off);
-            row.add(settings.curFlap);
-            row.add(settings.timerOn);
-            row.add(settings.timerOff);
-            row.add(settings.water0on);
-            row.add(settings.water0off);
-            row.add(settings.water1on);
-            row.add(settings.water1off);
-            row.add(settings.water2on);
-            row.add(settings.water2off);
-        }
-        
-        String response;
-        serializeJson(doc, response);
-        server.send(200, "application/json", response);
-    } else {
-        server.send(404, "text/plain", "No program active");
+    uint8_t prg = 1;
+    if (server.hasArg("prg")) {
+        prg = server.arg("prg").toInt();
     }
-}
+    if (prg < 1 || prg > 4) prg = 1;
 
-void programDeser(String input) {
     JsonDocument doc;
-    DeserializationError error = deserializeJson(doc, input);
+    JsonArray arr = doc.to<JsonArray>();
 
-    if (error) {
-        MYDEBUG_PRINT("JSON deserialization error: ");
-        MYDEBUG_PRINTLN(error.c_str());
-        return;
+    for (uint8_t i = 0; i < 24; i++) {
+        uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
+        eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+        
+        JsonObject hourObj = arr.add<JsonObject>();
+        hourObj["hour"] = i;
+        hourObj["spT0on"] = unTable.spProg.spT0on / 10.0f;
+        hourObj["spT0off"] = unTable.spProg.spT0off / 10.0f;
+        hourObj["spT1on"] = unTable.spProg.spT1on / 10.0f;
+        hourObj["spT1off"] = unTable.spProg.spT1off / 10.0f;
+        hourObj["flapMin"] = unTable.spProg.flapMin;
+        hourObj["flapMax"] = unTable.spProg.flapMax;
+        hourObj["flapCurr"] = unTable.spProg.flapCurr;
+        hourObj["water2run"] = unTable.spProg.water2run;
     }
 
-    JsonArray data = doc["data"];
-    for (size_t i = 0; i < data.size() && i < 30; i++) {
-        JsonArray data_i = data[i];
-        if (data_i.size() >= 7) {
-            settings.spT0on = data_i[0];
-            settings.spT0off = data_i[1];
-            settings.spT1on = data_i[2];
-            settings.spT1off = data_i[3];
-            settings.curFlap = data_i[4];
-            settings.timerOn = data_i[5];
-            settings.timerOff = data_i[6];
-        }
-    }
+    String response;
+    serializeJson(doc, response);
+    server.send(200, "application/json", response);
+    tmrTelegramOff = 300;
 }
 
 void acceptProgram() {
+    uint8_t prg = 1;
+    if (server.hasArg("prg")) {
+        prg = server.arg("prg").toInt();
+    }
+    if (prg < 1 || prg > 4) prg = 1;
+
     if (server.hasArg("plain")) {
-        programDeser(server.arg("plain"));
-        mode = SAVEPROG; 
-        interval = INTERVAL_1000;
+        JsonDocument doc;
+        DeserializationError error = deserializeJson(doc, server.arg("plain"));
+        if (error) {
+            server.send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+            return;
+        }
+
+        JsonArray arr = doc.as<JsonArray>();
+        if (arr.size() != 24) {
+            server.send(400, "application/json", "{\"error\":\"Must contain exactly 24 hours\"}");
+            return;
+        }
+
+        for (uint8_t i = 0; i < 24; i++) {
+            JsonObject hourObj = arr[i];
+            
+            unTable.spProg.spT0on = (int16_t)round(hourObj["spT0on"].as<float>() * 10.0f);
+            unTable.spProg.spT0off = (int16_t)round(hourObj["spT0off"].as<float>() * 10.0f);
+            unTable.spProg.spT1on = (int16_t)round(hourObj["spT1on"].as<float>() * 10.0f);
+            unTable.spProg.spT1off = (int16_t)round(hourObj["spT1off"].as<float>() * 10.0f);
+            unTable.spProg.flapMin = hourObj["flapMin"].as<uint8_t>();
+            unTable.spProg.flapMax = hourObj["flapMax"].as<uint8_t>();
+            unTable.spProg.flapCurr = hourObj["flapCurr"].as<uint8_t>();
+            unTable.spProg.water2run = hourObj["water2run"].as<uint8_t>();
+
+            uint16_t memoryAddress = eepromMemoryAddressForHour(prg, i);
+            eepromWrBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+            yield();
+        }
+
+        // Если сохранили текущую активную программу, мгновенно применим ее настройки
+        if (settings.program == prg) {
+            if (timeinfo) {
+                uint8_t currentHour = timeinfo->tm_hour;
+                uint16_t memoryAddress = eepromMemoryAddressForHour(prg, currentHour);
+                eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+                
+                if (unTable.spProg.spT0on != -1 && (uint16_t)unTable.spProg.spT0on != 0xFFFF) {
+                    settings.spT0on = unTable.spProg.spT0on;
+                    settings.spT0off = unTable.spProg.spT0off;
+                    settings.spT1on = unTable.spProg.spT1on;
+                    settings.spT1off = unTable.spProg.spT1off;
+                    settings.minFlap = (unTable.spProg.flapMin <= 100) ? unTable.spProg.flapMin : 0;
+                    settings.maxFlap = (unTable.spProg.flapMax <= 100) ? unTable.spProg.flapMax : 100;
+                    settings.curFlap = (unTable.spProg.flapCurr <= 100) ? unTable.spProg.flapCurr : settings.minFlap;
+                }
+            }
+        }
+
         server.send(200, "application/json", "{\"status\":\"ok\"}");
-        DEBUG_PRINTLN("Program accepted and processed");
+        DEBUG_PRINTLN("Hourly program updated");
     } else {
         server.send(400, "application/json", "{\"error\":\"no data\"}");
     }
