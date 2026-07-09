@@ -219,7 +219,6 @@ void loop(){
       logicManager.updateStatusLeds();
 
       // Update servo motor position (flap)
-      pvFlap = settings.curFlap;
       incubatorServo.write(pvFlap);
 
       if(setupNum == 0) displSwitch(); else setupSwitch();

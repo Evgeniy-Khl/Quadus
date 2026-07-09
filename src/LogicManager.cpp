@@ -242,6 +242,12 @@ void LogicManager::processAlarm(uint8_t cn) {
         if (val <= maxVal) reached = true;
     }
 
+    if (cn == 0){   // только для температуры
+        if (val >= (maxVal + alarmVal)) pvFlap = settings.maxFlap;
+        else if (val <= (minVal - alarmVal)) pvFlap = settings.minFlap;
+        else pvFlap = settings.curFlap;
+    }
+    
     if (cn) {
         if (!REACHED1 && reached) sysLogger.log(getMsg(MSG_CLIMATE_T2_REACHED));
         REACHED1 = reached;
