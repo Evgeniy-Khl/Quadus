@@ -150,17 +150,35 @@ void checkkey(uint8_t key){
             case KEY_8: displDecr(); break;
         }
       break;
-    case 10:  // setClimatMode()
+    case 10:  // setClimatMode() Номер, Ожидание  WiFi
         waitCheckKeyPad = WAITCHECKKEYPAD * 5;
         switch (key){
             case KEY_1: if(++settings.modeHeater > 1) settings.modeHeater = 0; break;
             case KEY_2: if(++settings.modeHumidi > 1) settings.modeHumidi = 0; break;
+            case KEY_3: if(++settings.deviceNum  > 9) settings.deviceNum  = 0; break;
+            case KEY_4: if(++settings.special    > 3) settings.special    = 0; break;
             case KEY_6: doSave(); break;
             case KEY_7: displIncr(); break;
             case KEY_8: displDecr(); break;
         }
       break;
-    case 11:  //Заслінка / Програма
+    case 11:  //Заслінка MIN / MAX
+        switch (key){
+            case KEY_1: editBuff0 = incrVal(editBuff0,100); break;
+            case KEY_2: editBuff0 = decrVal(editBuff0, 50); break;
+            case KEY_3: editBuff1 = incrVal(editBuff1, 50); break;
+            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
+            case KEY_5: editBuff0 = settings.minFlap; editBuff1 = settings.maxFlap; break;
+            case KEY_6:
+                settings.minFlap = (uint8_t)editBuff0;
+                settings.maxFlap = (uint8_t)editBuff1;
+                doSave();
+              break;
+            case KEY_7: displIncr(); break;
+            case KEY_8: displDecr(); break;
+        }  
+      break;
+    case 12:  //Заслінка / Програма
         switch (key){
             case KEY_1: editBuff0 = incrVal(editBuff0, 100); break;
             case KEY_2: editBuff0 = decrVal(editBuff0,   0); break;
@@ -170,22 +188,6 @@ void checkkey(uint8_t key){
             case KEY_6:
                 settings.curFlap = (uint8_t)editBuff0;
                 settings.program = (uint8_t)editBuff1;
-                doSave();
-              break;
-            case KEY_7: displIncr(); break;
-            case KEY_8: displDecr(); break;
-        }  
-      break;
-    case 12:  //Номер / Спец
-        switch (key){
-            case KEY_1: editBuff0 = incrVal(editBuff0, 99); break;
-            case KEY_2: editBuff0 = decrVal(editBuff0,  0); break;
-            case KEY_3: editBuff1 = incrVal(editBuff1,  3); break;
-            case KEY_4: editBuff1 = decrVal(editBuff1,  0); break;
-            case KEY_5: editBuff0 = settings.deviceNum; editBuff1 = settings.special; break;
-            case KEY_6:
-                settings.deviceNum = (uint8_t)editBuff0;
-                settings.special = (uint8_t)editBuff1;
                 doSave();
               break;
             case KEY_7: displIncr(); break;

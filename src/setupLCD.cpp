@@ -138,24 +138,39 @@ void setAlarm(){
 // ------------------- setupNum=9 modeRelay1, modeRelay2, modeRelay3 -
 void setRelayMode(){
     lcd.setCursor(0,0);
-    myPrint(settingUp, sizeof(settingUp));
+    myPrint(settingUp, sizeof(settingUp));  // Налаштування
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
         "R1=%d R2=%d R3=%d  ", settings.modeRelay1, settings.modeRelay2, settings.modeRelay3);
     lcd.print(displStr);
 }
 
-// ------------------- setupNum=10 modeHeater, modeHumidi ------------
+// ------------------- setupNum=10 modeHeater, modeHumidi, Прибор номер ?, Режим  WiFi  ? ------------
 void setClimatMode(){
     lcd.setCursor(0,0);
-    myPrint(settingUp, sizeof(settingUp));
+    snprintf(displStr, sizeof(displStr),
+        "\x48\x61\xB4\x70\x2E=%d \xA4\xB3\x6F\xBB\x2E=%d ", settings.modeHeater, settings.modeHumidi);// Нагр.=x Звол.=x
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
-        "\x48\x61\xB4\x70\x2E=%d \xA4\xB3\x6F\xBB\x2E=%d ", settings.modeHeater, settings.modeHumidi);
+        "ID=%d   WiFi = %d ", settings.deviceNum, settings.special);// ID=x WiFi=x
     lcd.print(displStr);
 }
 
-// ------------------- setupNum=11 ------------------------------
+// ------------------- setupNum=11 Заслонка MIN / MAX ------------------------------
+void setFlopLimit(){
+    if(NEWSCREEN){
+        NEWSCREEN = 0;
+        editBuff0 = settings.deviceNum;
+        editBuff1 = settings.special;
+    }
+    lcd.setCursor(0,0);
+    snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61 MIN%3u",editBuff0);   //Заслiнка MIN ???
+    lcd.print(displStr);
+    lcd.setCursor(0,1);
+    snprintf(displStr, sizeof(displStr),"\xA4\x61\x63\xBB\x69\xBD\xBA\x61 MAX%2u",editBuff1);   //Заслiнка MAX ???
+    lcd.print(displStr);
+}
+// ------------------- setupNum=12 ------------------------------
 void setFlapProg(){
     if(NEWSCREEN){
         NEWSCREEN = 0;
@@ -170,20 +185,6 @@ void setFlapProg(){
     lcd.print(displStr);
 }
 
-// ------------------- setupNum=12 ------------------------------
-void setDevSpec(){
-    if(NEWSCREEN){
-        NEWSCREEN = 0;
-        editBuff0 = settings.deviceNum;
-        editBuff1 = settings.special;
-    }
-    lcd.setCursor(0,0);
-    snprintf(displStr, sizeof(displStr),"\xA8\x70\xB8\xB2\x6F\x70 \xBD\x6F\xBC\x65\x70%2u",editBuff0);  //Прибор номер ?
-    lcd.print(displStr);
-    lcd.setCursor(0,1);
-    snprintf(displStr, sizeof(displStr),"\x50\x65\xB6\xB8\xBC  WiFi %2u",editBuff1);                   //Режим  WiFi  ?
-    lcd.print(displStr);
-}
 void setupSwitch(){
     switch (setupNum){
         case 1: setup1(); break;
@@ -196,8 +197,8 @@ void setupSwitch(){
         case 8: setAlarm(); break;
         case 9: setRelayMode(); break;
         case 10: setClimatMode(); break;
-        case 11: setFlapProg(); break;
-        case 12: setDevSpec(); break;
+        case 11: setFlopLimit(); break;
+        case 12: setFlapProg(); break;
         default: break;
     }
 }

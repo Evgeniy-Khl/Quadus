@@ -9,8 +9,8 @@ void setLight();
 void setAlarm();
 void setPermissionsRelay();
 void setupSwitch();
+void setFlopLimit();
 void setFlapProg();
-void setDevSpec();
 void switchTimeOff(uint8_t item, uint8_t point);
 // void myPrint(const uint8_t* data, uint8_t size);
 
