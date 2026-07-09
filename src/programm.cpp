@@ -115,3 +115,61 @@ void testProgs(){
     MYDEBUG_PRINTLN("REWRITTEN PROG N1");
   } else MYDEBUG_PRINTLN("PROGRAMM N1 Ok");
 }
+
+void checkAndApplyHourlyProgram() {
+    if (settings.program == 0) return;
+    if (!RTCENABLE || !timeinfo) return;
+
+    static int8_t lastHour = -1;
+    static uint8_t lastProgram = 0;
+    uint8_t currentHour = timeinfo->tm_hour;
+    uint8_t currentProgram = settings.program;
+
+    if (currentHour != lastHour || currentProgram != lastProgram) {
+        lastHour = currentHour;
+        lastProgram = currentProgram;
+        
+        uint16_t memoryAddress = eepromMemoryAddressForHour(currentProgram, currentHour);
+        eepromRdBuff(memoryAddress, unTable.buffer, sizeof(unTable));
+        
+        // Проверяем, что в памяти записано что-то осмысленное (не пустая стертая память)
+        if (unTable.spProg.spT0on != -1 && (uint16_t)unTable.spProg.spT0on != 0xFFFF) {
+            settings.spT0on = unTable.spProg.spT0on;
+            settings.spT0off = unTable.spProg.spT0off;
+            settings.spT1on = unTable.spProg.spT1on;
+            settings.spT1off = unTable.spProg.spT1off;
+            settings.minFlap = unTable.spProg.flapMin;
+            settings.maxFlap = unTable.spProg.flapMax;
+            settings.curFlap = unTable.spProg.flapCurr;
+            
+            MYDEBUG_PRINT("Hourly program "); MYDEBUG_PRINT(currentProgram);
+            MYDEBUG_PRINT(" applied for hour "); MYDEBUG_PRINTLN(currentHour);
+
+            char logMsg[128];
+            #if defined(LANG_RU)
+            snprintf(logMsg, sizeof(logMsg), "Программа %u: Применен час %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслонка=%u%% (мин:%u%%, макс:%u%%)",
+                     currentProgram, currentHour,
+                     settings.spT0on / 10.0f, settings.spT0off / 10.0f,
+                     settings.spT1on / 10.0f, settings.spT1off / 10.0f,
+                     settings.curFlap, settings.minFlap, settings.maxFlap);
+            #elif defined(LANG_UA)
+            snprintf(logMsg, sizeof(logMsg), "Програма %u: Застосовано годину %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслінка=%u%% (мін:%u%%, макс:%u%%)",
+                     currentProgram, currentHour,
+                     settings.spT0on / 10.0f, settings.spT0off / 10.0f,
+                     settings.spT1on / 10.0f, settings.spT1off / 10.0f,
+                     settings.curFlap, settings.minFlap, settings.maxFlap);
+            #else // Default to English
+            snprintf(logMsg, sizeof(logMsg), "Program %u: Hour %u applied. Settings: T0=%.1f..%.1f, T1=%.1f..%.1f, Flap=%u%% (min:%u%%, max:%u%%)",
+                     currentProgram, currentHour,
+                     settings.spT0on / 10.0f, settings.spT0off / 10.0f,
+                     settings.spT1on / 10.0f, settings.spT1off / 10.0f,
+                     settings.curFlap, settings.minFlap, settings.maxFlap);
+            #endif
+            sysLogger.log(logMsg);
+        } else {
+            MYDEBUG_PRINT("Hourly program "); MYDEBUG_PRINT(currentProgram);
+            MYDEBUG_PRINT(" for hour "); MYDEBUG_PRINT(currentHour);
+            MYDEBUG_PRINTLN(" is empty, not applied.");
+        }
+    }
+}

@@ -189,6 +189,7 @@ void loop(){
       }
       time_t utc_time = time(nullptr);
       timeinfo = localtime(&utc_time);
+      checkAndApplyHourlyProgram();
       #ifndef SIMULATION  
         sensorCheck();                                                  // Опрос датчиков должен быть всегда
       #else

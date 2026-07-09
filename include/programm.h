@@ -8,5 +8,6 @@ void eepromRdBuff(uint16_t memoryAddress, uint8_t* buffer, uint8_t length);
 void prepareTable(int16_t t0on, int16_t t0off, int16_t t1on, int16_t t1off);
 void prepareProg();
 void testProgs();
+void checkAndApplyHourlyProgram();
 
 #endif /* PROGRAMM_H */
