@@ -146,13 +146,15 @@ void setRelayMode(){
 }
 
 // ------------------- setupNum=10 modeHeater, modeHumidi, Прибор номер ?, Режим  WiFi  ? ------------
+// Heater relay mode: 0=Heat, 1=Cool
+// Humidifier relay mode: 0=Humidify, 1=Dehumidify
 void setClimatMode(){
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),
-        "\x48\x61\xB4\x70\x2E=%d \xA4\xB3\x6F\xBB\x2E=%d ", settings.modeHeater, settings.modeHumidi);// Нагр.=x Звол.=x
+        "\x4F\x78\x6F\xBB\x2E=%d \x4F\x63\x79\xC1\x2E=%d ", settings.modeHeater, settings.modeHumidi);// Охол.=x Осуш.=x
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
-        "ID=%d   WiFi = %d ", settings.deviceNum, settings.special);// ID=x WiFi=x
+        "ID=%d   WiFi = %d ", settings.deviceNum, settings.special);// ID=x   WiFi=x
     lcd.print(displStr);
 }
 
