@@ -155,15 +155,15 @@ void checkAndApplyHourlyProgram() {
             MYDEBUG_PRINT("Hourly program "); MYDEBUG_PRINT(currentProgram);
             MYDEBUG_PRINT(" applied for hour "); MYDEBUG_PRINTLN(currentHour);
 
-            char logMsg[128];
+            char logMsg[132];
             #if defined(LANG_RU)
-            snprintf(logMsg, sizeof(logMsg), "Программа %u: Применен час %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслонка=%u%% (мин:%u%%, макс:%u%%)",
+            snprintf(logMsg, sizeof(logMsg), "Программа %u: Час %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслонка=%u%% (мин:%u%%, макс:%u%%)",
                      currentProgram, currentHour,
                      settings.spT0on / 10.0f, settings.spT0off / 10.0f,
                      settings.spT1on / 10.0f, settings.spT1off / 10.0f,
                      settings.curFlap, settings.minFlap, settings.maxFlap);
             #elif defined(LANG_UA)
-            snprintf(logMsg, sizeof(logMsg), "Програма %u: Застосовано годину %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслінка=%u%% (мін:%u%%, макс:%u%%)",
+            snprintf(logMsg, sizeof(logMsg), "Програма %u: Година %u. Уставки: T0=%.1f..%.1f, T1=%.1f..%.1f, Заслінка=%u%% (мін:%u%%, макс:%u%%)",
                      currentProgram, currentHour,
                      settings.spT0on / 10.0f, settings.spT0off / 10.0f,
                      settings.spT1on / 10.0f, settings.spT1off / 10.0f,

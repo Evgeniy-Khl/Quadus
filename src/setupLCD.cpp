@@ -152,6 +152,7 @@ void setClimatMode(){
     lcd.setCursor(0,0);
     snprintf(displStr, sizeof(displStr),
         "\x4F\x78\x6F\xBB\x2E=%d \x4F\x63\x79\xC1\x2E=%d ", settings.modeHeater, settings.modeHumidi);// Охол.=x Осуш.=x
+    lcd.print(displStr);
     lcd.setCursor(0,1);
     snprintf(displStr, sizeof(displStr),
         "ID=%d   WiFi = %d ", settings.deviceNum, settings.special);// ID=x   WiFi=x
